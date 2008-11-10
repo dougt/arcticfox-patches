@@ -1,0 +1,519 @@
+diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in
+--- a/nsprpub/config/autoconf.mk.in
++++ b/nsprpub/config/autoconf.mk.in
+@@ -72,23 +72,26 @@ MT		= @MT@
+ MT		= @MT@
+ 
+ OS_CPPFLAGS	= @CPPFLAGS@
+ OS_CFLAGS	= $(OS_CPPFLAGS) @CFLAGS@ $(DSO_CFLAGS)
+ OS_CXXFLAGS	= $(OS_CPPFLAGS) @CXXFLAGS@ $(DSO_CFLAGS)
+ OS_LIBS         = @OS_LIBS@
+ OS_LDFLAGS	= @LDFLAGS@
+ OS_DLLFLAGS	= @OS_DLLFLAGS@
++OS_FRAMEWORKS   = @OS_FRAMEWORKS@
+ DLLFLAGS	= @DLLFLAGS@
+ EXEFLAGS  = @EXEFLAGS@
+ OPTIMIZER	= @OPTIMIZER@
+ 
+ MKSHLIB		= @MKSHLIB@
+ DSO_CFLAGS	= @DSO_CFLAGS@
+ DSO_LDOPTS	= @DSO_LDOPTS@
++BUNDLE_DSO_LDOPTS	= @BUNDLE_DSO_LDOPTS@
++LDOPTS		= @LDOPTS@
+ 
+ RESOLVE_LINK_SYMBOLS = @RESOLVE_LINK_SYMBOLS@
+ 
+ HOST_CC		= @HOST_CC@
+ HOST_CFLAGS	= @HOST_CFLAGS@
+ HOST_LDFLAGS	= @HOST_LDFLAGS@
+ 
+ DEFINES		= @DEFINES@ @DEFS@
+diff --git a/nsprpub/config/config.mk b/nsprpub/config/config.mk
+--- a/nsprpub/config/config.mk
++++ b/nsprpub/config/config.mk
+@@ -157,8 +157,12 @@ endif
+ 
+ # RELEASE_DIR is ns/dist/<module name>
+ 
+ RELEASE_DIR = $(MOD_DEPTH)/dist/release/$(MOD_NAME)
+ 
+ RELEASE_INCLUDE_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/include
+ RELEASE_BIN_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/bin
+ RELEASE_LIB_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/lib
++
++ifdef ARM
++DEFINES+= -D__arm__
++endif
+\ No newline at end of file
+diff --git a/nsprpub/configure b/nsprpub/configure
+--- a/nsprpub/configure
++++ b/nsprpub/configure
+@@ -1207,16 +1207,22 @@ fi
+ fi
+ rm -f conftest*
+ 
+     CC=$_SAVE_CC
+     CFLAGS=$_SAVE_CFLAGS
+     LDFLAGS=$_SAVE_LDFLAGS
+ 
+     case "$build:$target" in 
++      *darwin*:arm-apple-darwin8)
++        _SAVE_CFLAGS=$CFLAGS
++        _SAVE_CXXFLAGS=$CXXLAGS
++        CFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CFLAGS"
++        CXXFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CXXFLAGS"
++        ;;
+       powerpc-apple-darwin8*:i?86-apple-darwin*)
+                                                 _SAVE_CFLAGS=$CFLAGS 
+         _SAVE_CXXFLAGS=$CXXLAGS
+         CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CFLAGS"
+         CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CXXFLAGS"
+         ;;        
+     esac            
+ 
+@@ -3347,16 +3353,28 @@ EOF
+ EOF
+ 
+     cat >> confdefs.h <<\EOF
+ #define HAVE_SOCKLEN_T 1
+ EOF
+ 
+     CFLAGS="$CFLAGS -Wmost -fno-common"
+     case "${target_cpu}" in
++        arm*)
++            cat >> confdefs.h <<\EOF
++#define arm 1
++EOF
++
++            cat >> confdefs.h <<\EOF
++#define ARM 1
++EOF
++
++            CPU_ARCH=ARM
++            PR_MD_ASFILES=os_Darwin_arm.s
++            ;;
+         i*86*)
+             if test -n "$USE_64"; then
+                 CPU_ARCH=x86_64
+                 CC="$CC -arch x86_64"
+             else        
+                 CPU_ARCH=i386
+             fi
+             ;;
+diff --git a/nsprpub/configure.in b/nsprpub/configure.in
+--- a/nsprpub/configure.in
++++ b/nsprpub/configure.in
+@@ -430,40 +430,55 @@ if test "$target" != "$host"; then
+         [ac_cv_prog_host_cc_works=1 AC_MSG_RESULT([yes])],
+         AC_MSG_ERROR([installation or configuration problem: $host compiler $HOST_CC cannot create executables.]) )
+ 
+     CC=$_SAVE_CC
+     CFLAGS=$_SAVE_CFLAGS
+     LDFLAGS=$_SAVE_LDFLAGS
+ 
+     case "$build:$target" in 
++      *darwin*:arm-apple-darwin8)
++        _SAVE_CFLAGS=$CFLAGS
++        _SAVE_CXXFLAGS=$CXXLAGS
++        CFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CFLAGS"
++        CXXFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CXXFLAGS"
++        ;;
+       powerpc-apple-darwin8*:i?86-apple-darwin*)
+         dnl The Darwin cross compiler doesn't necessarily point itself at a
+         dnl root that has libraries for the proper architecture, it defaults
+         dnl to the system root.  The libraries in the system root on current
+         dnl versions of PPC OS X 10.4 aren't fat, so these target compiler
+         dnl checks will fail.  Fake a working SDK in that case.
+         _SAVE_CFLAGS=$CFLAGS 
+         _SAVE_CXXFLAGS=$CXXLAGS
+         CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CFLAGS"
+         CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CXXFLAGS"
++        ;;
++      *-apple-darwin*:arm-apple-darwin*)
++        dnl The arm compiler doesn't appear to know about its root by default,
++        dnl so explicitly pass it one here. Later on we'll put this in CFLAGS
++        dnl anyway.
++        _SAVE_CFLAGS=$CFLAGS
++        _SAVE_CXXFLAGS=$CXXLAGS
++        CFLAGS="-isysroot $MACOS_SDK_DIR $CFLAGS"
++        CXXFLAGS="-isysroot $MACOS_SDK_DIR $CXXFLAGS"
+         ;;        
+     esac            
+ 
+     AC_CHECK_PROGS(CC, $CC "${target_alias}-gcc" "${target}-gcc", echo)
+     unset ac_cv_prog_CC
+     AC_PROG_CC
+     if test -n "$USE_CPLUS"; then
+         AC_CHECK_PROGS(CXX, $CXX "${target_alias}-g++" "${target}-g++", echo)
+         unset ac_cv_prog_CXX
+         AC_PROG_CXX
+     fi
+ 
+     case "$build:$target" in
+-      powerpc-apple-darwin8*:i?86-apple-darwin*)
++      powerpc-apple-darwin8*:i?86-apple-darwin*|*-apple-darwin*:arm-apple-darwin*)
+         dnl Revert the changes made above.  From this point on, the target
+         dnl compiler will never be used without applying the SDK to CFLAGS
+         dnl (see --with-macos-sdk below).
+         CFLAGS=$_SAVE_CFLAGS
+         CXXFLAGS=$_SAVE_CXXFLAGS
+         ;;
+     esac
+ 
+@@ -994,41 +1009,62 @@ case "$target" in
+ 
+ *-darwin*)
+     AC_DEFINE(XP_UNIX)
+     AC_DEFINE(DARWIN)
+     AC_DEFINE(HAVE_BSD_FLOCK)
+     AC_DEFINE(HAVE_SOCKLEN_T)
+     CFLAGS="$CFLAGS -Wmost -fno-common"
+     case "${target_cpu}" in
++        arm*)
++            AC_DEFINE(arm)
++            AC_DEFINE(ARM)
++            CPU_ARCH=ARM
++            PR_MD_ASFILES=os_Darwin_arm.s
++            ;;
+         i*86*)
+             if test -n "$USE_64"; then
+                 CPU_ARCH=x86_64
+                 CC="$CC -arch x86_64"
+             else        
+                 CPU_ARCH=i386
+             fi
+             ;;
+         *)
+             CPU_ARCH=ppc
+             ;;
+     esac
+     DSO_CFLAGS=-fPIC
+     DSO_LDOPTS='-dynamiclib -compatibility_version 1 -current_version 1 -all_load -install_name @executable_path/$@ -headerpad_max_install_names'
++    BUNDLE_DSO_LDOPTS="-arch ${target_cpu} -bundle"
++    DSO_LDOPTS="-arch ${target_cpu} $DSO_LDOPTS"
++    LDOPTS="-arch ${target_cpu} -isysroot ${MACOS_SDK_DIR}"
++
+     MKSHLIB='$(CC) $(DSO_LDOPTS) -o $@'
+     STRIP="$STRIP -x -S"
+     DLL_SUFFIX=dylib
+     USE_PTHREADS=1
+     MDCPUCFG_H=_darwin.cfg
+     PR_MD_CSRCS=darwin.c
+     PR_MD_ASFILES=os_Darwin.s
+ 
+     # Add Mac OS X support for loading CFM & CFBundle plugins
+     if test -f /System/Library/Frameworks/Carbon.framework/Carbon; then
+-        AC_DEFINE(XP_MACOSX)
++        case "${target_cpu}" in
++              arm*)
++                dnl XXX: need a better way to detect iPhone than target=arm,
++                dnl since you can compile for the x86 simulator.
++                dnl iPhone doesn't have Carbon, so don't bother.
++                AC_DEFINE(XP_IPHONE)
++                ;;
++              *)
++                AC_DEFINE(XP_MACOSX)
++                OS_FRAMEWORKS="-framework CoreServices -framework CoreFoundation"
++                ;;
++        esac
+         OS_TARGET=MacOSX
+ 
+         if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
+             dnl Use the specified value
+             export MACOSX_DEPLOYMENT_TARGET=$_MACOSX_DEPLOYMENT_TARGET
+         elif test -z "$MACOSX_DEPLOYMENT_TARGET" ; then
+             dnl No value specified on the command line or in the environment,
+             dnl use the lesser of the library's minimum or the architecture's
+@@ -2740,16 +2776,18 @@ AC_SUBST(CPU_ARCH)
+ 
+ AC_SUBST(OBJ_SUFFIX)
+ AC_SUBST(LIB_SUFFIX)
+ AC_SUBST(DLL_SUFFIX)
+ AC_SUBST(ASM_SUFFIX)
+ AC_SUBST(MKSHLIB)
+ AC_SUBST(DSO_CFLAGS)
+ AC_SUBST(DSO_LDOPTS)
++AC_SUBST(BUNDLE_DSO_LDOPTS)
++AC_SUBST(LDOPTS)
+ 
+ AC_SUBST(OS_TARGET)
+ AC_SUBST(OS_ARCH)
+ AC_SUBST(OS_RELEASE)
+ AC_SUBST(OS_TEST)
+ AC_SUBST(MACOSX_DEPLOYMENT_TARGET)
+ 
+ AC_SUBST(DEFINES)
+@@ -2783,16 +2821,17 @@ AC_SUBST(EXEFLAGS)
+ AC_SUBST(EXEFLAGS)
+ AC_SUBST(OS_DLLFLAGS)
+ AC_SUBST(CYGWIN_WRAPPER)
+ AC_SUBST(VISIBILITY_FLAGS)
+ AC_SUBST(WRAP_SYSTEM_INCLUDES)
+ AC_SUBST(MACOS_SDK_DIR)
+ AC_SUBST(NEXT_ROOT)
+ AC_SUBST(MT)
++AC_SUBST(OS_FRAMEWORKS)
+ 
+ dnl ========================================================
+ dnl Generate output files.
+ dnl ========================================================
+ MAKEFILES="
+ Makefile 
+ config/Makefile
+ config/autoconf.mk
+diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
+--- a/nsprpub/pr/include/md/_darwin.h
++++ b/nsprpub/pr/include/md/_darwin.h
+@@ -49,27 +49,29 @@
+ #define PR_LINKER_ARCH	"darwin"
+ #define _PR_SI_SYSNAME  "DARWIN"
+ #ifdef __i386__
+ #define _PR_SI_ARCHITECTURE "x86"
+ #elif defined(__x86_64__)
+ #define _PR_SI_ARCHITECTURE "x86-64"
+ #elif defined(__ppc__)
+ #define _PR_SI_ARCHITECTURE "ppc"
++#elif defined(__arm__)
++#define _PR_SI_ARCHITECTURE "arm"
+ #endif
+ #define PR_DLL_SUFFIX		".dylib"
+ 
+ #define _PR_VMBASE              0x30000000
+ #define _PR_STACK_VMBASE	0x50000000
+ #define _MD_DEFAULT_STACK_SIZE	65536L
+ #define _MD_MMAP_FLAGS          MAP_PRIVATE
+ 
+ #undef  HAVE_STACK_GROWING_UP
+ #define HAVE_DLL
+-#ifdef __x86_64__
++#if defined(__x86_64__) || defined(__arm__)
+ #define USE_DLFCN
+ #else
+ #define USE_MACH_DYLD
+ #endif
+ #define _PR_HAVE_SOCKADDR_LEN  
+ #define _PR_STAT_HAS_ST_ATIMESPEC
+ #define _PR_HAVE_LARGE_OFF_T
+ #define PR_HAVE_SYSV_NAMED_SHARED_MEMORY
+@@ -116,28 +118,43 @@ extern PRInt32 _PR_DarwinPPC_AtomicDecre
+ extern PRInt32 _PR_DarwinPPC_AtomicDecrement(PRInt32 *val);
+ #define _MD_ATOMIC_DECREMENT(val)   _PR_DarwinPPC_AtomicDecrement(val)
+ extern PRInt32 _PR_DarwinPPC_AtomicSet(PRInt32 *val, PRInt32 newval);
+ #define _MD_ATOMIC_SET(val, newval) _PR_DarwinPPC_AtomicSet(val, newval)
+ extern PRInt32 _PR_DarwinPPC_AtomicAdd(PRInt32 *ptr, PRInt32 val);
+ #define _MD_ATOMIC_ADD(ptr, val)    _PR_DarwinPPC_AtomicAdd(ptr, val)
+ #endif /* __ppc__ */
+ 
++// #else //__arm isn't getting defined
++ //#elif defined(__arm__) 
++ #define _PR_HAVE_ATOMIC_OPS
++ #define _MD_INIT_ATOMIC()
++ extern PRInt32 _PR_Darwin_ARM_AtomicIncrement(PRInt32 *val);
++ #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_ARM_AtomicIncrement(val)
++ extern PRInt32 _PR_Darwin_ARM_AtomicDecrement(PRInt32 *val);
++ #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_ARM_AtomicDecrement(val)
++ extern PRInt32 _PR_Darwin_ARM_AtomicSet(PRInt32 *val, PRInt32 newval);
++ #define _MD_ATOMIC_SET(val, newval) _PR_Darwin_ARM_AtomicSet(val, newval)
++ extern PRInt32 _PR_Darwin_ARM_AtomicAdd(PRInt32 *ptr, PRInt32 val);
++ #define _MD_ATOMIC_ADD(ptr, val)    _PR_Darwin_ARM_AtomicAdd(ptr, val)
++
++#if 0
+ #ifdef __i386__
+ #define _PR_HAVE_ATOMIC_OPS
+ #define _MD_INIT_ATOMIC()
+ extern PRInt32 _PR_Darwin_x86_AtomicIncrement(PRInt32 *val);
+ #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_x86_AtomicIncrement(val)
+ extern PRInt32 _PR_Darwin_x86_AtomicDecrement(PRInt32 *val);
+ #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_x86_AtomicDecrement(val)
+ extern PRInt32 _PR_Darwin_x86_AtomicSet(PRInt32 *val, PRInt32 newval);
+ #define _MD_ATOMIC_SET(val, newval) _PR_Darwin_x86_AtomicSet(val, newval)
+ extern PRInt32 _PR_Darwin_x86_AtomicAdd(PRInt32 *ptr, PRInt32 val);
+ #define _MD_ATOMIC_ADD(ptr, val)    _PR_Darwin_x86_AtomicAdd(ptr, val)
+ #endif /* __i386__ */
++#endif
+ 
+ #ifdef __x86_64__
+ #define _PR_HAVE_ATOMIC_OPS
+ #define _MD_INIT_ATOMIC()
+ extern PRInt32 _PR_Darwin_x86_64_AtomicIncrement(PRInt32 *val);
+ #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_x86_64_AtomicIncrement(val)
+ extern PRInt32 _PR_Darwin_x86_64_AtomicDecrement(PRInt32 *val);
+ #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_x86_64_AtomicDecrement(val)
+diff --git a/nsprpub/pr/src/Makefile.in b/nsprpub/pr/src/Makefile.in
+--- a/nsprpub/pr/src/Makefile.in
++++ b/nsprpub/pr/src/Makefile.in
+@@ -197,17 +197,17 @@ ifdef NS_USE_GCC
+ ifdef NS_USE_GCC
+ OS_LIBS		= -ladvapi32 -lwsock32 -lwinmm
+ else
+ OS_LIBS		= advapi32.lib wsock32.lib winmm.lib
+ endif
+ endif
+ 
+ ifeq ($(OS_TARGET),MacOSX)
+-OS_LIBS		= -framework CoreServices -framework CoreFoundation
++OS_LIBS		= $(OS_FRAMEWORKS)
+ endif
+ 
+ ifdef GC_LEAK_DETECTOR
+ EXTRA_LIBS	= -L$(dist_libdir) -lboehm
+ endif
+ 
+ EXTRA_LIBS += $(OS_LIBS)
+ 
+diff --git a/nsprpub/pr/src/md/unix/os_Darwin.s b/nsprpub/pr/src/md/unix/os_Darwin.s
+--- a/nsprpub/pr/src/md/unix/os_Darwin.s
++++ b/nsprpub/pr/src/md/unix/os_Darwin.s
+@@ -31,15 +31,17 @@
+ # use your version of this file under the terms of the MPL, indicate your
+ # decision by deleting the provisions above and replace them with the notice
+ # and other provisions required by the GPL or the LGPL. If you do not delete
+ # the provisions above, a recipient may use your version of this file under
+ # the terms of any one of the MPL, the GPL or the LGPL.
+ #
+ # ***** END LICENSE BLOCK *****
+ 
+-#ifdef __i386__
++#if defined(arm)
++#include "os_Darwin_arm.s"
++#elif defined(__i386__)
+ #include "os_Darwin_x86.s"
+ #elif defined(__x86_64__)
+ #include "os_Darwin_x86_64.s"
+ #elif defined(__ppc__)
+ #include "os_Darwin_ppc.s"
+ #endif
+diff --git a/nsprpub/pr/src/md/unix/os_Darwin_arm.s b/nsprpub/pr/src/md/unix/os_Darwin_arm.s
+new file mode 100644
+--- /dev/null
++++ b/nsprpub/pr/src/md/unix/os_Darwin_arm.s
+@@ -0,0 +1,34 @@
++	.text
++.globl __PR_Darwin_ARM_AtomicIncrement
++__PR_Darwin_ARM_AtomicIncrement:
++	pushl	%ebp
++	movl	%esp, %ebp
++	subl	$8, %esp
++	movl	$0, %eax
++	leave
++	ret
++.globl __PR_Darwin_ARM_AtomicDecrement
++__PR_Darwin_ARM_AtomicDecrement:
++	pushl	%ebp
++	movl	%esp, %ebp
++	subl	$8, %esp
++	movl	$0, %eax
++	leave
++	ret
++.globl __PR_Darwin_ARM_AtomicSet
++__PR_Darwin_ARM_AtomicSet:
++	pushl	%ebp
++	movl	%esp, %ebp
++	subl	$8, %esp
++	movl	$0, %eax
++	leave
++	ret
++.globl __PR_Darwin_ARM_AtomicAdd
++__PR_Darwin_ARM_AtomicAdd:
++	pushl	%ebp
++	movl	%esp, %ebp
++	subl	$8, %esp
++	movl	$0, %eax
++	leave
++	ret
++	.subsections_via_symbols
+diff --git a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s b/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
+--- a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
++++ b/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
+@@ -36,61 +36,52 @@
+ #
+ # ***** END LICENSE BLOCK *****
+ 
+ #
+ # Based on the programming examples in The PowerPC Architecture:
+ # A Specification for A New Family of RISC Processors, 2nd Ed.,
+ # Book I, Section E.1, "Synchronization," pp. 249-256, May 1994.
+ #
+-
+-.text
+-
++        .text
+ #
+ # PRInt32 __PR_DarwinPPC_AtomicIncrement(PRInt32 *val);
+ #
+-        .align  2
+-        .globl  __PR_DarwinPPC_AtomicIncrement
++.globl  __PR_DarwinPPC_AtomicIncrement
+ __PR_DarwinPPC_AtomicIncrement:
+         lwarx   r4,0,r3
+         addi    r0,r4,1
+         stwcx.  r0,0,r3
+         bne-    __PR_DarwinPPC_AtomicIncrement
+         mr      r3,r0
+         blr
+-
+ #
+ # PRInt32 __PR_DarwinPPC_AtomicDecrement(PRInt32 *val);
+ #
+-        .align  2
+-        .globl  __PR_DarwinPPC_AtomicDecrement
++.globl  __PR_DarwinPPC_AtomicDecrement
+ __PR_DarwinPPC_AtomicDecrement:
+         lwarx   r4,0,r3
+         addi    r0,r4,-1
+         stwcx.  r0,0,r3
+         bne-    __PR_DarwinPPC_AtomicDecrement
+         mr      r3,r0
+         blr
+-
+ #
+ # PRInt32 __PR_DarwinPPC_AtomicSet(PRInt32 *val, PRInt32 newval);
+ #
+-        .align  2
+-        .globl  __PR_DarwinPPC_AtomicSet
++.globl  __PR_DarwinPPC_AtomicSet
+ __PR_DarwinPPC_AtomicSet:
+         lwarx   r5,0,r3
+         stwcx.  r4,0,r3
+         bne-    __PR_DarwinPPC_AtomicSet
+         mr      r3,r5
+         blr
+-
+ #
+ # PRInt32 __PR_DarwinPPC_AtomicAdd(PRInt32 *ptr, PRInt32 val);
+ #
+-        .align  2
+-        .globl  __PR_DarwinPPC_AtomicAdd
++.globl  __PR_DarwinPPC_AtomicAdd
+ __PR_DarwinPPC_AtomicAdd:
+         lwarx   r5,0,r3
+         add     r0,r4,r5
+         stwcx.  r0,0,r3
+         bne-    __PR_DarwinPPC_AtomicAdd
+         mr      r3,r0
+         blr
+diff --git a/nsprpub/pr/src/md/unix/uxproces.c b/nsprpub/pr/src/md/unix/uxproces.c
+--- a/nsprpub/pr/src/md/unix/uxproces.c
++++ b/nsprpub/pr/src/md/unix/uxproces.c
+@@ -43,17 +43,21 @@
+ #include <signal.h>
+ #include <sys/wait.h>
+ #include <string.h>
+ #if defined(AIX)
+ #include <dlfcn.h>  /* For dlopen, dlsym, dlclose */
+ #endif
+ 
+ #if defined(DARWIN)
++#if defined(XP_IPHONE)
++extern char ***_NSGetEnviron(void);
++#else
+ #include <crt_externs.h>
++#endif
+ #else
+ PR_IMPORT_DATA(char **) environ;
+ #endif
+ 
+ /*
+  * HP-UX 9 doesn't have the SA_RESTART flag.
+  */
+ #ifndef SA_RESTART

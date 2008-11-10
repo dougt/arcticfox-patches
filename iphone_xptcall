@@ -1,0 +1,30 @@
+diff --git a/xpcom/reflect/xptcall/src/md/unix/Makefile.in b/xpcom/reflect/xptcall/src/md/unix/Makefile.in
+--- a/xpcom/reflect/xptcall/src/md/unix/Makefile.in
++++ b/xpcom/reflect/xptcall/src/md/unix/Makefile.in
+@@ -190,16 +190,26 @@ endif
+ endif
+ endif
+ #
+ # OpenBSD/ARM
+ #
+ ifneq (,$(filter OpenBSDarmish OpenBSDzaurus,$(OS_ARCH)$(OS_TEST)))
+ CPPSRCS		:= xptcinvoke_arm_openbsd.cpp xptcstubs_arm_openbsd.cpp
+ endif
++#
++# Darwin/ARM   using openBSD's for now (and we're actually x86 on the simulator) 
++#
++ifeq ($(OS_ARCH),Darwin)
++ifneq (,$(filter arm% sa110,$(OS_TEST)))  
++CPPSRCS		:= xptcinvoke_unixish_x86.cpp xptcstubs_unixish_x86.cpp
++DEFINES		+= -DKEEP_STACK_16_BYTE_ALIGNED
++#CPPSRCS		:= xptcinvoke_arm_openbsd.cpp xptcstubs_arm_openbsd.cpp
++endif
++endif
+ 
+ ######################################################################
+ # HPPA
+ ######################################################################
+ #
+ # HP-UX/PA32
+ #
+ # for gas and gcc, check comment in xptcinvoke_asm_pa32.s
