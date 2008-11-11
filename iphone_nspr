@@ -1,12 +1,7 @@
 diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in
 --- a/nsprpub/config/autoconf.mk.in
 +++ b/nsprpub/config/autoconf.mk.in
-@@ -72,23 +72,26 @@ MT		= @MT@
- MT		= @MT@
- 
- OS_CPPFLAGS	= @CPPFLAGS@
- OS_CFLAGS	= $(OS_CPPFLAGS) @CFLAGS@ $(DSO_CFLAGS)
- OS_CXXFLAGS	= $(OS_CPPFLAGS) @CXXFLAGS@ $(DSO_CFLAGS)
+@@ -77,6 +77,7 @@
  OS_LIBS         = @OS_LIBS@
  OS_LDFLAGS	= @LDFLAGS@
  OS_DLLFLAGS	= @OS_DLLFLAGS@
@@ -14,7 +9,7 @@ diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in
  DLLFLAGS	= @DLLFLAGS@
  EXEFLAGS  = @EXEFLAGS@
  OPTIMIZER	= @OPTIMIZER@
- 
+@@ -84,6 +85,8 @@
  MKSHLIB		= @MKSHLIB@
  DSO_CFLAGS	= @DSO_CFLAGS@
  DSO_LDOPTS	= @DSO_LDOPTS@
@@ -23,60 +18,616 @@ diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in
  
  RESOLVE_LINK_SYMBOLS = @RESOLVE_LINK_SYMBOLS@
  
- HOST_CC		= @HOST_CC@
- HOST_CFLAGS	= @HOST_CFLAGS@
- HOST_LDFLAGS	= @HOST_LDFLAGS@
- 
- DEFINES		= @DEFINES@ @DEFS@
-diff --git a/nsprpub/config/config.mk b/nsprpub/config/config.mk
---- a/nsprpub/config/config.mk
-+++ b/nsprpub/config/config.mk
-@@ -157,8 +157,12 @@ endif
- 
- # RELEASE_DIR is ns/dist/<module name>
- 
- RELEASE_DIR = $(MOD_DEPTH)/dist/release/$(MOD_NAME)
- 
- RELEASE_INCLUDE_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/include
- RELEASE_BIN_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/bin
- RELEASE_LIB_DIR = $(RELEASE_DIR)/$(BUILD_NUMBER)/$(OBJDIR_NAME)/lib
-+
-+ifdef ARM
-+DEFINES+= -D__arm__
-+endif
-\ No newline at end of file
 diff --git a/nsprpub/configure b/nsprpub/configure
 --- a/nsprpub/configure
 +++ b/nsprpub/configure
-@@ -1207,16 +1207,22 @@ fi
- fi
- rm -f conftest*
- 
-     CC=$_SAVE_CC
-     CFLAGS=$_SAVE_CFLAGS
-     LDFLAGS=$_SAVE_LDFLAGS
- 
-     case "$build:$target" in 
-+      *darwin*:arm-apple-darwin8)
-+        _SAVE_CFLAGS=$CFLAGS
-+        _SAVE_CXXFLAGS=$CXXLAGS
-+        CFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CFLAGS"
-+        CXXFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CXXFLAGS"
-+        ;;
-       powerpc-apple-darwin8*:i?86-apple-darwin*)
-                                                 _SAVE_CFLAGS=$CFLAGS 
+@@ -1217,6 +1217,12 @@
          _SAVE_CXXFLAGS=$CXXLAGS
          CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CFLAGS"
          CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CXXFLAGS"
++        ;;
++      *-apple-darwin*:arm*-apple-darwin*)
++                                _SAVE_CFLAGS=$CFLAGS
++        _SAVE_CXXFLAGS=$CXXLAGS
++        CFLAGS="-isysroot $MACOS_SDK_DIR $CFLAGS"
++        CXXFLAGS="-isysroot $MACOS_SDK_DIR $CXXFLAGS"
          ;;        
      esac            
  
-@@ -3347,16 +3353,28 @@ EOF
+@@ -1225,7 +1231,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1229: checking for $ac_word" >&5
++echo "configure:1235: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1259,7 +1265,7 @@
+     # Extract the first word of "gcc", so it can be a program name with args.
+ set dummy gcc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1263: checking for $ac_word" >&5
++echo "configure:1269: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1289,7 +1295,7 @@
+   # Extract the first word of "cc", so it can be a program name with args.
+ set dummy cc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1293: checking for $ac_word" >&5
++echo "configure:1299: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1340,7 +1346,7 @@
+       # Extract the first word of "cl", so it can be a program name with args.
+ set dummy cl; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1344: checking for $ac_word" >&5
++echo "configure:1350: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1372,7 +1378,7 @@
+ fi
+ 
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works""... $ac_c" 1>&6
+-echo "configure:1376: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
++echo "configure:1382: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
+ 
+ ac_ext=c
+ # CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+@@ -1383,12 +1389,12 @@
+ 
+ cat > conftest.$ac_ext << EOF
+ 
+-#line 1387 "configure"
++#line 1393 "configure"
+ #include "confdefs.h"
+ 
+ main(){return(0);}
+ EOF
+-if { (eval echo configure:1392: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1398: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   ac_cv_prog_cc_works=yes
+   # If we can't run a trivial program, we are probably using a cross compiler.
+   if (./conftest; exit) 2>/dev/null; then
+@@ -1414,12 +1420,12 @@
+   { echo "configure: error: installation or configuration problem: C compiler cannot create executables." 1>&2; exit 1; }
+ fi
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
+-echo "configure:1418: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
++echo "configure:1424: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
+ echo "$ac_t""$ac_cv_prog_cc_cross" 1>&6
+ cross_compiling=$ac_cv_prog_cc_cross
+ 
+ echo $ac_n "checking whether we are using GNU C""... $ac_c" 1>&6
+-echo "configure:1423: checking whether we are using GNU C" >&5
++echo "configure:1429: checking whether we are using GNU C" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gcc'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1428,7 +1434,7 @@
+   yes;
+ #endif
+ EOF
+-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:1432: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
++if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:1438: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+   ac_cv_prog_gcc=yes
+ else
+   ac_cv_prog_gcc=no
+@@ -1447,7 +1453,7 @@
+ ac_save_CFLAGS="$CFLAGS"
+ CFLAGS=
+ echo $ac_n "checking whether ${CC-cc} accepts -g""... $ac_c" 1>&6
+-echo "configure:1451: checking whether ${CC-cc} accepts -g" >&5
++echo "configure:1457: checking whether ${CC-cc} accepts -g" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_cc_g'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1484,7 +1490,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1488: checking for $ac_word" >&5
++echo "configure:1494: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CXX'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1520,7 +1526,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1524: checking for $ac_word" >&5
++echo "configure:1530: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CXX'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1552,7 +1558,7 @@
+ 
+ 
+ echo $ac_n "checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works""... $ac_c" 1>&6
+-echo "configure:1556: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works" >&5
++echo "configure:1562: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works" >&5
+ 
+ ac_ext=C
+ # CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+@@ -1563,12 +1569,12 @@
+ 
+ cat > conftest.$ac_ext << EOF
+ 
+-#line 1567 "configure"
++#line 1573 "configure"
+ #include "confdefs.h"
+ 
+ int main(){return(0);}
+ EOF
+-if { (eval echo configure:1572: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:1578: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   ac_cv_prog_cxx_works=yes
+   # If we can't run a trivial program, we are probably using a cross compiler.
+   if (./conftest; exit) 2>/dev/null; then
+@@ -1594,12 +1600,12 @@
+   { echo "configure: error: installation or configuration problem: C++ compiler cannot create executables." 1>&2; exit 1; }
+ fi
+ echo $ac_n "checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
+-echo "configure:1598: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler" >&5
++echo "configure:1604: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler" >&5
+ echo "$ac_t""$ac_cv_prog_cxx_cross" 1>&6
+ cross_compiling=$ac_cv_prog_cxx_cross
+ 
+ echo $ac_n "checking whether we are using GNU C++""... $ac_c" 1>&6
+-echo "configure:1603: checking whether we are using GNU C++" >&5
++echo "configure:1609: checking whether we are using GNU C++" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gxx'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1608,7 +1614,7 @@
+   yes;
+ #endif
+ EOF
+-if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:1612: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
++if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:1618: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+   ac_cv_prog_gxx=yes
+ else
+   ac_cv_prog_gxx=no
+@@ -1627,7 +1633,7 @@
+ ac_save_CXXFLAGS="$CXXFLAGS"
+ CXXFLAGS=
+ echo $ac_n "checking whether ${CXX-g++} accepts -g""... $ac_c" 1>&6
+-echo "configure:1631: checking whether ${CXX-g++} accepts -g" >&5
++echo "configure:1637: checking whether ${CXX-g++} accepts -g" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_cxx_g'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1661,7 +1667,7 @@
+     fi
+ 
+     case "$build:$target" in
+-      powerpc-apple-darwin8*:i?86-apple-darwin*)
++      powerpc-apple-darwin8*:i?86-apple-darwin*|*-apple-darwin*:arm*-apple-darwin*)
+                                 CFLAGS=$_SAVE_CFLAGS
+         CXXFLAGS=$_SAVE_CXXFLAGS
+         ;;
+@@ -1672,7 +1678,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1676: checking for $ac_word" >&5
++echo "configure:1682: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_RANLIB'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1707,7 +1713,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1711: checking for $ac_word" >&5
++echo "configure:1717: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_AR'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1742,7 +1748,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1746: checking for $ac_word" >&5
++echo "configure:1752: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_AS'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1777,7 +1783,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1781: checking for $ac_word" >&5
++echo "configure:1787: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_LD'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1812,7 +1818,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1816: checking for $ac_word" >&5
++echo "configure:1822: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_STRIP'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1847,7 +1853,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1851: checking for $ac_word" >&5
++echo "configure:1857: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_WINDRES'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1882,7 +1888,7 @@
+     # Extract the first word of "gcc", so it can be a program name with args.
+ set dummy gcc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1886: checking for $ac_word" >&5
++echo "configure:1892: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1912,7 +1918,7 @@
+   # Extract the first word of "cc", so it can be a program name with args.
+ set dummy cc; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1916: checking for $ac_word" >&5
++echo "configure:1922: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1963,7 +1969,7 @@
+       # Extract the first word of "cl", so it can be a program name with args.
+ set dummy cl; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:1967: checking for $ac_word" >&5
++echo "configure:1973: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CC'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -1995,7 +2001,7 @@
+ fi
+ 
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works""... $ac_c" 1>&6
+-echo "configure:1999: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
++echo "configure:2005: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) works" >&5
+ 
+ ac_ext=c
+ # CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+@@ -2006,12 +2012,12 @@
+ 
+ cat > conftest.$ac_ext << EOF
+ 
+-#line 2010 "configure"
++#line 2016 "configure"
+ #include "confdefs.h"
+ 
+ main(){return(0);}
+ EOF
+-if { (eval echo configure:2015: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2021: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   ac_cv_prog_cc_works=yes
+   # If we can't run a trivial program, we are probably using a cross compiler.
+   if (./conftest; exit) 2>/dev/null; then
+@@ -2037,12 +2043,12 @@
+   { echo "configure: error: installation or configuration problem: C compiler cannot create executables." 1>&2; exit 1; }
+ fi
+ echo $ac_n "checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
+-echo "configure:2041: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
++echo "configure:2047: checking whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler" >&5
+ echo "$ac_t""$ac_cv_prog_cc_cross" 1>&6
+ cross_compiling=$ac_cv_prog_cc_cross
+ 
+ echo $ac_n "checking whether we are using GNU C""... $ac_c" 1>&6
+-echo "configure:2046: checking whether we are using GNU C" >&5
++echo "configure:2052: checking whether we are using GNU C" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gcc'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2051,7 +2057,7 @@
+   yes;
+ #endif
+ EOF
+-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:2055: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
++if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:2061: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+   ac_cv_prog_gcc=yes
+ else
+   ac_cv_prog_gcc=no
+@@ -2070,7 +2076,7 @@
+ ac_save_CFLAGS="$CFLAGS"
+ CFLAGS=
+ echo $ac_n "checking whether ${CC-cc} accepts -g""... $ac_c" 1>&6
+-echo "configure:2074: checking whether ${CC-cc} accepts -g" >&5
++echo "configure:2080: checking whether ${CC-cc} accepts -g" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_cc_g'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2110,7 +2116,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2114: checking for $ac_word" >&5
++echo "configure:2120: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_CXX'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2142,7 +2148,7 @@
+ 
+ 
+ echo $ac_n "checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works""... $ac_c" 1>&6
+-echo "configure:2146: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works" >&5
++echo "configure:2152: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works" >&5
+ 
+ ac_ext=C
+ # CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+@@ -2153,12 +2159,12 @@
+ 
+ cat > conftest.$ac_ext << EOF
+ 
+-#line 2157 "configure"
++#line 2163 "configure"
+ #include "confdefs.h"
+ 
+ int main(){return(0);}
+ EOF
+-if { (eval echo configure:2162: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:2168: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   ac_cv_prog_cxx_works=yes
+   # If we can't run a trivial program, we are probably using a cross compiler.
+   if (./conftest; exit) 2>/dev/null; then
+@@ -2184,12 +2190,12 @@
+   { echo "configure: error: installation or configuration problem: C++ compiler cannot create executables." 1>&2; exit 1; }
+ fi
+ echo $ac_n "checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler""... $ac_c" 1>&6
+-echo "configure:2188: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler" >&5
++echo "configure:2194: checking whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler" >&5
+ echo "$ac_t""$ac_cv_prog_cxx_cross" 1>&6
+ cross_compiling=$ac_cv_prog_cxx_cross
+ 
+ echo $ac_n "checking whether we are using GNU C++""... $ac_c" 1>&6
+-echo "configure:2193: checking whether we are using GNU C++" >&5
++echo "configure:2199: checking whether we are using GNU C++" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gxx'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2198,7 +2204,7 @@
+   yes;
+ #endif
+ EOF
+-if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:2202: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
++if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:2208: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+   ac_cv_prog_gxx=yes
+ else
+   ac_cv_prog_gxx=no
+@@ -2217,7 +2223,7 @@
+ ac_save_CXXFLAGS="$CXXFLAGS"
+ CXXFLAGS=
+ echo $ac_n "checking whether ${CXX-g++} accepts -g""... $ac_c" 1>&6
+-echo "configure:2221: checking whether ${CXX-g++} accepts -g" >&5
++echo "configure:2227: checking whether ${CXX-g++} accepts -g" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_cxx_g'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2251,7 +2257,7 @@
+         fi
+     fi
+     echo $ac_n "checking how to run the C preprocessor""... $ac_c" 1>&6
+-echo "configure:2255: checking how to run the C preprocessor" >&5
++echo "configure:2261: checking how to run the C preprocessor" >&5
+ # On Suns, sometimes $CPP names a directory.
+ if test -n "$CPP" && test -d "$CPP"; then
+   CPP=
+@@ -2266,13 +2272,13 @@
+   # On the NeXT, cc -E runs the code through the compiler's parser,
+   # not just through cpp.
+   cat > conftest.$ac_ext <<EOF
+-#line 2270 "configure"
++#line 2276 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:2276: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:2282: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -2283,13 +2289,13 @@
+   rm -rf conftest*
+   CPP="${CC-cc} -E -traditional-cpp"
+   cat > conftest.$ac_ext <<EOF
+-#line 2287 "configure"
++#line 2293 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:2293: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:2299: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -2300,13 +2306,13 @@
+   rm -rf conftest*
+   CPP="${CC-cc} -nologo -E"
+   cat > conftest.$ac_ext <<EOF
+-#line 2304 "configure"
++#line 2310 "configure"
+ #include "confdefs.h"
+ #include <assert.h>
+ Syntax Error
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:2310: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:2316: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   :
+@@ -2333,7 +2339,7 @@
+     # Extract the first word of "ranlib", so it can be a program name with args.
+ set dummy ranlib; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2337: checking for $ac_word" >&5
++echo "configure:2343: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_RANLIB'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2365,7 +2371,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2369: checking for $ac_word" >&5
++echo "configure:2375: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_AS'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2406,7 +2412,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2410: checking for $ac_word" >&5
++echo "configure:2416: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_AR'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2447,7 +2453,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2451: checking for $ac_word" >&5
++echo "configure:2457: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_LD'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2488,7 +2494,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2492: checking for $ac_word" >&5
++echo "configure:2498: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_STRIP'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2529,7 +2535,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2533: checking for $ac_word" >&5
++echo "configure:2539: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_WINDRES'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2597,7 +2603,7 @@
+ fi
+ 
+ echo $ac_n "checking for gcc -pipe support""... $ac_c" 1>&6
+-echo "configure:2601: checking for gcc -pipe support" >&5
++echo "configure:2607: checking for gcc -pipe support" >&5
+ if test -n "$GNU_CC" && test -n "$GNU_CXX" && test -n "$GNU_AS"; then
+     echo '#include <stdio.h>' > dummy-hello.c
+     echo 'int main() { printf("Hello World\n"); return 0; }' >> dummy-hello.c
+@@ -2612,14 +2618,14 @@
+         _SAVE_CFLAGS=$CFLAGS
+         CFLAGS="$CFLAGS -pipe"
+         cat > conftest.$ac_ext <<EOF
+-#line 2616 "configure"
++#line 2622 "configure"
+ #include "confdefs.h"
+  #include <stdio.h> 
+ int main() {
+ printf("Hello World\n");
+ ; return 0; }
+ EOF
+-if { (eval echo configure:2623: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
++if { (eval echo configure:2629: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+   rm -rf conftest*
+   _res_gcc_pipe="yes"
+ else
+@@ -2646,7 +2652,7 @@
+ 
+ if test "$GNU_CC"; then
+     echo $ac_n "checking for visibility(hidden) attribute""... $ac_c" 1>&6
+-echo "configure:2650: checking for visibility(hidden) attribute" >&5
++echo "configure:2656: checking for visibility(hidden) attribute" >&5
+ if eval "test \"`echo '$''{'ac_cv_visibility_hidden'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2670,7 +2676,7 @@
  EOF
  
-     cat >> confdefs.h <<\EOF
- #define HAVE_SOCKLEN_T 1
+         echo $ac_n "checking for visibility pragma support""... $ac_c" 1>&6
+-echo "configure:2674: checking for visibility pragma support" >&5
++echo "configure:2680: checking for visibility pragma support" >&5
+ if eval "test \"`echo '$''{'ac_cv_visibility_pragma'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2723,7 +2729,7 @@
+ # Extract the first word of "$ac_prog", so it can be a program name with args.
+ set dummy $ac_prog; ac_word=$2
+ echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+-echo "configure:2727: checking for $ac_word" >&5
++echo "configure:2733: checking for $ac_word" >&5
+ if eval "test \"`echo '$''{'ac_cv_path_PERL'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -2980,17 +2986,17 @@
+     DSO_LDOPTS='-brtl -bnortllib -bM:SRE -bnoentry -bexpall -blibpath:/usr/lib:/lib'
+     ac_safe=`echo "sys/atomic_op.h" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for sys/atomic_op.h""... $ac_c" 1>&6
+-echo "configure:2984: checking for sys/atomic_op.h" >&5
++echo "configure:2990: checking for sys/atomic_op.h" >&5
+ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 2989 "configure"
++#line 2995 "configure"
+ #include "confdefs.h"
+ #include <sys/atomic_op.h>
  EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:2994: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:3000: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   rm -rf conftest*
+@@ -3147,7 +3153,7 @@
+         _DEBUG_FLAGS='-gdwarf-2 -O0'
+         MKSHLIB='$(CCC) $(DSO_LDOPTS) -o $@'
+         echo $ac_n "checking for gethostbyaddr in -lbind""... $ac_c" 1>&6
+-echo "configure:3151: checking for gethostbyaddr in -lbind" >&5
++echo "configure:3157: checking for gethostbyaddr in -lbind" >&5
+ ac_lib_var=`echo bind'_'gethostbyaddr | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -3155,7 +3161,7 @@
+   ac_save_LIBS="$LIBS"
+ LIBS="-lbind  $LIBS"
+ cat > conftest.$ac_ext <<EOF
+-#line 3159 "configure"
++#line 3165 "configure"
+ #include "confdefs.h"
+ /* Override any gcc2 internal prototype to avoid an error.  */
+ /* We use char because int might match the return type of a gcc2
+@@ -3166,7 +3172,7 @@
+ gethostbyaddr()
+ ; return 0; }
+ EOF
+-if { (eval echo configure:3170: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:3176: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_lib_$ac_lib_var=yes"
+ else
+@@ -3352,6 +3358,17 @@
  
      CFLAGS="$CFLAGS -Wmost -fno-common"
      case "${target_cpu}" in
@@ -90,102 +641,11 @@ diff --git a/nsprpub/configure b/nsprpub/configure
 +EOF
 +
 +            CPU_ARCH=ARM
-+            PR_MD_ASFILES=os_Darwin_arm.s
-+            ;;
++                        ;;
          i*86*)
              if test -n "$USE_64"; then
                  CPU_ARCH=x86_64
-                 CC="$CC -arch x86_64"
-             else        
-                 CPU_ARCH=i386
-             fi
-             ;;
-diff --git a/nsprpub/configure.in b/nsprpub/configure.in
---- a/nsprpub/configure.in
-+++ b/nsprpub/configure.in
-@@ -430,40 +430,55 @@ if test "$target" != "$host"; then
-         [ac_cv_prog_host_cc_works=1 AC_MSG_RESULT([yes])],
-         AC_MSG_ERROR([installation or configuration problem: $host compiler $HOST_CC cannot create executables.]) )
- 
-     CC=$_SAVE_CC
-     CFLAGS=$_SAVE_CFLAGS
-     LDFLAGS=$_SAVE_LDFLAGS
- 
-     case "$build:$target" in 
-+      *darwin*:arm-apple-darwin8)
-+        _SAVE_CFLAGS=$CFLAGS
-+        _SAVE_CXXFLAGS=$CXXLAGS
-+        CFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CFLAGS"
-+        CXXFLAGS="-isysroot /Developer/Platforms/AspenSimulator.platform/Developer/SDKs/AspenSimulator1.2.sdk $CXXFLAGS"
-+        ;;
-       powerpc-apple-darwin8*:i?86-apple-darwin*)
-         dnl The Darwin cross compiler doesn't necessarily point itself at a
-         dnl root that has libraries for the proper architecture, it defaults
-         dnl to the system root.  The libraries in the system root on current
-         dnl versions of PPC OS X 10.4 aren't fat, so these target compiler
-         dnl checks will fail.  Fake a working SDK in that case.
-         _SAVE_CFLAGS=$CFLAGS 
-         _SAVE_CXXFLAGS=$CXXLAGS
-         CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CFLAGS"
-         CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CXXFLAGS"
-+        ;;
-+      *-apple-darwin*:arm-apple-darwin*)
-+        dnl The arm compiler doesn't appear to know about its root by default,
-+        dnl so explicitly pass it one here. Later on we'll put this in CFLAGS
-+        dnl anyway.
-+        _SAVE_CFLAGS=$CFLAGS
-+        _SAVE_CXXFLAGS=$CXXLAGS
-+        CFLAGS="-isysroot $MACOS_SDK_DIR $CFLAGS"
-+        CXXFLAGS="-isysroot $MACOS_SDK_DIR $CXXFLAGS"
-         ;;        
-     esac            
- 
-     AC_CHECK_PROGS(CC, $CC "${target_alias}-gcc" "${target}-gcc", echo)
-     unset ac_cv_prog_CC
-     AC_PROG_CC
-     if test -n "$USE_CPLUS"; then
-         AC_CHECK_PROGS(CXX, $CXX "${target_alias}-g++" "${target}-g++", echo)
-         unset ac_cv_prog_CXX
-         AC_PROG_CXX
-     fi
- 
-     case "$build:$target" in
--      powerpc-apple-darwin8*:i?86-apple-darwin*)
-+      powerpc-apple-darwin8*:i?86-apple-darwin*|*-apple-darwin*:arm-apple-darwin*)
-         dnl Revert the changes made above.  From this point on, the target
-         dnl compiler will never be used without applying the SDK to CFLAGS
-         dnl (see --with-macos-sdk below).
-         CFLAGS=$_SAVE_CFLAGS
-         CXXFLAGS=$_SAVE_CXXFLAGS
-         ;;
-     esac
- 
-@@ -994,41 +1009,62 @@ case "$target" in
- 
- *-darwin*)
-     AC_DEFINE(XP_UNIX)
-     AC_DEFINE(DARWIN)
-     AC_DEFINE(HAVE_BSD_FLOCK)
-     AC_DEFINE(HAVE_SOCKLEN_T)
-     CFLAGS="$CFLAGS -Wmost -fno-common"
-     case "${target_cpu}" in
-+        arm*)
-+            AC_DEFINE(arm)
-+            AC_DEFINE(ARM)
-+            CPU_ARCH=ARM
-+            PR_MD_ASFILES=os_Darwin_arm.s
-+            ;;
-         i*86*)
-             if test -n "$USE_64"; then
-                 CPU_ARCH=x86_64
-                 CC="$CC -arch x86_64"
-             else        
-                 CPU_ARCH=i386
-             fi
-             ;;
-         *)
-             CPU_ARCH=ppc
-             ;;
+@@ -3366,6 +3383,10 @@
      esac
      DSO_CFLAGS=-fPIC
      DSO_LDOPTS='-dynamiclib -compatibility_version 1 -current_version 1 -all_load -install_name @executable_path/$@ -headerpad_max_install_names'
@@ -196,10 +656,290 @@ diff --git a/nsprpub/configure.in b/nsprpub/configure.in
      MKSHLIB='$(CC) $(DSO_LDOPTS) -o $@'
      STRIP="$STRIP -x -S"
      DLL_SUFFIX=dylib
-     USE_PTHREADS=1
-     MDCPUCFG_H=_darwin.cfg
-     PR_MD_CSRCS=darwin.c
-     PR_MD_ASFILES=os_Darwin.s
+@@ -3376,10 +3397,21 @@
+ 
+     # Add Mac OS X support for loading CFM & CFBundle plugins
+     if test -f /System/Library/Frameworks/Carbon.framework/Carbon; then
+-        cat >> confdefs.h <<\EOF
++        case "${target_cpu}" in
++              arm*)
++                                                                cat >> confdefs.h <<\EOF
++#define XP_IPHONE 1
++EOF
++
++                ;;
++              *)
++                cat >> confdefs.h <<\EOF
+ #define XP_MACOSX 1
+ EOF
+ 
++                OS_FRAMEWORKS="-framework CoreServices -framework CoreFoundation"
++                ;;
++        esac
+         OS_TARGET=MacOSX
+ 
+         if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
+@@ -4501,17 +4533,17 @@
+         _OPTIMIZE_FLAGS="$_OPTIMIZE_FLAGS -Olimit 4000"
+         ac_safe=`echo "machine/builtins.h" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for machine/builtins.h""... $ac_c" 1>&6
+-echo "configure:4505: checking for machine/builtins.h" >&5
++echo "configure:4537: checking for machine/builtins.h" >&5
+ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 4510 "configure"
++#line 4542 "configure"
+ #include "confdefs.h"
+ #include <machine/builtins.h>
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:4515: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:4547: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   rm -rf conftest*
+@@ -5027,7 +5059,7 @@
+     ;;
+ *)
+     echo $ac_n "checking for dlopen in -ldl""... $ac_c" 1>&6
+-echo "configure:5031: checking for dlopen in -ldl" >&5
++echo "configure:5063: checking for dlopen in -ldl" >&5
+ ac_lib_var=`echo dl'_'dlopen | sed 'y%./+-%__p_%'`
+ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+@@ -5035,7 +5067,7 @@
+   ac_save_LIBS="$LIBS"
+ LIBS="-ldl  $LIBS"
+ cat > conftest.$ac_ext <<EOF
+-#line 5039 "configure"
++#line 5071 "configure"
+ #include "confdefs.h"
+ /* Override any gcc2 internal prototype to avoid an error.  */
+ /* We use char because int might match the return type of a gcc2
+@@ -5046,7 +5078,7 @@
+ dlopen()
+ ; return 0; }
+ EOF
+-if { (eval echo configure:5050: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:5082: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_lib_$ac_lib_var=yes"
+ else
+@@ -5063,17 +5095,17 @@
+   echo "$ac_t""yes" 1>&6
+   ac_safe=`echo "dlfcn.h" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for dlfcn.h""... $ac_c" 1>&6
+-echo "configure:5067: checking for dlfcn.h" >&5
++echo "configure:5099: checking for dlfcn.h" >&5
+ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 5072 "configure"
++#line 5104 "configure"
+ #include "confdefs.h"
+ #include <dlfcn.h>
+ EOF
+ ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+-{ (eval echo configure:5077: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
++{ (eval echo configure:5109: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+ if test -z "$ac_err"; then
+   rm -rf conftest*
+@@ -5106,13 +5138,13 @@
+ 
+ if test $ac_cv_prog_gcc = yes; then
+     echo $ac_n "checking whether ${CC-cc} needs -traditional""... $ac_c" 1>&6
+-echo "configure:5110: checking whether ${CC-cc} needs -traditional" >&5
++echo "configure:5142: checking whether ${CC-cc} needs -traditional" >&5
+ if eval "test \"`echo '$''{'ac_cv_prog_gcc_traditional'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+     ac_pattern="Autoconf.*'x'"
+   cat > conftest.$ac_ext <<EOF
+-#line 5116 "configure"
++#line 5148 "configure"
+ #include "confdefs.h"
+ #include <sgtty.h>
+ Autoconf TIOCGETP
+@@ -5130,7 +5162,7 @@
+ 
+   if test $ac_cv_prog_gcc_traditional = no; then
+     cat > conftest.$ac_ext <<EOF
+-#line 5134 "configure"
++#line 5166 "configure"
+ #include "confdefs.h"
+ #include <termio.h>
+ Autoconf TCGETA
+@@ -5154,12 +5186,12 @@
+ for ac_func in lchown strerror
+ do
+ echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
+-echo "configure:5158: checking for $ac_func" >&5
++echo "configure:5190: checking for $ac_func" >&5
+ if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   cat > conftest.$ac_ext <<EOF
+-#line 5163 "configure"
++#line 5195 "configure"
+ #include "confdefs.h"
+ /* System header to define __stub macros and hopefully few prototypes,
+     which can conflict with char $ac_func(); below.  */
+@@ -5182,7 +5214,7 @@
+ 
+ ; return 0; }
+ EOF
+-if { (eval echo configure:5186: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
++if { (eval echo configure:5218: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+   rm -rf conftest*
+   eval "ac_cv_func_$ac_func=yes"
+ else
+@@ -5223,7 +5255,7 @@
+ if test -z "$GNU_CC"; then
+ 
+     echo $ac_n "checking for +Olit support""... $ac_c" 1>&6
+-echo "configure:5227: checking for +Olit support" >&5
++echo "configure:5259: checking for +Olit support" >&5
+ if eval "test \"`echo '$''{'ac_cv_hpux_usable_olit_option'+set}'`\" = set"; then
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+@@ -5262,7 +5294,7 @@
+ *)
+     
+ echo $ac_n "checking for pthread_create in -lpthreads""... $ac_c" 1>&6
+-echo "configure:5266: checking for pthread_create in -lpthreads" >&5
++echo "configure:5298: checking for pthread_create in -lpthreads" >&5
+ echo "
+     #include <pthread.h> 
+     void *foo(void *v) { return v; } 
+@@ -5284,7 +5316,7 @@
+         echo "$ac_t""no" 1>&6
+         
+ echo $ac_n "checking for pthread_create in -lpthread""... $ac_c" 1>&6
+-echo "configure:5288: checking for pthread_create in -lpthread" >&5
++echo "configure:5320: checking for pthread_create in -lpthread" >&5
+ echo "
+     #include <pthread.h> 
+     void *foo(void *v) { return v; } 
+@@ -5306,7 +5338,7 @@
+         echo "$ac_t""no" 1>&6
+         
+ echo $ac_n "checking for pthread_create in -lc_r""... $ac_c" 1>&6
+-echo "configure:5310: checking for pthread_create in -lc_r" >&5
++echo "configure:5342: checking for pthread_create in -lc_r" >&5
+ echo "
+     #include <pthread.h> 
+     void *foo(void *v) { return v; } 
+@@ -5328,7 +5360,7 @@
+         echo "$ac_t""no" 1>&6
+         
+ echo $ac_n "checking for pthread_create in -lc""... $ac_c" 1>&6
+-echo "configure:5332: checking for pthread_create in -lc" >&5
++echo "configure:5364: checking for pthread_create in -lc" >&5
+ echo "
+     #include <pthread.h> 
+     void *foo(void *v) { return v; } 
+@@ -5460,7 +5492,7 @@
+       rm -f conftest*
+    ac_cv_have_dash_pthread=no
+    echo $ac_n "checking whether ${CC-cc} accepts -pthread""... $ac_c" 1>&6
+-echo "configure:5464: checking whether ${CC-cc} accepts -pthread" >&5
++echo "configure:5496: checking whether ${CC-cc} accepts -pthread" >&5
+    echo 'int main() { return 0; }' | cat > conftest.c
+    ${CC-cc} -pthread -o conftest conftest.c > conftest.out 2>&1
+    if test $? -eq 0; then
+@@ -5483,7 +5515,7 @@
+ 			    ac_cv_have_dash_pthreads=no
+     if test "$ac_cv_have_dash_pthread" = "no"; then
+ 	    echo $ac_n "checking whether ${CC-cc} accepts -pthreads""... $ac_c" 1>&6
+-echo "configure:5487: checking whether ${CC-cc} accepts -pthreads" >&5
++echo "configure:5519: checking whether ${CC-cc} accepts -pthreads" >&5
+     	echo 'int main() { return 0; }' | cat > conftest.c
+ 	    ${CC-cc} -pthreads -o conftest conftest.c > conftest.out 2>&1
+     	if test $? -eq 0; then
+@@ -5795,6 +5827,9 @@
+     RC="\$(CYGWIN_WRAPPER) $RC"
+     ;;
+ esac
++
++
++
+ 
+ 
+ 
+@@ -6156,6 +6191,8 @@
+ s%@MKSHLIB@%$MKSHLIB%g
+ s%@DSO_CFLAGS@%$DSO_CFLAGS%g
+ s%@DSO_LDOPTS@%$DSO_LDOPTS%g
++s%@BUNDLE_DSO_LDOPTS@%$BUNDLE_DSO_LDOPTS%g
++s%@LDOPTS@%$LDOPTS%g
+ s%@OS_TARGET@%$OS_TARGET%g
+ s%@OS_ARCH@%$OS_ARCH%g
+ s%@OS_RELEASE@%$OS_RELEASE%g
+@@ -6188,6 +6225,7 @@
+ s%@MACOS_SDK_DIR@%$MACOS_SDK_DIR%g
+ s%@NEXT_ROOT@%$NEXT_ROOT%g
+ s%@MT@%$MT%g
++s%@OS_FRAMEWORKS@%$OS_FRAMEWORKS%g
+ 
+ CEOF
+ EOF
+diff --git a/nsprpub/configure.in b/nsprpub/configure.in
+--- a/nsprpub/configure.in
++++ b/nsprpub/configure.in
+@@ -445,6 +445,15 @@
+         _SAVE_CXXFLAGS=$CXXLAGS
+         CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CFLAGS"
+         CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk $CXXFLAGS"
++        ;;
++      *-apple-darwin*:arm*-apple-darwin*)
++        dnl The arm compiler doesn't appear to know about its root by default,
++        dnl so explicitly pass it one here. Later on we'll put this in CFLAGS
++        dnl anyway.
++        _SAVE_CFLAGS=$CFLAGS
++        _SAVE_CXXFLAGS=$CXXLAGS
++        CFLAGS="-isysroot $MACOS_SDK_DIR $CFLAGS"
++        CXXFLAGS="-isysroot $MACOS_SDK_DIR $CXXFLAGS"
+         ;;        
+     esac            
+ 
+@@ -458,7 +467,7 @@
+     fi
+ 
+     case "$build:$target" in
+-      powerpc-apple-darwin8*:i?86-apple-darwin*)
++      powerpc-apple-darwin8*:i?86-apple-darwin*|*-apple-darwin*:arm*-apple-darwin*)
+         dnl Revert the changes made above.  From this point on, the target
+         dnl compiler will never be used without applying the SDK to CFLAGS
+         dnl (see --with-macos-sdk below).
+@@ -999,6 +1008,12 @@
+     AC_DEFINE(HAVE_SOCKLEN_T)
+     CFLAGS="$CFLAGS -Wmost -fno-common"
+     case "${target_cpu}" in
++        arm*)
++            AC_DEFINE(arm)
++            AC_DEFINE(ARM)
++            CPU_ARCH=ARM
++            dnl PR_MD_ASFILES=os_Darwin_arm.s
++            ;;
+         i*86*)
+             if test -n "$USE_64"; then
+                 CPU_ARCH=x86_64
+@@ -1013,6 +1028,10 @@
+     esac
+     DSO_CFLAGS=-fPIC
+     DSO_LDOPTS='-dynamiclib -compatibility_version 1 -current_version 1 -all_load -install_name @executable_path/$@ -headerpad_max_install_names'
++    BUNDLE_DSO_LDOPTS="-arch ${target_cpu} -bundle"
++    DSO_LDOPTS="-arch ${target_cpu} $DSO_LDOPTS"
++    LDOPTS="-arch ${target_cpu} -isysroot ${MACOS_SDK_DIR}"
++
+     MKSHLIB='$(CC) $(DSO_LDOPTS) -o $@'
+     STRIP="$STRIP -x -S"
+     DLL_SUFFIX=dylib
+@@ -1023,7 +1042,18 @@
  
      # Add Mac OS X support for loading CFM & CFBundle plugins
      if test -f /System/Library/Frameworks/Carbon.framework/Carbon; then
@@ -219,17 +959,7 @@ diff --git a/nsprpub/configure.in b/nsprpub/configure.in
          OS_TARGET=MacOSX
  
          if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
-             dnl Use the specified value
-             export MACOSX_DEPLOYMENT_TARGET=$_MACOSX_DEPLOYMENT_TARGET
-         elif test -z "$MACOSX_DEPLOYMENT_TARGET" ; then
-             dnl No value specified on the command line or in the environment,
-             dnl use the lesser of the library's minimum or the architecture's
-@@ -2740,16 +2776,18 @@ AC_SUBST(CPU_ARCH)
- 
- AC_SUBST(OBJ_SUFFIX)
- AC_SUBST(LIB_SUFFIX)
- AC_SUBST(DLL_SUFFIX)
- AC_SUBST(ASM_SUFFIX)
+@@ -2745,6 +2775,8 @@
  AC_SUBST(MKSHLIB)
  AC_SUBST(DSO_CFLAGS)
  AC_SUBST(DSO_LDOPTS)
@@ -238,17 +968,7 @@ diff --git a/nsprpub/configure.in b/nsprpub/configure.in
  
  AC_SUBST(OS_TARGET)
  AC_SUBST(OS_ARCH)
- AC_SUBST(OS_RELEASE)
- AC_SUBST(OS_TEST)
- AC_SUBST(MACOSX_DEPLOYMENT_TARGET)
- 
- AC_SUBST(DEFINES)
-@@ -2783,16 +2821,17 @@ AC_SUBST(EXEFLAGS)
- AC_SUBST(EXEFLAGS)
- AC_SUBST(OS_DLLFLAGS)
- AC_SUBST(CYGWIN_WRAPPER)
- AC_SUBST(VISIBILITY_FLAGS)
- AC_SUBST(WRAP_SYSTEM_INCLUDES)
+@@ -2788,6 +2820,7 @@
  AC_SUBST(MACOS_SDK_DIR)
  AC_SUBST(NEXT_ROOT)
  AC_SUBST(MT)
@@ -256,20 +976,10 @@ diff --git a/nsprpub/configure.in b/nsprpub/configure.in
  
  dnl ========================================================
  dnl Generate output files.
- dnl ========================================================
- MAKEFILES="
- Makefile 
- config/Makefile
- config/autoconf.mk
 diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
 --- a/nsprpub/pr/include/md/_darwin.h
 +++ b/nsprpub/pr/include/md/_darwin.h
-@@ -49,27 +49,29 @@
- #define PR_LINKER_ARCH	"darwin"
- #define _PR_SI_SYSNAME  "DARWIN"
- #ifdef __i386__
- #define _PR_SI_ARCHITECTURE "x86"
- #elif defined(__x86_64__)
+@@ -54,6 +54,8 @@
  #define _PR_SI_ARCHITECTURE "x86-64"
  #elif defined(__ppc__)
  #define _PR_SI_ARCHITECTURE "ppc"
@@ -278,10 +988,7 @@ diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
  #endif
  #define PR_DLL_SUFFIX		".dylib"
  
- #define _PR_VMBASE              0x30000000
- #define _PR_STACK_VMBASE	0x50000000
- #define _MD_DEFAULT_STACK_SIZE	65536L
- #define _MD_MMAP_FLAGS          MAP_PRIVATE
+@@ -64,7 +66,7 @@
  
  #undef  HAVE_STACK_GROWING_UP
  #define HAVE_DLL
@@ -290,64 +997,10 @@ diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
  #define USE_DLFCN
  #else
  #define USE_MACH_DYLD
- #endif
- #define _PR_HAVE_SOCKADDR_LEN  
- #define _PR_STAT_HAS_ST_ATIMESPEC
- #define _PR_HAVE_LARGE_OFF_T
- #define PR_HAVE_SYSV_NAMED_SHARED_MEMORY
-@@ -116,28 +118,43 @@ extern PRInt32 _PR_DarwinPPC_AtomicDecre
- extern PRInt32 _PR_DarwinPPC_AtomicDecrement(PRInt32 *val);
- #define _MD_ATOMIC_DECREMENT(val)   _PR_DarwinPPC_AtomicDecrement(val)
- extern PRInt32 _PR_DarwinPPC_AtomicSet(PRInt32 *val, PRInt32 newval);
- #define _MD_ATOMIC_SET(val, newval) _PR_DarwinPPC_AtomicSet(val, newval)
- extern PRInt32 _PR_DarwinPPC_AtomicAdd(PRInt32 *ptr, PRInt32 val);
- #define _MD_ATOMIC_ADD(ptr, val)    _PR_DarwinPPC_AtomicAdd(ptr, val)
- #endif /* __ppc__ */
- 
-+// #else //__arm isn't getting defined
-+ //#elif defined(__arm__) 
-+ #define _PR_HAVE_ATOMIC_OPS
-+ #define _MD_INIT_ATOMIC()
-+ extern PRInt32 _PR_Darwin_ARM_AtomicIncrement(PRInt32 *val);
-+ #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_ARM_AtomicIncrement(val)
-+ extern PRInt32 _PR_Darwin_ARM_AtomicDecrement(PRInt32 *val);
-+ #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_ARM_AtomicDecrement(val)
-+ extern PRInt32 _PR_Darwin_ARM_AtomicSet(PRInt32 *val, PRInt32 newval);
-+ #define _MD_ATOMIC_SET(val, newval) _PR_Darwin_ARM_AtomicSet(val, newval)
-+ extern PRInt32 _PR_Darwin_ARM_AtomicAdd(PRInt32 *ptr, PRInt32 val);
-+ #define _MD_ATOMIC_ADD(ptr, val)    _PR_Darwin_ARM_AtomicAdd(ptr, val)
-+
-+#if 0
- #ifdef __i386__
- #define _PR_HAVE_ATOMIC_OPS
- #define _MD_INIT_ATOMIC()
- extern PRInt32 _PR_Darwin_x86_AtomicIncrement(PRInt32 *val);
- #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_x86_AtomicIncrement(val)
- extern PRInt32 _PR_Darwin_x86_AtomicDecrement(PRInt32 *val);
- #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_x86_AtomicDecrement(val)
- extern PRInt32 _PR_Darwin_x86_AtomicSet(PRInt32 *val, PRInt32 newval);
- #define _MD_ATOMIC_SET(val, newval) _PR_Darwin_x86_AtomicSet(val, newval)
- extern PRInt32 _PR_Darwin_x86_AtomicAdd(PRInt32 *ptr, PRInt32 val);
- #define _MD_ATOMIC_ADD(ptr, val)    _PR_Darwin_x86_AtomicAdd(ptr, val)
- #endif /* __i386__ */
-+#endif
- 
- #ifdef __x86_64__
- #define _PR_HAVE_ATOMIC_OPS
- #define _MD_INIT_ATOMIC()
- extern PRInt32 _PR_Darwin_x86_64_AtomicIncrement(PRInt32 *val);
- #define _MD_ATOMIC_INCREMENT(val)   _PR_Darwin_x86_64_AtomicIncrement(val)
- extern PRInt32 _PR_Darwin_x86_64_AtomicDecrement(PRInt32 *val);
- #define _MD_ATOMIC_DECREMENT(val)   _PR_Darwin_x86_64_AtomicDecrement(val)
 diff --git a/nsprpub/pr/src/Makefile.in b/nsprpub/pr/src/Makefile.in
 --- a/nsprpub/pr/src/Makefile.in
 +++ b/nsprpub/pr/src/Makefile.in
-@@ -197,17 +197,17 @@ ifdef NS_USE_GCC
- ifdef NS_USE_GCC
- OS_LIBS		= -ladvapi32 -lwsock32 -lwinmm
- else
- OS_LIBS		= advapi32.lib wsock32.lib winmm.lib
- endif
+@@ -202,7 +202,7 @@
  endif
  
  ifeq ($(OS_TARGET),MacOSX)
@@ -356,33 +1009,6 @@ diff --git a/nsprpub/pr/src/Makefile.in b/nsprpub/pr/src/Makefile.in
  endif
  
  ifdef GC_LEAK_DETECTOR
- EXTRA_LIBS	= -L$(dist_libdir) -lboehm
- endif
- 
- EXTRA_LIBS += $(OS_LIBS)
- 
-diff --git a/nsprpub/pr/src/md/unix/os_Darwin.s b/nsprpub/pr/src/md/unix/os_Darwin.s
---- a/nsprpub/pr/src/md/unix/os_Darwin.s
-+++ b/nsprpub/pr/src/md/unix/os_Darwin.s
-@@ -31,15 +31,17 @@
- # use your version of this file under the terms of the MPL, indicate your
- # decision by deleting the provisions above and replace them with the notice
- # and other provisions required by the GPL or the LGPL. If you do not delete
- # the provisions above, a recipient may use your version of this file under
- # the terms of any one of the MPL, the GPL or the LGPL.
- #
- # ***** END LICENSE BLOCK *****
- 
--#ifdef __i386__
-+#if defined(arm)
-+#include "os_Darwin_arm.s"
-+#elif defined(__i386__)
- #include "os_Darwin_x86.s"
- #elif defined(__x86_64__)
- #include "os_Darwin_x86_64.s"
- #elif defined(__ppc__)
- #include "os_Darwin_ppc.s"
- #endif
 diff --git a/nsprpub/pr/src/md/unix/os_Darwin_arm.s b/nsprpub/pr/src/md/unix/os_Darwin_arm.s
 new file mode 100644
 --- /dev/null
@@ -425,12 +1051,7 @@ new file mode 100644
 diff --git a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s b/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
 --- a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
 +++ b/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
-@@ -36,61 +36,52 @@
- #
- # ***** END LICENSE BLOCK *****
- 
- #
- # Based on the programming examples in The PowerPC Architecture:
+@@ -41,14 +41,11 @@
  # A Specification for A New Family of RISC Processors, 2nd Ed.,
  # Book I, Section E.1, "Synchronization," pp. 249-256, May 1994.
  #
@@ -447,7 +1068,7 @@ diff --git a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s b/nsprpub/pr/src/md/unix/os_
  __PR_DarwinPPC_AtomicIncrement:
          lwarx   r4,0,r3
          addi    r0,r4,1
-         stwcx.  r0,0,r3
+@@ -56,12 +53,10 @@
          bne-    __PR_DarwinPPC_AtomicIncrement
          mr      r3,r0
          blr
@@ -461,7 +1082,7 @@ diff --git a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s b/nsprpub/pr/src/md/unix/os_
  __PR_DarwinPPC_AtomicDecrement:
          lwarx   r4,0,r3
          addi    r0,r4,-1
-         stwcx.  r0,0,r3
+@@ -69,24 +64,20 @@
          bne-    __PR_DarwinPPC_AtomicDecrement
          mr      r3,r0
          blr
@@ -488,19 +1109,10 @@ diff --git a/nsprpub/pr/src/md/unix/os_Darwin_ppc.s b/nsprpub/pr/src/md/unix/os_
  __PR_DarwinPPC_AtomicAdd:
          lwarx   r5,0,r3
          add     r0,r4,r5
-         stwcx.  r0,0,r3
-         bne-    __PR_DarwinPPC_AtomicAdd
-         mr      r3,r0
-         blr
 diff --git a/nsprpub/pr/src/md/unix/uxproces.c b/nsprpub/pr/src/md/unix/uxproces.c
 --- a/nsprpub/pr/src/md/unix/uxproces.c
 +++ b/nsprpub/pr/src/md/unix/uxproces.c
-@@ -43,17 +43,21 @@
- #include <signal.h>
- #include <sys/wait.h>
- #include <string.h>
- #if defined(AIX)
- #include <dlfcn.h>  /* For dlopen, dlsym, dlclose */
+@@ -48,7 +48,11 @@
  #endif
  
  #if defined(DARWIN)
@@ -512,8 +1124,3 @@ diff --git a/nsprpub/pr/src/md/unix/uxproces.c b/nsprpub/pr/src/md/unix/uxproces
  #else
  PR_IMPORT_DATA(char **) environ;
  #endif
- 
- /*
-  * HP-UX 9 doesn't have the SA_RESTART flag.
-  */
- #ifndef SA_RESTART

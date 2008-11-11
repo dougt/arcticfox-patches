@@ -1,0 +1,14 @@
+diff --git a/js/src/Makefile.in b/js/src/Makefile.in
+--- a/js/src/Makefile.in
++++ b/js/src/Makefile.in
+@@ -111,7 +111,10 @@
+ ifeq (arm,$(findstring arm,$(OS_TEST)))
+ DEFINES += -DAVMPLUS_ARM
+ NANOJIT_ARCH = ARM
++ifneq (Darwin,$(OS_TARGET))
++#XXX: disable JIT on iphone for now, needs a fix in Assembler.cpp
+ ENABLE_JIT = 1
++endif
+ endif
+ 
+ ifneq (,$(filter Linux Darwin SunOS FreeBSD,$(OS_ARCH)))

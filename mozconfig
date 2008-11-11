@@ -1,0 +1,38 @@
+diff --git a/build/iphone-xulrunner-mozconfig b/build/iphone-xulrunner-mozconfig
+new file mode 100644
+--- /dev/null
++++ b/build/iphone-xulrunner-mozconfig
+@@ -0,0 +1,33 @@
++mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../objdir-iphone-debug
++ac_add_options --enable-application=xulrunner
++
++
++export CROSS_COMPILE=1
++
++export CC="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.0 -arch armv6"
++export CXX="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-4.0 -arch armv6"
++export CPP="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/cpp-4.0 -arch armv6"
++export LD="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ld -arch armv6"
++export AR=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ar
++export AS="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/as -arch armv6"
++
++export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk/usr/lib/pkgconfig
++
++export CFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk" 
++export CXXFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk"
++export LDFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk"
++
++export HOST_CFLAGS="-arch i386"
++export HOST_CXXFLAGS="-arch i386"
++export HOST_LDFLAGS="-arch i386"
++
++ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk
++ac_add_options --target=armv6-apple-darwin9
++
++ac_add_options --disable-optimize
++ac_add_options --disable-printing
++ac_add_options --disable-plugins
++
++ac_add_options --enable-debug
++
++mk_add_options  AUTOCONF=autoconf213

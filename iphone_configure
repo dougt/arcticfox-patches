@@ -8,7 +8,59 @@ diff --git a/configure.in b/configure.in
 -    elif test -z "$MACOSX_DEPLOYMENT_TARGET" ; then
 +    dnl XXX: this could be more graceful, this will probably fail on the
 +    dnl iphone simulator, for example.
-+    elif test -z "$MACOSX_DEPLOYMENT_TARGET" -a "$TARGET_CPU" != "arm"; then
++    elif test -z "$MACOSX_DEPLOYMENT_TARGET" -a "$TARGET_CPU" != "armv6"; then
          dnl No value specified on the command line or in the environment,
          dnl use the lesser of the application's minimum or the architecture's
          dnl minimum.
+@@ -1701,11 +1703,13 @@
+     _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
+     MOZ_ENABLE_POSTSCRIPT=
+     TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
+-    LDFLAGS="$LDFLAGS -framework Cocoa"
+-    # The ExceptionHandling framework is needed for Objective-C exception
+-    # logging code in nsObjCExceptions.h. Currently we only use that in debug
+-    # builds.
+-    MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling"
++    if test "$TARGET_CPU" != "armv6"; then
++        LDFLAGS="$LDFLAGS -framework Cocoa"
++        # The ExceptionHandling framework is needed for Objective-C exception
++        # logging code in nsObjCExceptions.h. Currently we only use that in debug
++        # builds.
++        MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling"
++    fi
+     # set MACOSX to generate lib/mac/MoreFiles/Makefile
+     MACOSX=1
+ 
+diff --git a/js/src/configure.in b/js/src/configure.in
+--- a/js/src/configure.in
++++ b/js/src/configure.in
+@@ -752,7 +752,9 @@
+         dnl Use the specified value
+         export MACOSX_DEPLOYMENT_TARGET=$_MACOSX_DEPLOYMENT_TARGET
+         AC_DEFINE_UNQUOTED(__ENVIRONMENT_MAC_OS_X_VERION_MIN_REQUIRED__,$_MACOSX_DEPLOYMENT_TARGET)
+-    elif test -z "$MACOSX_DEPLOYMENT_TARGET" ; then
++    dnl XXX: this could be more graceful, this will probably fail on the
++    dnl iphone simulator, for example.
++    elif test -z "$MACOSX_DEPLOYMENT_TARGET" -a "$TARGET_CPU" != "armv6"; then
+         dnl No value specified on the command line or in the environment,
+         dnl use the lesser of the application's minimum or the architecture's
+         dnl minimum.
+@@ -1652,11 +1654,13 @@
+     _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
+     MOZ_ENABLE_POSTSCRIPT=
+     TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
+-    LDFLAGS="$LDFLAGS -framework Cocoa"
+-    # The ExceptionHandling framework is needed for Objective-C exception
+-    # logging code in nsObjCExceptions.h. Currently we only use that in debug
+-    # builds.
+-    MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling"
++    if test "$TARGET_CPU" != "armv6"; then
++        LDFLAGS="$LDFLAGS -framework Cocoa"
++        # The ExceptionHandling framework is needed for Objective-C exception
++        # logging code in nsObjCExceptions.h. Currently we only use that in debug
++        # builds.
++        MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling"
++    fi
+     # set MACOSX to generate lib/mac/MoreFiles/Makefile
+     MACOSX=1
+ 

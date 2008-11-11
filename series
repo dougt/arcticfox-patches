@@ -2,4 +2,6 @@ iphone_nspr
 iphone_xptcall
 gcc4-extra-qualifiers-gfx
 browser_app_rsync_plugin_bustage
+iphone-js-jit
 iphone_configure
+mozconfig
