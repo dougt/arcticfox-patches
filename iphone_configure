@@ -1,0 +1,14 @@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -779,7 +779,9 @@
+         dnl Use the specified value
+         export MACOSX_DEPLOYMENT_TARGET=$_MACOSX_DEPLOYMENT_TARGET
+         AC_DEFINE_UNQUOTED(__ENVIRONMENT_MAC_OS_X_VERION_MIN_REQUIRED__,$_MACOSX_DEPLOYMENT_TARGET)
+-    elif test -z "$MACOSX_DEPLOYMENT_TARGET" ; then
++    dnl XXX: this could be more graceful, this will probably fail on the
++    dnl iphone simulator, for example.
++    elif test -z "$MACOSX_DEPLOYMENT_TARGET" -a "$TARGET_CPU" != "arm"; then
+         dnl No value specified on the command line or in the environment,
+         dnl use the lesser of the application's minimum or the architecture's
+         dnl minimum.
