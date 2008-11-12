@@ -1,0 +1,466 @@
+diff --git a/build/iphone-xulrunner-mozconfig b/build/iphone-xulrunner-mozconfig
+--- a/build/iphone-xulrunner-mozconfig
++++ b/build/iphone-xulrunner-mozconfig
+@@ -1,11 +1,12 @@ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/..
+ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../objdir-iphone-debug
+ ac_add_options --enable-application=xulrunner
+ 
++export IPHONE=1
+ 
+ export CROSS_COMPILE=1
+ 
+ export CC="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.0 -arch armv6"
+ export CXX="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-4.0 -arch armv6"
+ export CPP="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/cpp-4.0 -arch armv6"
+ export LD="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ld -arch armv6"
+ export AR=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ar
+diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
+--- a/config/autoconf.mk.in
++++ b/config/autoconf.mk.in
+@@ -614,16 +614,18 @@ MOZ_PYTHON_VER = @MOZ_PYTHON_VER@
+ # Codesighs tools option, enables win32 mapfiles.
+ MOZ_MAPINFO	= @MOZ_MAPINFO@
+ 
+ MOZ_PHOENIX	= @MOZ_PHOENIX@
+ MOZ_XULRUNNER	= @MOZ_XULRUNNER@
+ MOZ_XUL_APP	= @MOZ_XUL_APP@
+ WINCE		= @WINCE@
+ 
++IPHONE      = @IPHONE@
++
+ MOZ_DISTRIBUTION_ID = @MOZ_DISTRIBUTION_ID@
+ 
+ NS_OSSO 	= @NS_OSSO@
+ MOZ_PLATFORM_HILDON = @MOZ_PLATFORM_HILDON@
+ 
+ LIBHILDONMIME_CFLAGS	= @LIBHILDONMIME_CFLAGS@
+ LIBHILDONMIME_LIBS	= @LIBHILDONMIME_LIBS@
+ LIBOSSO_CFLAGS 	= @LIBOSSO_CFLAGS@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -7885,16 +7885,17 @@ AC_SUBST(MOZ_BUILD_ROOT)
+ AC_SUBST(MOZ_BUILD_ROOT)
+ AC_SUBST(MOZ_OS2_TOOLS)
+ AC_SUBST(MOZ_OS2_USE_DECLSPEC)
+ 
+ AC_SUBST(MOZ_POST_DSO_LIB_COMMAND)
+ AC_SUBST(MOZ_POST_PROGRAM_COMMAND)
+ AC_SUBST(MOZ_TIMELINE)
+ AC_SUBST(WINCE)
++AC_SUBST(IPHONE)
+ AC_SUBST(TARGET_DEVICE)
+ 
+ AC_SUBST(MOZ_APP_NAME)
+ AC_SUBST(MOZ_APP_DISPLAYNAME)
+ AC_SUBST(MOZ_APP_VERSION)
+ AC_SUBST(FIREFOX_VERSION)
+ 
+ AC_SUBST(MOZ_PKG_SPECIAL)
+@@ -8073,16 +8074,21 @@ dnl ====================================
+ 
+ if test "$OS_ARCH" = "BeOS"; then
+   AC_DEFINE(XP_BEOS)
+   MOZ_MOVEMAIL=1
+ elif test "$OS_ARCH" = "Darwin"; then
+   AC_DEFINE(XP_UNIX)
+   AC_DEFINE(UNIX_ASYNC_DNS)
+   MOZ_MOVEMAIL=1
++
++  if test "$IPHONE"; then
++    AC_DEFINE(IPHONE)
++  fi
++
+ elif test "$OS_ARCH" = "OpenVMS"; then
+   AC_DEFINE(XP_UNIX)
+ elif test "$OS_ARCH" != "WINNT" -a "$OS_ARCH" != "OS2" -a "$OS_ARCH" != "WINCE"; then
+   AC_DEFINE(XP_UNIX)
+   AC_DEFINE(UNIX_ASYNC_DNS)
+   MOZ_MOVEMAIL=1
+ fi
+ AC_SUBST(MOZ_MOVEMAIL)
+diff --git a/xpcom/glue/nsGREGlue.cpp b/xpcom/glue/nsGREGlue.cpp
+--- a/xpcom/glue/nsGREGlue.cpp
++++ b/xpcom/glue/nsGREGlue.cpp
+@@ -51,17 +51,17 @@
+ # include <windows.h>
+ # include <mbstring.h>
+ # include <io.h>
+ # define snprintf _snprintf
+ # define R_OK 04
+ #elif defined(XP_OS2)
+ # define INCL_DOS
+ # include <os2.h>
+-#elif defined(XP_MACOSX)
++#elif defined(XP_MACOSX) && !defined(IPHONE)
+ # include <CFBundle.h>
+ # include <unistd.h>
+ # include <dirent.h>
+ #elif defined(XP_UNIX)
+ # include <unistd.h>
+ # include <sys/param.h>
+ # include <dirent.h>
+ #elif defined(XP_BEOS)
+@@ -219,17 +219,20 @@ GRE_GetGREPathWithProperties(const GREVe
+ 
+   // the Gecko bits that sit next to the application or in the LD_LIBRARY_PATH
+   env = getenv("USE_LOCAL_GRE");
+   if (env && *env) {
+     *aBuffer = nsnull;
+     return NS_OK;
+   }
+ 
+-#ifdef XP_MACOSX
++#if defined(IPHONE)
++    // dougt
++      
++#elif defined(XP_MACOSX)
+   aBuffer[0] = '\0';
+ 
+   // Check the bundle first, for <bundle>/Contents/Frameworks/XUL.framework/libxpcom.dylib
+   CFBundleRef appBundle = CFBundleGetMainBundle();
+   if (appBundle) {
+     CFURLRef fwurl = CFBundleCopyPrivateFrameworksURL(appBundle);
+     CFURLRef absfwurl = nsnull;
+     if (fwurl) {
+diff --git a/xpcom/io/Makefile.in b/xpcom/io/Makefile.in
+--- a/xpcom/io/Makefile.in
++++ b/xpcom/io/Makefile.in
+@@ -83,17 +83,21 @@ CPPSRCS += \
+ 		nsFastLoadService.cpp \
+ 		$(NULL)
+ endif
+ 
+ ifeq ($(MOZ_WIDGET_TOOLKIT),os2)
+ CPPSRCS		+= nsLocalFileOS2.cpp
+ else
+ ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifdef IPHONE
++CPPSRCS		+= nsLocalFileUnix.cpp
++else
+ CMMSRCS		= nsLocalFileOSX.mm
++endif
+ else
+ ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+ CPPSRCS		+= nsLocalFileWin.cpp
+ else
+ CPPSRCS		+= nsLocalFileUnix.cpp
+ endif # windows
+ endif # mac
+ endif # OS2
+@@ -112,17 +116,21 @@ EXPORTS		= \
+ 		nsStreamUtils.h \
+ 		nsNativeCharsetUtils.h \
+ 		$(NULL)			
+ 
+ ifeq ($(MOZ_WIDGET_TOOLKIT),os2)
+ EXPORTS		+= nsLocalFileOS2.h
+ else
+ ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifdef IPHONE
++EXPORTS		+= nsLocalFileUnix.h
++else
+ EXPORTS		+= nsLocalFileOSX.h
++endif
+ else
+ ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+ EXPORTS		+= nsLocalFileWin.h
+ else
+ EXPORTS		+= nsLocalFileUnix.h
+ endif # windows
+ endif # cocoa
+ endif # os2
+diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirectory.cpp
+--- a/xpcom/io/SpecialSystemDirectory.cpp
++++ b/xpcom/io/SpecialSystemDirectory.cpp
+@@ -543,16 +543,19 @@ GetSpecialSystemDirectory(SystemDirector
+                 }
+             }
+             nsCString tString = nsDependentCString(tPath);
+             if (tString.Find("/", PR_FALSE, 0, -1)) {
+                 tString.ReplaceChar('/','\\');
+             }
+             return NS_NewNativeLocalFile(tString, PR_TRUE, aFile);
+         }
++#elif defined(IPHONE)
++        // Anything?
++
+ #elif defined(XP_MACOSX)
+         {
+             return GetOSXFolderType(kUserDomain, kTemporaryFolderType, aFile);
+         }
+ 
+ #elif defined(XP_UNIX) || defined(XP_BEOS)
+         {
+             static const char *tPath = nsnull;
+@@ -893,17 +896,17 @@ GetSpecialSystemDirectory(SystemDirector
+         }
+ #endif
+         default:
+             break;
+     }
+     return NS_ERROR_NOT_AVAILABLE;
+ }
+ 
+-#if defined (XP_MACOSX)
++#if defined (XP_MACOSX) && !defined(IPHONE)
+ nsresult
+ GetOSXFolderType(short aDomain, OSType aFolderType, nsILocalFile **localFile)
+ {
+     OSErr err;
+     FSRef fsRef;
+     nsresult rv = NS_ERROR_FAILURE;
+ 
+     err = ::FSFindFolder(aDomain, aFolderType, kCreateFolder, &fsRef);
+diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocationProvider.cpp
+--- a/xpcom/io/nsAppFileLocationProvider.cpp
++++ b/xpcom/io/nsAppFileLocationProvider.cpp
+@@ -44,20 +44,22 @@
+ #include "nsILocalFile.h"
+ #include "nsString.h"
+ #include "nsXPIDLString.h"
+ #include "nsISimpleEnumerator.h"
+ #include "prenv.h"
+ #include "nsCRT.h"
+ 
+ #if defined(XP_MACOSX)
++#ifndef IPHONE
+ #include <Folders.h>
+ #include <Script.h>
+ #include <Processes.h>
+ #include <Gestalt.h>
++#endif
+ #include "nsILocalFileMac.h"
+ #elif defined(XP_OS2)
+ #define INCL_DOSPROCESS
+ #define INCL_DOSMODULEMGR
+ #include <os2.h>
+ #elif defined(XP_WIN)
+ #include <windows.h>
+ #include <shlobj.h>
+@@ -130,17 +132,17 @@ nsAppFileLocationProvider::GetFile(const
+ {
+     nsCOMPtr<nsILocalFile>  localFile;
+     nsresult rv = NS_ERROR_FAILURE;
+ 
+     NS_ENSURE_ARG(prop);
+     *_retval = nsnull;
+     *persistent = PR_TRUE;
+ 
+-#ifdef XP_MACOSX
++#if defined(XP_MACOSX) && !defined(IPHONE)
+     short foundVRefNum;
+     long foundDirID;
+     FSSpec fileSpec;
+     nsCOMPtr<nsILocalFileMac> macFile;
+ #endif
+     
+     if (nsCRT::strcmp(prop, NS_APP_APPLICATION_REGISTRY_DIR) == 0)
+     {
+@@ -198,17 +200,21 @@ nsAppFileLocationProvider::GetFile(const
+             rv = localFile->AppendRelativeNativePath(CHROME_DIR_NAME);
+     }
+     else if (nsCRT::strcmp(prop, NS_APP_PLUGINS_DIR) == 0)
+     {
+         rv = CloneMozBinDirectory(getter_AddRefs(localFile));
+         if (NS_SUCCEEDED(rv))
+             rv = localFile->AppendRelativeNativePath(PLUGINS_DIR_NAME);
+     }
+-#ifdef XP_MACOSX
++
++#if defined(IPHONE)
++    // Anything specific here?
++
++#elif defined(XP_MACOSX)
+     else if (nsCRT::strcmp(prop, NS_MACOSX_USER_PLUGIN_DIR) == 0)
+     {
+         if (!(::FindFolder(kUserDomain,
+                            kInternetPlugInFolderType,
+                            kDontCreateFolder, &foundVRefNum, &foundDirID)) &&
+             !(::FSMakeFSSpec(foundVRefNum, foundDirID, "\p", &fileSpec))) {
+             rv = NS_NewLocalFileWithFSSpec(&fileSpec, PR_TRUE, getter_AddRefs(macFile));
+             if (NS_SUCCEEDED(rv))
+@@ -334,17 +340,17 @@ NS_METHOD nsAppFileLocationProvider::Get
+ NS_METHOD nsAppFileLocationProvider::GetProductDirectory(nsILocalFile **aLocalFile, PRBool aLocal)
+ {
+     NS_ENSURE_ARG_POINTER(aLocalFile);
+ 
+     nsresult rv;
+     PRBool exists;
+     nsCOMPtr<nsILocalFile> localDir;
+ 
+-#if defined(XP_MACOSX)
++#if defined(XP_MACOSX) && !defined(IPHONE)
+     FSRef fsRef;
+     OSType folderType = aLocal ? kCachedDataFolderType : kDomainLibraryFolderType;
+     OSErr err = ::FSFindFolder(kUserDomain, folderType, kCreateFolder, &fsRef);
+     if (err) return NS_ERROR_FAILURE;
+     NS_NewLocalFile(EmptyString(), PR_TRUE, getter_AddRefs(localDir));
+     if (!localDir) return NS_ERROR_FAILURE;
+     nsCOMPtr<nsILocalFileMac> localDirMac(do_QueryInterface(localDir));
+     rv = localDirMac->InitWithFSRef(&fsRef);
+@@ -573,17 +579,19 @@ nsAppFileLocationProvider::GetFiles(cons
+ nsAppFileLocationProvider::GetFiles(const char *prop, nsISimpleEnumerator **_retval)
+ {
+     NS_ENSURE_ARG_POINTER(_retval);
+     *_retval = nsnull;
+     nsresult rv = NS_ERROR_FAILURE;
+     
+     if (!nsCRT::strcmp(prop, NS_APP_PLUGINS_DIR_LIST))
+     {
+-#ifdef XP_MACOSX
++#if defined(IPHONE)
++        // anything here?
++#elif defined(XP_MACOSX)
+         static const char* osXKeys[] = { NS_APP_PLUGINS_DIR, NS_MACOSX_USER_PLUGIN_DIR, NS_MACOSX_LOCAL_PLUGIN_DIR, nsnull };
+         static const char* os9Keys[] = { NS_APP_PLUGINS_DIR, NS_MAC_CLASSIC_PLUGIN_DIR, nsnull };
+         static const char** keys;
+         
+         if (!keys) {
+             OSErr err;
+             long response;
+             err = ::Gestalt(gestaltSystemVersion, &response); 
+diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
+--- a/xpcom/io/nsDirectoryService.cpp
++++ b/xpcom/io/nsDirectoryService.cpp
+@@ -55,17 +55,17 @@
+ #include <shlobj.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #elif defined(XP_UNIX)
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <sys/param.h>
+ #include "prenv.h"
+-#ifdef XP_MACOSX
++#if defined(XP_MACOSX) && !defined(IPHONE)
+ #include <CoreServices/CoreServices.h>
+ #include <Folders.h>
+ #include <Files.h>
+ #include <Memory.h>
+ #include <Processes.h>
+ #include <Gestalt.h>
+ #include <CFURL.h>
+ #include <InternetConfig.h>
+@@ -153,17 +153,17 @@ nsDirectoryService::GetCurrentProcessDir
+         if (lastSlash)
+             *(lastSlash + 1) = L'\0';
+ 
+         localFile->InitWithPath(nsDependentString(buf));
+         *aFile = localFile;
+         return NS_OK;
+     }
+ 
+-#elif defined(XP_MACOSX)
++#elif defined(XP_MACOSX) && !defined(IPHONE)
+     // Works even if we're not bundled.
+     CFBundleRef appBundle = CFBundleGetMainBundle();
+     if (appBundle != nsnull)
+     {
+         CFURLRef bundleURL = CFBundleCopyExecutableURL(appBundle);
+         if (bundleURL != nsnull)
+         {
+             CFURLRef parentURL = CFURLCreateCopyDeletingLastPathComponent(kCFAllocatorDefault, bundleURL);
+@@ -290,17 +290,17 @@ nsIAtom*  nsDirectoryService::sGRE_Direc
+ nsIAtom*  nsDirectoryService::sGRE_Directory = nsnull;
+ nsIAtom*  nsDirectoryService::sGRE_ComponentDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_DriveDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_TemporaryDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_CurrentProcessDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_CurrentWorkingDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_DesktopDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sOS_HomeDirectory = nsnull;
+-#if defined (XP_MACOSX)
++#if defined (XP_MACOSX) && !defined(IPHONE)
+ nsIAtom*  nsDirectoryService::sDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sTrashDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sStartupDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sShutdownDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sAppleMenuDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sControlPanelDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sExtensionDirectory = nsnull;
+ nsIAtom*  nsDirectoryService::sFontsDirectory = nsnull;
+@@ -406,17 +406,19 @@ static const nsStaticAtom directory_atom
+     { NS_GRE_COMPONENT_DIR,        &nsDirectoryService::sGRE_ComponentDirectory },
+     { NS_OS_DRIVE_DIR,             &nsDirectoryService::sOS_DriveDirectory },
+     { NS_OS_TEMP_DIR,              &nsDirectoryService::sOS_TemporaryDirectory },
+     { NS_OS_CURRENT_PROCESS_DIR,   &nsDirectoryService::sOS_CurrentProcessDirectory },
+     { NS_OS_CURRENT_WORKING_DIR,   &nsDirectoryService::sOS_CurrentWorkingDirectory },
+     { NS_OS_HOME_DIR,              &nsDirectoryService::sOS_HomeDirectory },
+     { NS_OS_DESKTOP_DIR,           &nsDirectoryService::sOS_DesktopDirectory },
+     { NS_XPCOM_INIT_CURRENT_PROCESS_DIR, nsnull },
+-#if defined (XP_MACOSX)
++#if defined(IPHONE)
++    // Anything? 
++#elif defined (XP_MACOSX)
+     { NS_OS_SYSTEM_DIR,                   &nsDirectoryService::sDirectory },
+     { NS_MAC_TRASH_DIR,                   &nsDirectoryService::sTrashDirectory },
+     { NS_MAC_STARTUP_DIR,                 &nsDirectoryService::sStartupDirectory },
+     { NS_MAC_SHUTDOWN_DIR,                &nsDirectoryService::sShutdownDirectory },
+     { NS_MAC_APPLE_MENU_DIR,              &nsDirectoryService::sAppleMenuDirectory },
+     { NS_MAC_CONTROL_PANELS_DIR,          &nsDirectoryService::sControlPanelDirectory },
+     { NS_MAC_EXTENSIONS_DIR,              &nsDirectoryService::sExtensionDirectory },
+     { NS_MAC_FONTS_DIR,                   &nsDirectoryService::sFontsDirectory },
+@@ -856,17 +858,17 @@ nsDirectoryService::GetFile(const char *
+     {
+         rv = GetSpecialSystemDirectory(OS_CurrentProcessDirectory, getter_AddRefs(localFile)); 
+     }
+     else if (inAtom == nsDirectoryService::sOS_CurrentWorkingDirectory)
+     {
+         rv = GetSpecialSystemDirectory(OS_CurrentWorkingDirectory, getter_AddRefs(localFile)); 
+     }
+        
+-#if defined(XP_MACOSX)
++#if defined(XP_MACOSX) && !defined(IPHONE)
+     else if (inAtom == nsDirectoryService::sDirectory)
+     {
+         rv = GetOSXFolderType(kClassicDomain, kSystemFolderType, getter_AddRefs(localFile));
+     }
+     else if (inAtom == nsDirectoryService::sTrashDirectory)
+     {
+         rv = GetOSXFolderType(kClassicDomain, kTrashFolderType, getter_AddRefs(localFile));
+     }
+diff --git a/xpcom/io/nsDirectoryService.h b/xpcom/io/nsDirectoryService.h
+--- a/xpcom/io/nsDirectoryService.h
++++ b/xpcom/io/nsDirectoryService.h
+@@ -92,17 +92,17 @@ public:
+     static nsIAtom *sGRE_Directory;
+     static nsIAtom *sGRE_ComponentDirectory;
+     static nsIAtom *sOS_DriveDirectory;
+     static nsIAtom *sOS_TemporaryDirectory;
+     static nsIAtom *sOS_CurrentProcessDirectory;
+     static nsIAtom *sOS_CurrentWorkingDirectory;
+     static nsIAtom *sOS_DesktopDirectory;
+     static nsIAtom *sOS_HomeDirectory;
+-#if defined (XP_MACOSX)
++#if defined (XP_MACOSX) && !defined(IPHONE)
+     static nsIAtom *sDirectory;
+     static nsIAtom *sTrashDirectory;
+     static nsIAtom *sStartupDirectory;
+     static nsIAtom *sShutdownDirectory;
+     static nsIAtom *sAppleMenuDirectory;
+     static nsIAtom *sControlPanelDirectory;
+     static nsIAtom *sExtensionDirectory;
+     static nsIAtom *sFontsDirectory;
+diff --git a/xpcom/io/nsILocalFileMac.idl b/xpcom/io/nsILocalFileMac.idl
+--- a/xpcom/io/nsILocalFileMac.idl
++++ b/xpcom/io/nsILocalFileMac.idl
+@@ -36,17 +36,17 @@
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #include "nsILocalFile.idl"
+ 
+ %{C++
+ #include <Files.h>
+-#include <CFURL.h>
++#include <CoreFoundation/CFURL.h>
+ %}
+ 
+       native OSType(OSType);
+       native FSSpec(FSSpec);
+ [ptr] native FSSpecPtr(FSSpec);
+       native FSRef(FSRef);
+ [ptr] native FSRefPtr(FSRef);
+       native CFURLRef(CFURLRef);

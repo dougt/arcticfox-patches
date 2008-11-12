@@ -5,3 +5,5 @@ browser_app_rsync_plugin_bustage
 iphone-js-jit
 iphone_configure
 mozconfig
+bug_456662_xpcom_io_stuff
+xpcom_cleanup
