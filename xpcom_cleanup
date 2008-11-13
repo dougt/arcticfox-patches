@@ -1,49 +1,3 @@
-diff --git a/build/iphone-xulrunner-mozconfig b/build/iphone-xulrunner-mozconfig
---- a/build/iphone-xulrunner-mozconfig
-+++ b/build/iphone-xulrunner-mozconfig
-@@ -1,6 +1,7 @@
- mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../objdir-iphone-debug
- ac_add_options --enable-application=xulrunner
- 
-+export IPHONE=1
- 
- export CROSS_COMPILE=1
- 
-diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
---- a/config/autoconf.mk.in
-+++ b/config/autoconf.mk.in
-@@ -619,6 +619,8 @@
- MOZ_XUL_APP	= @MOZ_XUL_APP@
- WINCE		= @WINCE@
- 
-+IPHONE      = @IPHONE@
-+
- MOZ_DISTRIBUTION_ID = @MOZ_DISTRIBUTION_ID@
- 
- NS_OSSO 	= @NS_OSSO@
-diff --git a/configure.in b/configure.in
---- a/configure.in
-+++ b/configure.in
-@@ -7888,6 +7888,7 @@
- AC_SUBST(MOZ_POST_PROGRAM_COMMAND)
- AC_SUBST(MOZ_TIMELINE)
- AC_SUBST(WINCE)
-+AC_SUBST(IPHONE)
- AC_SUBST(TARGET_DEVICE)
- 
- AC_SUBST(MOZ_APP_NAME)
-@@ -8076,6 +8077,11 @@
-   AC_DEFINE(XP_UNIX)
-   AC_DEFINE(UNIX_ASYNC_DNS)
-   MOZ_MOVEMAIL=1
-+
-+  if test "$IPHONE"; then
-+    AC_DEFINE(IPHONE)
-+  fi
-+
- elif test "$OS_ARCH" = "OpenVMS"; then
-   AC_DEFINE(XP_UNIX)
- elif test "$OS_ARCH" != "WINNT" -a "$OS_ARCH" != "OS2" -a "$OS_ARCH" != "WINCE"; then
 diff --git a/xpcom/glue/nsGREGlue.cpp b/xpcom/glue/nsGREGlue.cpp
 --- a/xpcom/glue/nsGREGlue.cpp
 +++ b/xpcom/glue/nsGREGlue.cpp
@@ -56,6 +10,21 @@ diff --git a/xpcom/glue/nsGREGlue.cpp b/xpcom/glue/nsGREGlue.cpp
  # include <unistd.h>
  # include <dirent.h>
  #elif defined(XP_UNIX)
+diff --git a/xpcom/glue/standalone/Makefile.in b/xpcom/glue/standalone/Makefile.in
+--- a/xpcom/glue/standalone/Makefile.in
++++ b/xpcom/glue/standalone/Makefile.in
+@@ -57,7 +57,11 @@
+ 		$(NULL)
+ 
+ ifeq (Darwin,$(OS_ARCH))
++ifndef IPHONE
+ LINKSRC = nsGlueLinkingOSX.cpp
++else
++endif
++LINKSRC = nsGlueLinkingDlopen.cpp
+ endif
+ ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ LINKSRC = nsGlueLinkingWin.cpp
 diff --git a/xpcom/io/Makefile.in b/xpcom/io/Makefile.in
 --- a/xpcom/io/Makefile.in
 +++ b/xpcom/io/Makefile.in
@@ -330,3 +299,18 @@ diff --git a/xpcom/threads/nsProcessCommon.cpp b/xpcom/threads/nsProcessCommon.c
      if (count == 0) {
          FSSpec resolvedSpec;
          OSErr err = noErr;
+diff --git a/xpcom/tools/registry/Makefile.in b/xpcom/tools/registry/Makefile.in
+--- a/xpcom/tools/registry/Makefile.in
++++ b/xpcom/tools/registry/Makefile.in
+@@ -60,8 +60,10 @@
+ # Need to link with CoreFoundation on Mac
+ ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+ LIBS            += \
+-		$(TK_LIBS) \
+ 		$(NULL)
++#XXX: fix TK_LIBS in configure!
++#		$(TK_LIBS) \
++
+ endif
+ 
+ SDK_BINARY     =                    \

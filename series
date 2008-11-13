@@ -7,3 +7,7 @@ iphone_configure
 mozconfig
 bug_456662_xpcom_io_stuff
 xpcom_cleanup
+libreg_cleanup
+intl_cleanup
+necko_fixes
+bug463537.diff

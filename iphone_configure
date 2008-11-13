@@ -1,3 +1,15 @@
+diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
+--- a/config/autoconf.mk.in
++++ b/config/autoconf.mk.in
+@@ -619,6 +619,8 @@
+ MOZ_XUL_APP	= @MOZ_XUL_APP@
+ WINCE		= @WINCE@
+ 
++IPHONE      = @IPHONE@
++
+ MOZ_DISTRIBUTION_ID = @MOZ_DISTRIBUTION_ID@
+ 
+ NS_OSSO 	= @NS_OSSO@
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
@@ -31,6 +43,26 @@ diff --git a/configure.in b/configure.in
      # set MACOSX to generate lib/mac/MoreFiles/Makefile
      MACOSX=1
  
+@@ -7886,6 +7890,7 @@
+ AC_SUBST(MOZ_POST_PROGRAM_COMMAND)
+ AC_SUBST(MOZ_TIMELINE)
+ AC_SUBST(WINCE)
++AC_SUBST(IPHONE)
+ AC_SUBST(TARGET_DEVICE)
+ 
+ AC_SUBST(MOZ_APP_NAME)
+@@ -8074,6 +8079,11 @@
+   AC_DEFINE(XP_UNIX)
+   AC_DEFINE(UNIX_ASYNC_DNS)
+   MOZ_MOVEMAIL=1
++
++  if test "$IPHONE"; then
++    AC_DEFINE(IPHONE)
++  fi
++
+ elif test "$OS_ARCH" = "OpenVMS"; then
+   AC_DEFINE(XP_UNIX)
+ elif test "$OS_ARCH" != "WINNT" -a "$OS_ARCH" != "OS2" -a "$OS_ARCH" != "WINCE"; then
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in

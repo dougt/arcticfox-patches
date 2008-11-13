@@ -2,10 +2,11 @@ diff --git a/build/iphone-xulrunner-mozconfig b/build/iphone-xulrunner-mozconfig
 new file mode 100644
 --- /dev/null
 +++ b/build/iphone-xulrunner-mozconfig
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,39 @@
 +mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../objdir-iphone-debug
 +ac_add_options --enable-application=xulrunner
 +
++export IPHONE=1
 +
 +export CROSS_COMPILE=1
 +
@@ -32,7 +33,12 @@ new file mode 100644
 +ac_add_options --disable-optimize
 +ac_add_options --disable-printing
 +ac_add_options --disable-plugins
++ac_add_options --disable-negotiateauth
++ac_add_options --disable-ogg
++ac_add_options --disable-wave
 +
 +ac_add_options --enable-debug
++# :-(
++ac_add_options --disable-tests
 +
 +mk_add_options  AUTOCONF=autoconf213

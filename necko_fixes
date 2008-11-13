@@ -1,0 +1,87 @@
+diff --git a/netwerk/base/src/Makefile.in b/netwerk/base/src/Makefile.in
+--- a/netwerk/base/src/Makefile.in
++++ b/netwerk/base/src/Makefile.in
+@@ -106,7 +106,12 @@
+ endif
+ else
+ ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
++ifndef IPHONE
+ 	CPPSRCS += nsURLHelperOSX.cpp
++else
++#XXX: make this cleaner
++	CPPSRCS += nsURLHelperUnix.cpp
++endif
+ else
+ 	CPPSRCS += nsURLHelperUnix.cpp
+ endif
+diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp
+--- a/netwerk/build/nsNetModule.cpp
++++ b/netwerk/build/nsNetModule.cpp
+@@ -62,7 +62,7 @@
+ 
+ #include "nsNetCID.h"
+ 
+-#if defined(XP_MACOSX)
++#if defined(XP_MACOSX) && !defined(IPHONE)
+ #define BUILD_APPLEFILE_DECODER 1
+ #else
+ #define BUILD_BINHEX_DECODER 1
+diff --git a/netwerk/protocol/http/src/nsHttpHandler.cpp b/netwerk/protocol/http/src/nsHttpHandler.cpp
+--- a/netwerk/protocol/http/src/nsHttpHandler.cpp
++++ b/netwerk/protocol/http/src/nsHttpHandler.cpp
+@@ -85,7 +85,7 @@
+ #include <windows.h>
+ #endif
+ 
+-#if defined(XP_MACOSX)
++#if defined(XP_MACOSX) && !defined(IPHONE)
+ #include <Carbon/Carbon.h>
+ #endif
+ 
+@@ -699,12 +699,19 @@
+     mOscpu.AssignLiteral("PPC Mac OS X");
+ #elif defined(__i386__)
+     mOscpu.AssignLiteral("Intel Mac OS X");
++#elif defined(__arm__)
++    mOscpu.AssignLiteral("ARM iPhone");
+ #endif
++
++#ifndef IPHONE
++    //TODO: figure out a way to get iPhoneOS version. We can get
++    // kernel version using sysctl, but that's not quite the same.
+     long majorVersion, minorVersion;
+     if ((::Gestalt(gestaltSystemVersionMajor, &majorVersion) == noErr) &&
+         (::Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
+         mOscpu += nsPrintfCString(" %ld.%ld", majorVersion, minorVersion);
+     }
++#endif
+ #elif defined (XP_UNIX) || defined (XP_BEOS)
+     struct utsname name;
+     
+diff --git a/netwerk/streamconv/src/Makefile.in b/netwerk/streamconv/src/Makefile.in
+--- a/netwerk/streamconv/src/Makefile.in
++++ b/netwerk/streamconv/src/Makefile.in
+@@ -55,9 +55,11 @@
+ 		$(NULL)
+ 
+ ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
++ifndef IPHONE
+ CPPSRCS += \
+ 		nsAppleFileDecoder.cpp \
+ 		$(NULL)
++endif
+ endif
+ 
+ 
+diff --git a/netwerk/system/mac/nsNetworkLinkService.mm b/netwerk/system/mac/nsNetworkLinkService.mm
+--- a/netwerk/system/mac/nsNetworkLinkService.mm
++++ b/netwerk/system/mac/nsNetworkLinkService.mm
+@@ -42,7 +42,7 @@
+ #include "nsServiceManagerUtils.h"
+ #include "nsString.h"
+ 
+-#import <Cocoa/Cocoa.h>
++#import <Foundation/Foundation.h>
+ #import <netinet/in.h>
+ 
+ NS_IMPL_ISUPPORTS2(nsNetworkLinkService,
