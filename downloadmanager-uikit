@@ -1,0 +1,30 @@
+diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/components/downloads/src/nsDownloadManager.cpp
+--- a/toolkit/components/downloads/src/nsDownloadManager.cpp
++++ b/toolkit/components/downloads/src/nsDownloadManager.cpp
+@@ -1129,7 +1129,7 @@
+   mBundle->GetStringFromName(NS_LITERAL_STRING("downloadsFolder").get(),
+                              getter_Copies(folderName));
+ 
+-#if defined (XP_MACOSX)
++#if defined (MOZ_WIDGET_COCOA)
+   rv = dirService->Get(NS_OSX_DEFAULT_DOWNLOAD_DIR,
+                        NS_GET_IID(nsILocalFile),
+                        getter_AddRefs(downloadDir));
+@@ -1925,7 +1925,7 @@
+     nsCOMPtr<nsISupportsPRBool> cancelDownloads =
+       do_QueryInterface(aSubject, &rv);
+     NS_ENSURE_SUCCESS(rv, rv);
+-#ifndef XP_MACOSX
++#ifndef MOZ_WIDGET_COCOA
+     ConfirmCancelDownloads(currDownloadCount, cancelDownloads,
+                            NS_LITERAL_STRING("quitCancelDownloadsAlertTitle").get(),
+                            NS_LITERAL_STRING("quitCancelDownloadsAlertMsgMultiple").get(),
+@@ -2237,7 +2237,7 @@
+                ::SHAddToRecentDocs(SHARD_PATHW, path.get());
+             }
+ #endif
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+             // On OS X, make the downloads stack bounce.
+             CFStringRef observedObject = ::CFStringCreateWithCString(kCFAllocatorDefault,
+                                                  NS_ConvertUTF16toUTF8(path).get(),

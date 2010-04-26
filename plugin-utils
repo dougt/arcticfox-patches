@@ -1,0 +1,21 @@
+diff --git a/layout/generic/nsPluginUtilsOSX.h b/layout/generic/nsPluginUtilsOSX.h
+--- a/layout/generic/nsPluginUtilsOSX.h
++++ b/layout/generic/nsPluginUtilsOSX.h
+@@ -39,7 +39,7 @@
+ 
+ // We can use Carbon in this header but not Cocoa. Cocoa pointers must be void.
+ 
+-#ifndef __LP64__
++#if !defined(__LP64__) && defined(MOZ_WIDGET_COCOA)
+ #import <Carbon/Carbon.h>
+ #endif
+ 
+@@ -49,7 +49,7 @@
+ 
+ // We use void pointers to avoid exporting native event types to cross-platform code.
+ 
+-#ifndef __LP64__
++#if !defined(__LP64__) && defined(MOZ_WIDGET_COCOA)
+ // Get the rect for an entire top-level Carbon window in screen coords.
+ void NS_NPAPI_CarbonWindowFrame(WindowRef aWindow, nsRect& outRect);
+ #endif

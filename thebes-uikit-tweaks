@@ -1,0 +1,27 @@
+diff --git a/gfx/thebes/public/Makefile.in b/gfx/thebes/public/Makefile.in
+--- a/gfx/thebes/public/Makefile.in
++++ b/gfx/thebes/public/Makefile.in
+@@ -106,7 +106,7 @@
+ EXPORTS +=	gfxPDFSurface.h
+ endif
+ 
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ EXPORTS +=	gfxPlatformMac.h \
+ 		gfxQuartzSurface.h \
+ 		gfxQuartzImageSurface.h \
+diff --git a/gfx/thebes/public/gfxQuartzSurface.h b/gfx/thebes/public/gfxQuartzSurface.h
+--- a/gfx/thebes/public/gfxQuartzSurface.h
++++ b/gfx/thebes/public/gfxQuartzSurface.h
+@@ -42,7 +42,11 @@
+ #include "gfxASurface.h"
+ #include "gfxImageSurface.h"
+ 
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ class THEBES_API gfxQuartzSurface : public gfxASurface {
+ public:

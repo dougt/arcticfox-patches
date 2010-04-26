@@ -1,0 +1,24 @@
+diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsEventStateManager.cpp
+--- a/content/events/src/nsEventStateManager.cpp
++++ b/content/events/src/nsEventStateManager.cpp
+@@ -155,7 +155,11 @@
+ #include "nsICommandParams.h"
+ 
+ #ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #import <ApplicationServices/ApplicationServices.h>
++#else
++#import <CoreGraphics/CoreGraphics.h>
++#endif
+ #endif
+ 
+ //#define DEBUG_DOCSHELL_FOCUS
+@@ -1683,7 +1687,7 @@
+   if ( !mGestureDownContent )
+     return;
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   // Hack to ensure that we don't show a context menu when the user
+   // let go of the mouse after a long cpu-hogging operation prevented
+   // us from handling any OS events. See bug 117589.

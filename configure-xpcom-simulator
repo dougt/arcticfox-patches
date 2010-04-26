@@ -1,0 +1,348 @@
+fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
+
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -3192,7 +3192,7 @@
+ AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
+ 
+ dnl Quota support
+-AC_CHECK_HEADERS(sys/quota.h)
++AC_CHECK_HEADERS(sys/quota.h sys/sysmacros.h)
+ 
+ dnl Try for MMX support
+ dnl NB - later gcc versions require -mmmx for this header to be successfully
+@@ -3291,11 +3291,19 @@
+ dnl ========================================================
+ case "$target" in
+ *-darwin*)
++  #XXX: AC_CACHE_CHECK
+   AC_MSG_CHECKING([for Core Text])
+   AC_TRY_COMPILE([#include <ApplicationServices/ApplicationServices.h>],
+                  [CTLineRef lineRef;],
+                   ac_cv_have_core_text="yes",
+                   ac_cv_have_core_text="no")
++  # iPhone SDK doesn't have ApplicationServices
++  if test "$ac_cv_have_core_text" = "no"; then
++    AC_TRY_COMPILE([#include <CoreText/CoreText.h>],
++                   [CTLineRef lineRef;],
++                    ac_cv_have_core_text="yes",
++                    ac_cv_have_core_text="no")
++  fi
+   AC_MSG_RESULT([$ac_cv_have_core_text])
+ 
+   if test "$ac_cv_have_core_text" = "no"; then
+@@ -5015,13 +5023,25 @@
+     ;;
+ 
+ cairo-cocoa)
+-    MOZ_WIDGET_TOOLKIT=cocoa
+-    AC_DEFINE(MOZ_WIDGET_COCOA)
++    # Check if we have the Cocoa framework, or if we're targeting Cocoa Touch
++    _SAVE_LDFLAGS=$LDFLAGS
++    LDFLAGS="$LDFLAGS -framework Cocoa"
++    AC_TRY_LINK(,[return 0;],_HAVE_FRAMEWORK_COCOA=1,_HAVE_FRAMEWORK_COCOA=)
++    if test -z "$_HAVE_FRAMEWORK_COCOA"; then
++        LDFLAGS="$_SAVE_LDFLAGS -framework UIKit";
++        AC_TRY_LINK(,[return 0;],_HAVE_FRAMEWORK_UIKIT=1,
++                    AC_MSG_ERROR([Neither Cocoa nor UIKit frameworks were found. Are you using the correct SDK?]))
++        MOZ_WIDGET_TOOLKIT=uikit
++      AC_DEFINE(MOZ_WIDGET_UIKIT)
++    else
++      MOZ_WIDGET_TOOLKIT=cocoa
++      AC_DEFINE(MOZ_WIDGET_COCOA)
++    fi
+     MOZ_USER_DIR="Mozilla"
+     AC_DEFINE(XP_MACOSX)
+     TK_LIBS='-framework QuartzCore -framework Carbon -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework AddressBook'
+     TK_CFLAGS="-DNO_X11"
+-    LDFLAGS="$LDFLAGS -framework Cocoa -lobjc"
++    LDFLAGS="$LDFLAGS -lobjc"
+     CFLAGS="$CFLAGS $TK_CFLAGS"
+     CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
+     LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
+@@ -7443,6 +7463,7 @@
+ dnl ========================================================
+ dnl We want to make sure the compiler follows the C++ spec here as 
+ dnl xpcom and the string classes depend on it (bug 235381).
++if test -z "$CROSS_COMPILE"; then
+ AC_MSG_CHECKING([for correct temporary object destruction order])
+ AC_TRY_RUN([ class A {
+              public:  A(int& x) : mValue(x) {}
+@@ -7467,6 +7488,7 @@
+ if test "$result" = "no"; then
+     AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
+ fi
++fi
+ 
+ dnl ========================================================
+ dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
+@@ -7840,7 +7862,7 @@
+     if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
+         QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
+     fi
+-    if test "$MOZ_WIDGET_TOOLKIT" = "cocoa"; then
++    if test "$MOZ_WIDGET_TOOLKIT" = "cocoa" -o "$MOZ_WIDGET_TOOLKIT" = "uikit"; then
+         QUARTZ_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_SURFACE 1"
+         QUARTZ_IMAGE_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_IMAGE_SURFACE 1"
+         QUARTZ_FONT_FEATURE="#define CAIRO_HAS_QUARTZ_FONT 1"
+diff --git a/xpcom/build/XPCOM.h b/xpcom/build/XPCOM.h
+--- a/xpcom/build/XPCOM.h
++++ b/xpcom/build/XPCOM.h
+@@ -148,7 +148,7 @@
+ #include "nsIObjectOutputStream.h"
+ #include "nsIPipe.h"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsILocalFileMac.h"
+ #include "nsIMacUtils.h"
+ #endif
+diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
+--- a/xpcom/build/nsXPComInit.cpp
++++ b/xpcom/build/nsXPComInit.cpp
+@@ -134,7 +134,7 @@
+ #include "nsWindowsRegKey.h"
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsMacUtilsImpl.h"
+ #endif
+ 
+@@ -248,7 +248,7 @@
+ 
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacUtilsImpl)
+ #endif
+ 
+@@ -422,7 +422,7 @@
+     COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor),
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     COMPONENT(MACUTILSIMPL, nsMacUtilsImplConstructor),
+ #endif
+ 
+diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirectory.cpp
+--- a/xpcom/io/SpecialSystemDirectory.cpp
++++ b/xpcom/io/SpecialSystemDirectory.cpp
+@@ -630,7 +630,7 @@
+             }
+             return NS_NewNativeLocalFile(tString, PR_TRUE, aFile);
+         }
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+         {
+             return GetOSXFolderType(kUserDomain, kTemporaryFolderType, aFile);
+         }
+@@ -1010,7 +1010,7 @@
+     return NS_ERROR_NOT_AVAILABLE;
+ }
+ 
+-#if defined (XP_MACOSX)
++#if defined (MOZ_WIDGET_COCOA)
+ nsresult
+ GetOSXFolderType(short aDomain, OSType aFolderType, nsILocalFile **localFile)
+ {
+diff --git a/xpcom/io/SpecialSystemDirectory.h b/xpcom/io/SpecialSystemDirectory.h
+--- a/xpcom/io/SpecialSystemDirectory.h
++++ b/xpcom/io/SpecialSystemDirectory.h
+@@ -44,7 +44,7 @@
+ #include "nscore.h"
+ #include "nsILocalFile.h"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
+ #include "nsILocalFileMac.h"
+ #include "prenv.h"
+@@ -137,7 +137,7 @@
+ nsresult
+ GetSpecialSystemDirectory(SystemDirectories aSystemSystemDirectory,
+                           nsILocalFile** aFile);
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ nsresult
+ GetOSXFolderType(short aDomain, OSType aFolderType, nsILocalFile **localFile);
+ #endif
+diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocationProvider.cpp
+--- a/xpcom/io/nsAppFileLocationProvider.cpp
++++ b/xpcom/io/nsAppFileLocationProvider.cpp
+@@ -48,7 +48,7 @@
+ #include "prenv.h"
+ #include "nsCRT.h"
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #include <Carbon/Carbon.h>
+ #include "nsILocalFileMac.h"
+ #elif defined(XP_OS2)
+@@ -72,7 +72,7 @@
+ // WARNING: These hard coded names need to go away. They need to
+ // come from localizable resources
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #define APP_REGISTRY_NAME NS_LITERAL_CSTRING("Application Registry")
+ #define ESSENTIAL_FILES   NS_LITERAL_CSTRING("Essential Files")
+ #elif defined(XP_WIN) || defined(XP_OS2)
+@@ -88,7 +88,7 @@
+ #define NS_ENV_PLUGINS_DIR          "EnvPlugins"    // env var MOZ_PLUGIN_PATH
+ #define NS_USER_PLUGINS_DIR         "UserPlugins"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #define NS_MACOSX_USER_PLUGIN_DIR   "OSXUserPlugins"
+ #define NS_MACOSX_LOCAL_PLUGIN_DIR  "OSXLocalPlugins"
+ #define NS_MACOSX_JAVA2_PLUGIN_DIR  "OSXJavaPlugins"
+@@ -132,7 +132,7 @@
+     *_retval = nsnull;
+     *persistent = PR_TRUE;
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     FSRef fileRef;
+     nsCOMPtr<nsILocalFileMac> macFile;
+ #endif
+@@ -198,7 +198,7 @@
+         if (NS_SUCCEEDED(rv))
+             rv = localFile->AppendRelativeNativePath(PLUGINS_DIR_NAME);
+     }
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     else if (nsCRT::strcmp(prop, NS_MACOSX_USER_PLUGIN_DIR) == 0)
+     {
+         if (::FSFindFolder(kUserDomain, kInternetPlugInFolderType, false, &fileRef) == noErr) {
+@@ -328,7 +328,7 @@
+     PRBool exists;
+     nsCOMPtr<nsILocalFile> localDir;
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+     FSRef fsRef;
+     OSType folderType = aLocal ? kCachedDataFolderType : kDomainLibraryFolderType;
+     OSErr err = ::FSFindFolder(kUserDomain, folderType, kCreateFolder, &fsRef);
+@@ -410,7 +410,7 @@
+     rv = GetProductDirectory(getter_AddRefs(localDir), aLocal);
+     if (NS_FAILED(rv)) return rv;
+ 
+-#if defined(XP_MACOSX) || defined(XP_OS2) || defined(XP_WIN)
++#if defined(MOZ_WIDGET_COCOA) || defined(XP_OS2) || defined(XP_WIN)
+     // These 3 platforms share this part of the path - do them as one
+     rv = localDir->AppendRelativeNativePath(NS_LITERAL_CSTRING("Profiles"));
+     if (NS_FAILED(rv)) return rv;
+@@ -567,7 +567,7 @@
+     
+     if (!nsCRT::strcmp(prop, NS_APP_PLUGINS_DIR_LIST))
+     {
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+         // We are temporarily looking for JavaPlugin2 in the Java framework because Apple did not want
+         // to enable it for Safari by including it in the normal search directories. This situation
+         // should be resolved soon and then we should stop looking for JavaPlugin2 explicitly.
+diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
+--- a/xpcom/io/nsDirectoryService.cpp
++++ b/xpcom/io/nsDirectoryService.cpp
+@@ -61,7 +61,7 @@
+ #include <stdlib.h>
+ #include <sys/param.h>
+ #include "prenv.h"
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <CoreServices/CoreServices.h>
+ #include <Carbon/Carbon.h>
+ #endif
+@@ -90,7 +90,7 @@
+ // For Windows platform, We are choosing Appdata folder as HOME
+ #if defined (XP_WIN)
+ #define HOME_DIR NS_WIN_APPDATA_DIR
+-#elif defined (XP_MACOSX)
++#elif defined (MOZ_WIDGET_COCOA)
+ #define HOME_DIR NS_OSX_HOME_DIR
+ #elif defined (XP_UNIX)
+ #define HOME_DIR NS_UNIX_HOME_DIR
+@@ -153,7 +153,7 @@
+         return NS_OK;
+     }
+ 
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+     // Works even if we're not bundled.
+     CFBundleRef appBundle = CFBundleGetMainBundle();
+     if (appBundle != nsnull)
+@@ -689,7 +689,7 @@
+         rv = GetSpecialSystemDirectory(OS_CurrentWorkingDirectory, getter_AddRefs(localFile)); 
+     }
+        
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+     else if (inAtom == nsDirectoryService::sDirectory)
+     {
+         rv = GetOSXFolderType(kClassicDomain, kSystemFolderType, getter_AddRefs(localFile));
+diff --git a/xpcom/io/nsDirectoryServiceAtomList.h b/xpcom/io/nsDirectoryServiceAtomList.h
+--- a/xpcom/io/nsDirectoryServiceAtomList.h
++++ b/xpcom/io/nsDirectoryServiceAtomList.h
+@@ -49,7 +49,7 @@
+ DIR_ATOM(sOS_HomeDirectory, NS_OS_HOME_DIR)
+ DIR_ATOM(sOS_DesktopDirectory, NS_OS_DESKTOP_DIR)
+ DIR_ATOM(sInitCurrentProcess_dummy, NS_XPCOM_INIT_CURRENT_PROCESS_DIR)
+-#if defined (XP_MACOSX)
++#if defined (MOZ_WIDGET_COCOA)
+ DIR_ATOM(sDirectory, NS_OS_SYSTEM_DIR)
+ DIR_ATOM(sTrashDirectory, NS_MAC_TRASH_DIR)
+ DIR_ATOM(sStartupDirectory, NS_MAC_STARTUP_DIR)
+diff --git a/xpcom/io/nsDirectoryServiceDefs.h b/xpcom/io/nsDirectoryServiceDefs.h
+--- a/xpcom/io/nsDirectoryServiceDefs.h
++++ b/xpcom/io/nsDirectoryServiceDefs.h
+@@ -114,11 +114,11 @@
+ 
+ /* Platform Specific Locations */
+ 
+-#if !defined (XP_UNIX) || defined(XP_MACOSX)
++#if !defined (XP_UNIX) || defined(MOZ_WIDGET_COCOA)
+     #define NS_OS_SYSTEM_DIR                    "SysD"
+ #endif
+ 
+-#if defined (XP_MACOSX)
++#if defined (MOZ_WIDGET_COCOA)
+     #define NS_MAC_DESKTOP_DIR                  NS_OS_DESKTOP_DIR
+     #define NS_MAC_TRASH_DIR                    "Trsh"
+     #define NS_MAC_STARTUP_DIR                  "Strt"
+diff --git a/xpcom/io/nsLocalFile.h b/xpcom/io/nsLocalFile.h
+--- a/xpcom/io/nsLocalFile.h
++++ b/xpcom/io/nsLocalFile.h
+@@ -72,7 +72,7 @@
+ 
+ #ifdef XP_WIN
+ #include "nsLocalFileWin.h"
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #include "nsLocalFileOSX.h"
+ #elif defined(XP_UNIX) || defined(XP_BEOS)
+ #include "nsLocalFileUnix.h"
+diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
+--- a/xpcom/io/nsLocalFileUnix.cpp
++++ b/xpcom/io/nsLocalFileUnix.cpp
+@@ -67,7 +67,7 @@
+     #include <fabdef.h>
+ #endif
+ 
+-#if defined(HAVE_SYS_QUOTA_H)
++#if defined(HAVE_SYS_QUOTA_H) && defined(HAVE_SYS_SYSMACROS_H)
+ #include <sys/sysmacros.h>
+ #include <sys/quota.h>
+ #endif
+@@ -1220,7 +1220,7 @@
+      */
+     *aDiskSpaceAvailable = (PRInt64)fs_buf.f_bsize * (fs_buf.f_bavail - 1);
+ 
+-#if defined(HAVE_SYS_STAT_H) || defined(HAVE_SYS_QUOTA_H)
++#if defined(HAVE_SYS_STAT_H) || (defined(HAVE_SYS_QUOTA_H) && defined(HAVE_SYS_SYSMACROS_H))
+ 
+     if(!FillStatCache()) {
+         // Return available size from statfs

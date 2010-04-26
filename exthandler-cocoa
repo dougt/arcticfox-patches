@@ -1,0 +1,12 @@
+diff --git a/uriloader/exthandler/nsLocalHandlerApp.h b/uriloader/exthandler/nsLocalHandlerApp.h
+--- a/uriloader/exthandler/nsLocalHandlerApp.h
++++ b/uriloader/exthandler/nsLocalHandlerApp.h
+@@ -80,7 +80,7 @@
+ 
+ // any platforms that need a platform-specific class instead of just 
+ // using nsLocalHandlerApp need to add an include and a typedef here.
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ # ifndef NSLOCALHANDLERAPPMAC_H_  
+ # include "mac/nsLocalHandlerAppMac.h"
+ typedef nsLocalHandlerAppMac PlatformLocalHandlerApp_t;

@@ -1,0 +1,85 @@
+diff --git a/gfx/cairo/cairo/src/Makefile.in b/gfx/cairo/cairo/src/Makefile.in
+--- a/gfx/cairo/cairo/src/Makefile.in
++++ b/gfx/cairo/cairo/src/Makefile.in
+@@ -188,7 +188,7 @@
+ EXPORTS_cairo += $(PDF_EXPORTS)
+ endif
+ 
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CSRCS   += cairo-quartz-surface.c cairo-quartz-image-surface.c cairo-quartz-font.c
+ EXPORTS_cairo += cairo-quartz.h cairo-quartz-image.h
+ endif
+diff --git a/gfx/cairo/cairo/src/cairo-quartz-font.c b/gfx/cairo/cairo/src/cairo-quartz-font.c
+--- a/gfx/cairo/cairo/src/cairo-quartz-font.c
++++ b/gfx/cairo/cairo/src/cairo-quartz-font.c
+@@ -759,7 +759,8 @@
+     return ffont->cgFont;
+ }
+ 
+-#ifndef __LP64__
++//XXX: use a better define
++#if !defined(__LP64__) && !defined(MOZ_WIDGET_UIKIT)
+ /*
+  * compat with old ATSUI backend
+  */
+diff --git a/gfx/cairo/cairo/src/cairo-quartz-image.h b/gfx/cairo/cairo/src/cairo-quartz-image.h
+--- a/gfx/cairo/cairo/src/cairo-quartz-image.h
++++ b/gfx/cairo/cairo/src/cairo-quartz-image.h
+@@ -40,7 +40,12 @@
+ 
+ #if CAIRO_HAS_QUARTZ_IMAGE_SURFACE
+ 
++//XXX: not appropriate for cairo
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ CAIRO_BEGIN_DECLS
+ 
+diff --git a/gfx/cairo/cairo/src/cairo-quartz-surface.c b/gfx/cairo/cairo/src/cairo-quartz-surface.c
+--- a/gfx/cairo/cairo/src/cairo-quartz-surface.c
++++ b/gfx/cairo/cairo/src/cairo-quartz-surface.c
+@@ -157,10 +157,15 @@
+     CGContextGetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextGetAllowsFontSmoothing");
+     CGContextSetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextSetAllowsFontSmoothing");
+ 
++#ifdef MOZ_WIDGET_COCOA
+     if (Gestalt(gestaltSystemVersion, &_cairo_quartz_osx_version) != noErr) {
+ 	// assume 10.4
+ 	_cairo_quartz_osx_version = 0x1040;
+     }
++#else
++    //XXX: kind of lame
++    _cairo_quartz_osx_version = 0x1040;
++#endif
+ 
+     _cairo_quartz_symbol_lookup_done = TRUE;
+ }
+diff --git a/gfx/cairo/cairo/src/cairo-quartz.h b/gfx/cairo/cairo/src/cairo-quartz.h
+--- a/gfx/cairo/cairo/src/cairo-quartz.h
++++ b/gfx/cairo/cairo/src/cairo-quartz.h
+@@ -40,7 +40,12 @@
+ 
+ #if CAIRO_HAS_QUARTZ_SURFACE
+ 
++//XXX: not an appropriate ifdef for cairo, clearly
++#ifdef MOZ_WIDGET_COCOA
+ #include <ApplicationServices/ApplicationServices.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ CAIRO_BEGIN_DECLS
+ 
+@@ -66,7 +71,7 @@
+ cairo_public cairo_font_face_t *
+ cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
+ 
+-#ifndef __LP64__
++#if !defined(__LP64__) && !defined(MOZ_WIDGET_UIKIT)
+ cairo_public cairo_font_face_t *
+ cairo_quartz_font_face_create_for_atsu_font_id (ATSUFontID font_id);
+ #endif

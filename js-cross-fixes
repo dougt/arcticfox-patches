@@ -1,0 +1,33 @@
+fixes for compiling js for iphone simulator
+
+diff --git a/js/src/configure.in b/js/src/configure.in
+--- a/js/src/configure.in
++++ b/js/src/configure.in
+@@ -1731,7 +1731,15 @@
+     _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
+     MOZ_ENABLE_POSTSCRIPT=
+     TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
++    # Check if we have the Cocoa framework, or if we're targeting Cocoa Touch
++    _SAVE_LDFLAGS=$LDFLAGS
++    #XXX: does spidermonkey need to link with Cocoa?
+     LDFLAGS="$LDFLAGS -framework Cocoa"
++    AC_TRY_LINK(,[return 0;],_HAVE_FRAMEWORK_COCOA=1,_HAVE_FRAMEWORK_COCOA=)
++    if test -z "$_HAVE_FRAMEWORK_COCOA"; then
++        echo "Not using Cocoa"
++        LDFLAGS=$_SAVE_LDFLAGS;
++    fi
+     # The ExceptionHandling framework is needed for Objective-C exception
+     # logging code in nsObjCExceptions.h. Currently we only use that in debug
+     # builds.
+diff --git a/js/src/jscpucfg.cpp b/js/src/jscpucfg.cpp
+--- a/js/src/jscpucfg.cpp
++++ b/js/src/jscpucfg.cpp
+@@ -45,7 +45,7 @@
+ #include <stdlib.h>
+ 
+ #if defined(CROSS_COMPILE) && !defined(FORCE_BIG_ENDIAN) && !defined(FORCE_LITTLE_ENDIAN)
+-#include <prtypes.h>
++//#include <prtypes.h>
+ #endif
+ 
+ /************************************************************************/

@@ -1,0 +1,12 @@
+diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp
+--- a/netwerk/build/nsNetModule.cpp
++++ b/netwerk/build/nsNetModule.cpp
+@@ -64,7 +64,7 @@
+ 
+ #include "nsNetCID.h"
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #if !defined(__LP64__)
+ #define BUILD_APPLEFILE_DECODER 1
+ #endif

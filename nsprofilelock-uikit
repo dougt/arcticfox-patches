@@ -1,0 +1,29 @@
+diff --git a/profile/dirserviceprovider/src/nsProfileLock.cpp b/profile/dirserviceprovider/src/nsProfileLock.cpp
+--- a/profile/dirserviceprovider/src/nsProfileLock.cpp
++++ b/profile/dirserviceprovider/src/nsProfileLock.cpp
+@@ -44,7 +44,7 @@
+ #include "nsProfileLock.h"
+ #include "nsCOMPtr.h"
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #include <Carbon/Carbon.h>
+ #include <CoreFoundation/CoreFoundation.h>
+ #endif
+@@ -481,7 +481,7 @@
+         // assume we tried an NFS that does not support it. Now, try with symlink.
+         rv = LockWithSymlink(filePath, PR_FALSE);
+     }
+-    
++#ifdef MOZ_WIDGET_COCOA
+     if (NS_SUCCEEDED(rv))
+     {
+         // Check for the old-style lock used by pre-mozilla 1.3 builds.
+@@ -530,6 +530,7 @@
+         }
+         rv = NS_OK; // Don't propagate error from OpenNSPRFileDesc.
+     }
++#endif // MOZ_WIDGET_COCOA
+ #elif defined(XP_UNIX)
+     nsCAutoString filePath;
+     rv = lockFile->GetNativePath(filePath);

@@ -1,0 +1,27 @@
+diff --git a/gfx/thebes/public/gfxQuartzPDFSurface.h b/gfx/thebes/public/gfxQuartzPDFSurface.h
+--- a/gfx/thebes/public/gfxQuartzPDFSurface.h
++++ b/gfx/thebes/public/gfxQuartzPDFSurface.h
+@@ -41,7 +41,11 @@
+ #include "gfxASurface.h"
+ #include "gfxContext.h"
+ 
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ class THEBES_API gfxQuartzPDFSurface : public gfxASurface {
+ public:
+diff --git a/gfx/thebes/src/Makefile.in b/gfx/thebes/src/Makefile.in
+--- a/gfx/thebes/src/Makefile.in
++++ b/gfx/thebes/src/Makefile.in
+@@ -161,7 +161,7 @@
+ EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
+ endif
+ 
+-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CPPSRCS	+= \
+ 	gfxQuartzSurface.cpp \
+ 	gfxQuartzImageSurface.cpp \

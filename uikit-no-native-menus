@@ -1,0 +1,12 @@
+diff --git a/xpfe/appshell/src/nsWebShellWindow.cpp b/xpfe/appshell/src/nsWebShellWindow.cpp
+--- a/xpfe/appshell/src/nsWebShellWindow.cpp
++++ b/xpfe/appshell/src/nsWebShellWindow.cpp
+@@ -108,7 +108,7 @@
+ 
+ #include "nsIMarkupDocumentViewer.h"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsINativeMenuService.h"
+ #define USE_NATIVE_MENUS
+ #endif

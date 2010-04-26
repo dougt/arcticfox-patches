@@ -1,0 +1,27 @@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -5047,7 +5047,10 @@
+     CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
+     LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
+     MOZ_FS_LAYOUT=bundle
+-    MOZ_WEBGL=1
++    # skip webgl on UIKit for now
++    if test "$MOZ_WIDGET_TOOLKIT" == "cocoa"; then
++      MOZ_WEBGL=1
++    fi
+     ;;
+ esac
+ 
+diff --git a/content/canvas/src/Makefile.in b/content/canvas/src/Makefile.in
+--- a/content/canvas/src/Makefile.in
++++ b/content/canvas/src/Makefile.in
+@@ -79,7 +79,7 @@
+ endif
+ endif
+ 
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ WEBGL_PLATFORM = CGL
+ endif
+ 

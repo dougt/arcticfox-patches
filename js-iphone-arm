@@ -1,0 +1,72 @@
+fixes for compiling js on arm-apple-darwin
+
+diff --git a/js/src/configure.in b/js/src/configure.in
+--- a/js/src/configure.in
++++ b/js/src/configure.in
+@@ -858,6 +858,7 @@
+                           Set the minimum MacOS version needed at runtime],
+                       [_MACOSX_DEPLOYMENT_TARGET=$enableval])
+ 
++if test "$target_cpu" != "arm"; then
+ case "$target" in
+ *-darwin*)
+     if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
+@@ -872,6 +873,7 @@
+     fi
+     ;;
+ esac
++fi
+ 
+ AC_SUBST(MACOSX_DEPLOYMENT_TARGET)
+ 
+diff --git a/js/src/jsnum.h b/js/src/jsnum.h
+--- a/js/src/jsnum.h
++++ b/js/src/jsnum.h
+@@ -100,7 +100,7 @@
+ #ifdef WIN32
+     return _finite(d);
+ #else
+-    return finite(d);
++    return isfinite(d);
+ #endif
+ }
+ 
+diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
+--- a/js/src/jstracer.cpp
++++ b/js/src/jstracer.cpp
+@@ -7385,6 +7385,7 @@
+ }
+ 
+ #else
++//TODO: fix this for iphone
+ #warning Not sure how to check for architecture variant on your platform. Assuming ARMv4.
+ static unsigned int
+ arm_check_arch() { return 4; }
+diff --git a/js/src/nanojit/CodeAlloc.cpp b/js/src/nanojit/CodeAlloc.cpp
+--- a/js/src/nanojit/CodeAlloc.cpp
++++ b/js/src/nanojit/CodeAlloc.cpp
+@@ -266,9 +266,13 @@
+ #endif
+ 
+ #if defined(AVMPLUS_UNIX) && defined(NANOJIT_ARM)
++#if defined(__APPLE__)
++#include <libkern/OSCacheControl.h>
++#else
+ #include <asm/unistd.h>
+ extern "C" void __clear_cache(char *BEG, char *END);
+ #endif
++#endif
+ 
+ #if defined(AVMPLUS_UNIX) && defined(NANOJIT_MIPS)
+ #include <asm/cachectl.h>
+@@ -347,6 +351,10 @@
+     void CodeAlloc::flushICache(void *start, size_t len) {
+         cacheflush((int)start, (int)start + len, 0);
+     }
++    #elif defined(AVMPLUS_ARM) && defined(__APPLE__)
++    void CodeAlloc::flushICache(void *start, size_t len) {
++        sys_dcache_flush(start, len);
++    }
+     #else
+     // fixme: __clear_cache is a libgcc feature, test for libgcc or gcc
+     void CodeAlloc::flushICache(void *start, size_t len) {

@@ -1,44 +1,35 @@
-diff --git a/build/iphone-xulrunner-mozconfig b/build/iphone-xulrunner-mozconfig
+diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig
 new file mode 100644
 --- /dev/null
-+++ b/build/iphone-xulrunner-mozconfig
-@@ -0,0 +1,39 @@
-+mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../objdir-iphone-debug
-+ac_add_options --enable-application=xulrunner
-+
-+export IPHONE=1
++++ b/build/iphone-simulator-mozconfig
+@@ -0,0 +1,30 @@
++mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../iphone-simulator-opt
++mk_add_options MOZ_MAKE_FLAGS="-j4"
++ac_add_options --enable-application=browser
 +
 +export CROSS_COMPILE=1
++export CC="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -mmacosx-version-min=10.5"
++export CXX="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++-4.2 -arch i386 -mmacosx-version-min=10.5"
++export CPP="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/cpp-4.2 -arch i386"
++export LD="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ld -arch i386"
++export AR=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ar
++export AS="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/as -arch i386"
++export STRIP=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/strip
 +
-+export CC="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.0 -arch armv6"
-+export CXX="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-4.0 -arch armv6"
-+export CPP="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/cpp-4.0 -arch armv6"
-+export LD="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ld -arch armv6"
-+export AR=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ar
-+export AS="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/as -arch armv6"
++export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/pkgconfig/
 +
-+export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk/usr/lib/pkgconfig
++ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk
++ac_add_options --target=i386-apple-darwin9
 +
-+export CFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk" 
-+export CXXFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk"
-+export LDFLAGS="-isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk"
-+
-+export HOST_CFLAGS="-arch i386"
-+export HOST_CXXFLAGS="-arch i386"
-+export HOST_LDFLAGS="-arch i386"
-+
-+ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.0.sdk
-+ac_add_options --target=armv6-apple-darwin9
-+
-+ac_add_options --disable-optimize
++#XXX: should make these defaults
 +ac_add_options --disable-printing
 +ac_add_options --disable-plugins
++ac_add_options --disable-necko-wifi
 +ac_add_options --disable-negotiateauth
 +ac_add_options --disable-ogg
 +ac_add_options --disable-wave
-+
-+ac_add_options --enable-debug
-+# :-(
-+ac_add_options --disable-tests
-+
-+mk_add_options  AUTOCONF=autoconf213
++ac_add_options --disable-ipc
++ac_add_options --disable-updater
++ac_add_options --disable-crashreporter
++#ac_add_options --disable-tests
++export MOZ_LIBREG=

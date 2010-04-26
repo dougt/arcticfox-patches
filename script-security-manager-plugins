@@ -1,0 +1,29 @@
+diff --git a/caps/src/nsScriptSecurityManager.cpp b/caps/src/nsScriptSecurityManager.cpp
+--- a/caps/src/nsScriptSecurityManager.cpp
++++ b/caps/src/nsScriptSecurityManager.cpp
+@@ -71,7 +71,9 @@
+ #include "nsIFile.h"
+ #include "nsIFileURL.h"
+ #include "nsIZipReader.h"
++#ifdef MOZ_PLUGINS
+ #include "nsIPluginInstance.h"
++#endif
+ #include "nsIXPConnect.h"
+ #include "nsIScriptGlobalObject.h"
+ #include "nsPIDOMWindow.h"
+@@ -3237,6 +3239,7 @@
+         }
+     }
+ 
++#ifdef MOZ_PLUGINS
+     //-- If user allows scripting of plugins by untrusted scripts,
+     //   and the target object is a plugin, allow the access.
+     if(aObj)
+@@ -3257,6 +3260,7 @@
+                 return NS_OK;
+         }
+     }
++#endif
+ 
+     //-- Access tests failed
+     return NS_ERROR_DOM_XPCONNECT_ACCESS_DENIED;

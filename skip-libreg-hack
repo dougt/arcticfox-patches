@@ -1,0 +1,57 @@
+allow skipping libreg via a configure variable
+
+diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
+--- a/config/autoconf.mk.in
++++ b/config/autoconf.mk.in
+@@ -128,6 +128,7 @@
+ MOZ_VIEW_SOURCE = @MOZ_VIEW_SOURCE@
+ MOZ_XPINSTALL = @MOZ_XPINSTALL@
+ MOZ_JSLOADER  = @MOZ_JSLOADER@
++MOZ_LIBREG    = @MOZ_LIBREG@
+ MOZ_USE_NATIVE_UCONV = @MOZ_USE_NATIVE_UCONV@
+ MOZ_BRANDING_DIRECTORY = @MOZ_BRANDING_DIRECTORY@
+ XPCOM_USE_LEA = @XPCOM_USE_LEA@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -4732,6 +4732,7 @@
+ MOZ_JAVAXPCOM=
+ MOZ_JSDEBUGGER=1
+ MOZ_JSLOADER=1
++MOZ_LIBREG=1
+ MOZ_MATHML=1
+ MOZ_MORK=
+ MOZ_MORKREADER=1
+@@ -8256,7 +8257,7 @@
+ AC_SUBST(NS_PRINTING)
+ AC_SUBST(MOZ_WEBGL)
+ AC_SUBST(MOZ_HELP_VIEWER)
+-
++AC_SUBST(MOZ_LIBREG)
+ AC_SUBST(MOZ_JAVAXPCOM)
+ AC_SUBST(JAVA_INCLUDE_PATH)
+ AC_SUBST(JAVA)
+diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
+--- a/toolkit/library/libxul-config.mk
++++ b/toolkit/library/libxul-config.mk
+@@ -121,7 +121,7 @@
+ STATIC_LIBS += chromium_s
+ endif
+ 
+-ifndef WINCE
++ifdef MOZ_LIBREG
+ ifdef MOZ_XPINSTALL
+ STATIC_LIBS += \
+ 	mozreg_s \
+diff --git a/toolkit/toolkit-tiers.mk b/toolkit/toolkit-tiers.mk
+--- a/toolkit/toolkit-tiers.mk
++++ b/toolkit/toolkit-tiers.mk
+@@ -58,7 +58,7 @@
+ tier_platform_dirs += modules/zlib
+ endif
+ 
+-ifndef WINCE
++ifdef MOZ_LIBREG
+ ifneq (,$(MOZ_XPINSTALL))
+ tier_platform_dirs += modules/libreg
+ endif

@@ -1,0 +1,35 @@
+allow forcing cross-compile with CROSS_COMPILE=1, to make targeting the simulator a cross-compile
+
+diff --git a/nsprpub/configure b/nsprpub/configure
+--- a/nsprpub/configure
++++ b/nsprpub/configure
+@@ -1228,7 +1228,7 @@
+ fi
+ 
+ if test -z "$SKIP_COMPILER_CHECKS"; then
+-if test "$target" != "$host"; then
++if test "$target" != "$host" -o -n "$CROSS_COMPILE"; then
+     echo "cross compiling from $host to $target"
+     cross_compiling=yes
+ 
+@@ -6265,7 +6265,7 @@
+ s%\]%\\&%g
+ s%\$%$$%g
+ EOF
+-DEFS=`sed -f conftest.defs confdefs.h | tr '\012' ' ' | tr '\015' ' '` # Manually modified for MKS support.
++DEFS=`sed -f conftest.defs confdefs.h | tr '\012' ' '`
+ rm -f conftest.defs
+ 
+ 
+diff --git a/nsprpub/configure.in b/nsprpub/configure.in
+--- a/nsprpub/configure.in
++++ b/nsprpub/configure.in
+@@ -477,7 +477,7 @@
+ dnl ========================================================
+ dnl Checks for compilers.
+ dnl ========================================================
+-if test "$target" != "$host"; then
++if test "$target" != "$host" -o -n "$CROSS_COMPILE"; then
+     echo "cross compiling from $host to $target"
+     cross_compiling=yes
+ 

@@ -1,0 +1,70 @@
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -5551,6 +5551,10 @@
+     MOZ_PLUGINS=,
+     MOZ_PLUGINS=1)
+ 
++if test -n "$MOZ_PLUGINS"; then
++  AC_DEFINE(MOZ_PLUGINS)
++fi
++
+ dnl ========================================================
+ dnl = Disable building dbm
+ dnl ========================================================
+diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
+--- a/uriloader/exthandler/nsExternalHelperAppService.cpp
++++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
+@@ -90,7 +90,7 @@
+ #include "nsIObserverService.h" // so we can be a profile change observer
+ #include "nsIPropertyBag2.h" // for the 64-bit content length
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsILocalFileMac.h"
+ #ifndef __LP64__
+ #include "nsIAppleFileDecoder.h"
+@@ -99,7 +99,9 @@
+ #include "nsILocalFileOS2.h"
+ #endif
+ 
++#ifdef MOZ_PLUGINS
+ #include "nsIPluginHost.h" // XXX needed for ext->type mapping (bug 233289)
++#endif
+ #include "nsEscape.h"
+ 
+ #include "nsIStringBundle.h" // XXX needed to localize error msgs
+@@ -394,7 +396,7 @@
+ static nsresult GetDownloadDirectory(nsIFile **_directory)
+ {
+   nsCOMPtr<nsIFile> dir;
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   // On OS X, we first try to get the users download location, if it's set.
+   nsCOMPtr<nsIPrefBranch> prefs =
+     do_GetService(NS_PREFSERVICE_CONTRACTID);
+@@ -1381,7 +1383,7 @@
+ 
+   mOutStream = NS_BufferOutputStream(outputStream, BUFFERED_OUTPUT_SIZE);
+ 
+-#if defined(XP_MACOSX) && !defined(__LP64__)
++#if defined(MOZ_WIDGET_COCOA) && !defined(__LP64__)
+     nsCAutoString contentType;
+     mMimeInfo->GetMIMEType(contentType);
+     if (contentType.LowerCaseEqualsLiteral(APPLICATION_APPLEFILE) ||
+@@ -2593,6 +2595,7 @@
+   if (found)
+     return NS_OK;
+ 
++#ifdef MOZ_PLUGINS
+   const nsCString& flatExt = PromiseFlatCString(aFileExt);
+   // Try the plugins
+   const char* mimeType;
+@@ -2603,6 +2606,7 @@
+       return NS_OK;
+     }
+   }
++#endif // MOZ_PLUGINS
+   
+   rv = NS_OK;
+   // Let's see if an extension added something

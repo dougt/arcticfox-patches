@@ -1,0 +1,30 @@
+diff --git a/embedding/components/find/src/nsWebBrowserFind.cpp b/embedding/components/find/src/nsWebBrowserFind.cpp
+--- a/embedding/components/find/src/nsWebBrowserFind.cpp
++++ b/embedding/components/find/src/nsWebBrowserFind.cpp
+@@ -81,7 +81,7 @@
+ #include "nsXPIDLString.h"
+ #endif
+ 
+-#if defined(XP_MACOSX) && !defined(__LP64__)
++#if defined(MOZ_WIDGET_COCOA) && !defined(__LP64__)
+ #include "nsAutoPtr.h"
+ #include <Carbon/Carbon.h>
+ #endif
+@@ -280,7 +280,7 @@
+ NS_IMETHODIMP nsWebBrowserFind::GetSearchString(PRUnichar * *aSearchString)
+ {
+     NS_ENSURE_ARG_POINTER(aSearchString);
+-#if defined(XP_MACOSX) && !defined(__LP64__)
++#if defined(MOZ_WIDGET_COCOA) && !defined(__LP64__)
+     OSStatus err;
+     ScrapRef scrap;
+     err = ::GetScrapByName(kScrapFindScrap, kScrapGetNamedScrap, &scrap);
+@@ -306,7 +306,7 @@
+ NS_IMETHODIMP nsWebBrowserFind::SetSearchString(const PRUnichar * aSearchString)
+ {
+     mSearchString.Assign(aSearchString);
+-#if defined(XP_MACOSX) && !defined(__LP64__)
++#if defined(MOZ_WIDGET_COCOA) && !defined(__LP64__)
+     OSStatus err;
+     ScrapRef scrap;
+     err = ::GetScrapByName(kScrapFindScrap, kScrapClearNamedScrap, &scrap);

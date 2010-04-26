@@ -1,0 +1,21 @@
+diff --git a/toolkit/profile/src/nsToolkitProfileService.cpp b/toolkit/profile/src/nsToolkitProfileService.cpp
+--- a/toolkit/profile/src/nsToolkitProfileService.cpp
++++ b/toolkit/profile/src/nsToolkitProfileService.cpp
+@@ -56,7 +56,7 @@
+ #include "nsILocalFile.h"
+ #include "nsISimpleEnumerator.h"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <CoreFoundation/CoreFoundation.h>
+ #include "nsILocalFileMac.h"
+ #endif
+@@ -897,7 +897,7 @@
+ nsresult
+ XRE_GetFileFromPath(const char *aPath, nsILocalFile* *aResult)
+ {
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+     PRInt32 pathLen = strlen(aPath);
+     if (pathLen > MAXPATHLEN)
+         return NS_ERROR_INVALID_ARG;

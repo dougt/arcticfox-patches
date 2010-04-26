@@ -1,0 +1,127 @@
+diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
+--- a/toolkit/xre/nsAppRunner.cpp
++++ b/toolkit/xre/nsAppRunner.cpp
+@@ -165,8 +165,11 @@
+ #include "nsThreadUtils.h"
+ #endif
+ 
++#ifdef MOZ_WIDGET_COCOA
++#include "nsILocalFileMac.h"
++#endif
++
+ #ifdef XP_MACOSX
+-#include "nsILocalFileMac.h"
+ #include "nsCommandLineServiceMac.h"
+ #endif
+ 
+@@ -188,10 +191,14 @@
+ #include <malloc.h>
+ #endif
+ 
+-#if defined (XP_MACOSX)
++#if defined (MOZ_WIDGET_COCOA)
+ #include <Carbon/Carbon.h>
+ #endif
+ 
++#if defined (MOZ_WIDGET_UIKIT)
++#include <CoreFoundation/CoreFoundation.h>
++#endif
++
+ #ifdef DEBUG
+ #include "prlog.h"
+ #endif
+@@ -1478,11 +1485,6 @@
+     return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
+                                  aResult);
+ 
+-  NS_NewNativeLocalFile(EmptyCString(), PR_TRUE, getter_AddRefs(lf));
+-  nsCOMPtr<nsILocalFileMac> lfm (do_QueryInterface(lf));
+-  if (!lfm)
+-    return NS_ERROR_FAILURE;
+-
+   // Works even if we're not bundled.
+   CFBundleRef appBundle = CFBundleGetMainBundle();
+   if (!appBundle)
+@@ -1492,6 +1494,14 @@
+   if (!bundleURL)
+     return NS_ERROR_FAILURE;
+ 
++#ifdef MOZ_WIDGET_COCOA
++  NS_NewNativeLocalFile(EmptyCString(), PR_TRUE, getter_AddRefs(lf));
++  nsCOMPtr<nsILocalFileMac> lfm (do_QueryInterface(lf));
++  if (!lfm) {
++    CFRelease(bundleURL);
++    return NS_ERROR_FAILURE;
++  }
++
+   FSRef fileRef;
+   if (!CFURLGetFSRef(bundleURL, &fileRef)) {
+     CFRelease(bundleURL);
+@@ -1499,8 +1509,18 @@
+   }
+ 
+   rv = lfm->InitWithFSRef(&fileRef);
++#else // MOZ_WIDGET_UIKIT
++  char path[MAXPATHLEN * 4];
++  if (!CFURLGetFileSystemRepresentation(bundleURL, true, (UInt8*)path,
++                                        sizeof(path))) {
++    CFRelease(bundleURL);
++    return NS_ERROR_FAILURE;
++  }
++
++  rv = NS_NewNativeLocalFile(nsDependentCString(path), PR_TRUE,
++                             getter_AddRefs(lf));
++#endif
+   CFRelease(bundleURL);
+-
+   if (NS_FAILED(rv))
+     return rv;
+ 
+@@ -2930,7 +2950,7 @@
+   }
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
+     // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
+     // API".  Otherwise the call to ReceiveNextEvent() below will make it
+@@ -2994,7 +3014,7 @@
+     gSafeMode = PR_TRUE;
+   }
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   if (GetCurrentEventKeyModifiers() & optionKey)
+     gSafeMode = PR_TRUE;
+ #endif
+diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
+--- a/toolkit/xre/nsXREDirProvider.cpp
++++ b/toolkit/xre/nsXREDirProvider.cpp
+@@ -75,7 +75,7 @@
+ #define CSIDL_LOCAL_APPDATA             0x001C
+ #endif
+ #endif
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsILocalFileMac.h"
+ #endif
+ #ifdef XP_BEOS
+@@ -1085,7 +1085,7 @@
+   nsresult rv;
+   nsCOMPtr<nsILocalFile> localDir;
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+   FSRef fsRef;
+   OSType folderType;
+   if (aLocal) {
+@@ -1205,7 +1205,7 @@
+ {
+   nsresult rv;
+   nsCOMPtr<nsILocalFile> localDir;
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+   FSRef fsRef;
+   OSErr err = ::FSFindFolder(kOnSystemDisk, kApplicationSupportFolderType, kCreateFolder, &fsRef);
+   NS_ENSURE_FALSE(err, NS_ERROR_FAILURE);

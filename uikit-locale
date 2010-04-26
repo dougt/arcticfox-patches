@@ -1,0 +1,74 @@
+diff --git a/intl/locale/src/nsLocaleConstructors.h b/intl/locale/src/nsLocaleConstructors.h
+--- a/intl/locale/src/nsLocaleConstructors.h
++++ b/intl/locale/src/nsLocaleConstructors.h
+@@ -48,11 +48,11 @@
+ #include "nsLanguageAtomService.h"
+ #include "nsLocaleCID.h"
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #define USE_MAC_LOCALE
+ #endif
+ 
+-#if (defined(XP_UNIX) && !defined(XP_MACOSX)) || defined(XP_BEOS)
++#if (defined(XP_UNIX) && !defined(MOZ_WIDGET_COCOA)) || defined(XP_BEOS)
+ #define USE_UNIX_LOCALE
+ #endif
+ 
+diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleService.cpp
+--- a/intl/locale/src/nsLocaleService.cpp
++++ b/intl/locale/src/nsLocaleService.cpp
+@@ -53,7 +53,7 @@
+ #elif defined(XP_OS2)
+ #  include "unidef.h"
+ #  include "nsIOS2Locale.h"
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #  include <Carbon/Carbon.h>
+ #  include "nsIMacLocale.h"
+ #elif defined(XP_UNIX) || defined(XP_BEOS)
+@@ -78,7 +78,7 @@
+ #define NSILOCALE_MAX_ACCEPT_LANGUAGE	16
+ #define NSILOCALE_MAX_ACCEPT_LENGTH		18
+ 
+-#if (defined(XP_UNIX) && !defined(XP_MACOSX)) || defined(XP_BEOS) || defined(XP_OS2)
++#if (defined(XP_UNIX) && !defined(MOZ_WIDGET_COCOA)) || defined(XP_BEOS) || defined(XP_OS2)
+ static int posix_locale_category[LocaleListLength] =
+ {
+   LC_COLLATE,
+@@ -161,7 +161,7 @@
+         if (NS_FAILED(result)) { return;}
+     }
+ #endif
+-#if (defined(XP_UNIX) && !defined(XP_MACOSX)) || defined(XP_BEOS)
++#if (defined(XP_UNIX) && !defined(MOZ_WIDGET_COCOA)) || defined(XP_BEOS)
+     nsCOMPtr<nsIPosixLocale> posixConverter = do_GetService(NS_POSIXLOCALE_CONTRACTID);
+ 
+     nsAutoString xpLocale, platformLocale;
+@@ -258,7 +258,7 @@
+     }  // if ( NS_SUCCEEDED )...
+ #endif  // XP_OS2
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     // Get string representation of user's current locale
+     CFLocaleRef userLocaleRef = ::CFLocaleCopyCurrent();
+     CFStringRef userLocaleStr = ::CFLocaleGetIdentifier(userLocaleRef);
+@@ -286,7 +286,7 @@
+     ::CFRelease(userLocaleRef);
+ 
+     NS_ASSERTION(mApplicationLocale, "Failed to create locale objects");
+-#endif // XP_MACOSX
++#endif // MOZ_WIDGET_COCOA
+ }
+ 
+ nsLocaleService::~nsLocaleService(void)
+@@ -309,7 +309,7 @@
+       nsString category; category.AssignWithConversion(LocaleList[i]);
+       result = resultLocale->AddCategory(category, aLocale);
+       if (NS_FAILED(result)) { delete resultLocale; return result;}
+-#if (defined(XP_UNIX) && !defined(XP_MACOSX)) || defined(XP_BEOS)
++#if (defined(XP_UNIX) && !defined(MOZ_WIDGET_COCOA)) || defined(XP_BEOS)
+       category.AppendLiteral("##PLATFORM");
+       result = resultLocale->AddCategory(category, aLocale);
+       if (NS_FAILED(result)) { delete resultLocale; return result;}
