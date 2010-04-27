@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373065 14400
+# Node ID d76e3794770b31af2bf13e872ae708c95505f132
+# Parent  927bac46fa602181fc52f6512981e7a0682c0702
+imported patch downloadmanager-uikit
+
 diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/components/downloads/src/nsDownloadManager.cpp
 --- a/toolkit/components/downloads/src/nsDownloadManager.cpp
 +++ b/toolkit/components/downloads/src/nsDownloadManager.cpp

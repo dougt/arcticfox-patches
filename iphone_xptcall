@@ -1,7 +1,14 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373068 14400
+# Node ID 1c168e84e26a4a416da1b59198a824d06ae7a5a3
+# Parent  e06af88512dd91effa5c8e1bac7b0c8555c2868b
+imported patch iphone_xptcall
+
 diff --git a/xpcom/reflect/xptcall/src/md/unix/Makefile.in b/xpcom/reflect/xptcall/src/md/unix/Makefile.in
 --- a/xpcom/reflect/xptcall/src/md/unix/Makefile.in
 +++ b/xpcom/reflect/xptcall/src/md/unix/Makefile.in
-@@ -195,6 +195,16 @@
+@@ -220,6 +220,16 @@
  ifneq (,$(filter OpenBSDarmish OpenBSDzaurus,$(OS_ARCH)$(OS_TEST)))
  CPPSRCS		:= xptcinvoke_arm_openbsd.cpp xptcstubs_arm_openbsd.cpp
  endif

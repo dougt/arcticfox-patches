@@ -1,9 +1,14 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373054 14400
+# Node ID 796ebc97596556c5eeae1c8065c8486836ee5448
+# Parent  fe958f86d786bf7dedf0e8f3d22be326e95978a1
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -3192,7 +3192,7 @@
+@@ -3237,7 +3237,7 @@
  AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
@@ -12,7 +17,7 @@ diff --git a/configure.in b/configure.in
  
  dnl Try for MMX support
  dnl NB - later gcc versions require -mmmx for this header to be successfully
-@@ -3291,11 +3291,19 @@
+@@ -3336,11 +3336,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -32,7 +37,7 @@ diff --git a/configure.in b/configure.in
    AC_MSG_RESULT([$ac_cv_have_core_text])
  
    if test "$ac_cv_have_core_text" = "no"; then
-@@ -5015,13 +5023,25 @@
+@@ -5127,13 +5135,27 @@
      ;;
  
  cairo-cocoa)
@@ -48,20 +53,23 @@ diff --git a/configure.in b/configure.in
 +                    AC_MSG_ERROR([Neither Cocoa nor UIKit frameworks were found. Are you using the correct SDK?]))
 +        MOZ_WIDGET_TOOLKIT=uikit
 +      AC_DEFINE(MOZ_WIDGET_UIKIT)
++      TK_LIBS='-framework CoreFoundation -framework CoreGraphics'
 +    else
 +      MOZ_WIDGET_TOOLKIT=cocoa
 +      AC_DEFINE(MOZ_WIDGET_COCOA)
++      TK_LIBS='-framework QuartzCore -framework Carbon -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework AddressBook'
 +    fi
      MOZ_USER_DIR="Mozilla"
      AC_DEFINE(XP_MACOSX)
-     TK_LIBS='-framework QuartzCore -framework Carbon -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework AddressBook'
+-    TK_LIBS='-framework QuartzCore -framework Carbon -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework AddressBook -framework OpenGL'
++
      TK_CFLAGS="-DNO_X11"
 -    LDFLAGS="$LDFLAGS -framework Cocoa -lobjc"
 +    LDFLAGS="$LDFLAGS -lobjc"
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -7443,6 +7463,7 @@
+@@ -7571,6 +7593,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -69,7 +77,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -7467,6 +7488,7 @@
+@@ -7595,6 +7618,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -77,7 +85,7 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -7840,7 +7862,7 @@
+@@ -7968,7 +7992,7 @@
      if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
      fi
@@ -110,7 +118,7 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  #include "nsMacUtilsImpl.h"
  #endif
  
-@@ -248,7 +248,7 @@
+@@ -246,7 +246,7 @@
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
  
@@ -119,7 +127,7 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacUtilsImpl)
  #endif
  
-@@ -422,7 +422,7 @@
+@@ -420,7 +420,7 @@
      COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor),
  #endif
  

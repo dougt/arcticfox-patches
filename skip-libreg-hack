@@ -1,3 +1,8 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373062 14400
+# Node ID aff695803b7ce8061844f7725ec5b36859f8b3e2
+# Parent  bb11c1e111c573bbb3526f362f68ee78a8e0fa05
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
@@ -14,7 +19,7 @@ diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -4732,6 +4732,7 @@
+@@ -4845,6 +4845,7 @@
  MOZ_JAVAXPCOM=
  MOZ_JSDEBUGGER=1
  MOZ_JSLOADER=1
@@ -22,7 +27,7 @@ diff --git a/configure.in b/configure.in
  MOZ_MATHML=1
  MOZ_MORK=
  MOZ_MORKREADER=1
-@@ -8256,7 +8257,7 @@
+@@ -8373,7 +8374,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)
@@ -34,7 +39,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -121,7 +121,7 @@
+@@ -122,7 +122,7 @@
  STATIC_LIBS += chromium_s
  endif
  

@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373064 14400
+# Node ID 342f6cdb27a41fbb479431dcd9ad29e0596909ab
+# Parent  62d5829586a555e28a88d6fde6a4c21ed25b48fe
+imported patch event-state-manager-uikit
+
 diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsEventStateManager.cpp
 --- a/content/events/src/nsEventStateManager.cpp
 +++ b/content/events/src/nsEventStateManager.cpp

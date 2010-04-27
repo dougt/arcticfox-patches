@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373068 14400
+# Node ID e06af88512dd91effa5c8e1bac7b0c8555c2868b
+# Parent  96822bcf2d52b9d7a81ad083f184c421a859d5ea
+imported patch thebes-extra
+
 diff --git a/gfx/thebes/public/gfxQuartzPDFSurface.h b/gfx/thebes/public/gfxQuartzPDFSurface.h
 --- a/gfx/thebes/public/gfxQuartzPDFSurface.h
 +++ b/gfx/thebes/public/gfxQuartzPDFSurface.h

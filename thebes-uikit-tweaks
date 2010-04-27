@@ -1,7 +1,14 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373064 14400
+# Node ID 51219cd52d049d08f0265eaacbda829a0e2bf2c3
+# Parent  2d465b4a4aa2622f55182ccfea63ba2536b7f16b
+imported patch thebes-uikit-tweaks
+
 diff --git a/gfx/thebes/public/Makefile.in b/gfx/thebes/public/Makefile.in
 --- a/gfx/thebes/public/Makefile.in
 +++ b/gfx/thebes/public/Makefile.in
-@@ -106,7 +106,7 @@
+@@ -108,7 +108,7 @@
  EXPORTS +=	gfxPDFSurface.h
  endif
  
@@ -23,5 +30,5 @@ diff --git a/gfx/thebes/public/gfxQuartzSurface.h b/gfx/thebes/public/gfxQuartzS
 +#include <CoreGraphics/CoreGraphics.h>
 +#endif
  
- class THEBES_API gfxQuartzSurface : public gfxASurface {
- public:
+ class gfxContext;
+ 

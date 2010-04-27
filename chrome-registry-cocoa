@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373065 14400
+# Node ID d330037d863aa20138f924fd90c53d7d83fb184b
+# Parent  68d221bf08ab0ae2bc58f1bae203cb23a4fee946
+imported patch chrome-registry-cocoa
+
 diff --git a/chrome/src/nsChromeRegistry.cpp b/chrome/src/nsChromeRegistry.cpp
 --- a/chrome/src/nsChromeRegistry.cpp
 +++ b/chrome/src/nsChromeRegistry.cpp

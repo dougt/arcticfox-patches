@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1272373067 14400
+# Node ID 96822bcf2d52b9d7a81ad083f184c421a859d5ea
+# Parent  fa510b3e1137fcd1bc640958da00470aa5bb5cca
+imported patch libxul-makefile
+
 diff --git a/toolkit/library/Makefile.in b/toolkit/library/Makefile.in
 --- a/toolkit/library/Makefile.in
 +++ b/toolkit/library/Makefile.in

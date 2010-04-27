@@ -1,9 +1,14 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1271867183 14400
+# Node ID cc0f4c55dc879754142dec1573e99dd00eb943d1
+# Parent  775d549b4c56fcd9dc2540525883ffcb3020cea9
 fixes for compiling js on arm-apple-darwin
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -858,6 +858,7 @@
+@@ -859,6 +859,7 @@
                            Set the minimum MacOS version needed at runtime],
                        [_MACOSX_DEPLOYMENT_TARGET=$enableval])
  
@@ -11,7 +16,7 @@ diff --git a/js/src/configure.in b/js/src/configure.in
  case "$target" in
  *-darwin*)
      if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
-@@ -872,6 +873,7 @@
+@@ -873,6 +874,7 @@
      fi
      ;;
  esac
@@ -34,7 +39,7 @@ diff --git a/js/src/jsnum.h b/js/src/jsnum.h
 diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
 --- a/js/src/jstracer.cpp
 +++ b/js/src/jstracer.cpp
-@@ -7385,6 +7385,7 @@
+@@ -7390,6 +7390,7 @@
  }
  
  #else
@@ -45,7 +50,7 @@ diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
 diff --git a/js/src/nanojit/CodeAlloc.cpp b/js/src/nanojit/CodeAlloc.cpp
 --- a/js/src/nanojit/CodeAlloc.cpp
 +++ b/js/src/nanojit/CodeAlloc.cpp
-@@ -266,9 +266,13 @@
+@@ -231,9 +231,13 @@
  #endif
  
  #if defined(AVMPLUS_UNIX) && defined(NANOJIT_ARM)
@@ -59,7 +64,7 @@ diff --git a/js/src/nanojit/CodeAlloc.cpp b/js/src/nanojit/CodeAlloc.cpp
  
  #if defined(AVMPLUS_UNIX) && defined(NANOJIT_MIPS)
  #include <asm/cachectl.h>
-@@ -347,6 +351,10 @@
+@@ -312,6 +316,10 @@
      void CodeAlloc::flushICache(void *start, size_t len) {
          cacheflush((int)start, (int)start + len, 0);
      }
