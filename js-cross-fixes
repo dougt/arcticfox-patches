@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867166 14400
-# Node ID 775d549b4c56fcd9dc2540525883ffcb3020cea9
-# Parent  a053b1e62256eb2192568575aef0f45fc2dae00f
+# Node ID 826c62d0ab2bb12da5f59beb7843e6627ed6685e
+# Parent  88b73324264e85a35b0ebe96736d2b67ed51ed76
 fixes for compiling js for iphone simulator
 
 diff --git a/js/src/configure.in b/js/src/configure.in

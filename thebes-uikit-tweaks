@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 51219cd52d049d08f0265eaacbda829a0e2bf2c3
-# Parent  2d465b4a4aa2622f55182ccfea63ba2536b7f16b
+# Node ID b724ab653e62fadfb0c811989326887f205c1c1f
+# Parent  1d7327fd21ca54bedbd6b276d68188aedb486bd9
 imported patch thebes-uikit-tweaks
 
 diff --git a/gfx/thebes/public/Makefile.in b/gfx/thebes/public/Makefile.in

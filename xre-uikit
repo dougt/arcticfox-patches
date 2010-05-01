@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 0b484fcd8136dc21fd94859fcb3236b4aab06d9b
-# Parent  3e5d2d495f6ac085f7b2a498e218c9c4cc26bc5f
+# Node ID 9b6423c3780849d237a11e18a80bbeeb35c4c637
+# Parent  a3cba549ca6d77328f8ef699eb6adf982362e6d3
 imported patch xre-uikit
 
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
@@ -84,7 +84,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (NS_FAILED(rv))
      return rv;
  
-@@ -2951,7 +2971,7 @@
+@@ -2963,7 +2983,7 @@
    }
  #endif
  
@@ -93,7 +93,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3015,7 +3035,7 @@
+@@ -3027,7 +3047,7 @@
      gSafeMode = PR_TRUE;
    }
  
@@ -105,7 +105,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 --- a/toolkit/xre/nsXREDirProvider.cpp
 +++ b/toolkit/xre/nsXREDirProvider.cpp
-@@ -75,7 +75,7 @@
+@@ -76,7 +76,7 @@
  #define CSIDL_LOCAL_APPDATA             0x001C
  #endif
  #endif
@@ -114,7 +114,7 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
  #include "nsILocalFileMac.h"
  #endif
  #ifdef XP_BEOS
-@@ -1085,7 +1085,7 @@
+@@ -1086,7 +1086,7 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
  
@@ -123,7 +123,7 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
    FSRef fsRef;
    OSType folderType;
    if (aLocal) {
-@@ -1205,7 +1205,7 @@
+@@ -1206,7 +1206,7 @@
  {
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;

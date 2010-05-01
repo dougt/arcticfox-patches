@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID fa510b3e1137fcd1bc640958da00470aa5bb5cca
-# Parent  160c594024a39aea2a77ca300ec9136788fdaaf8
+# Node ID 4661cdaf52ecd953aea79fd24766e02c0e06a766
+# Parent  91bae8ac309f9686c54753898911e32c452203f9
 imported patch cairo-quartz-uikit
 
 diff --git a/gfx/cairo/cairo/src/Makefile.in b/gfx/cairo/cairo/src/Makefile.in
@@ -81,7 +81,7 @@ diff --git a/gfx/cairo/cairo/src/cairo-quartz.h b/gfx/cairo/cairo/src/cairo-quar
  
  CAIRO_BEGIN_DECLS
  
-@@ -69,7 +74,7 @@
+@@ -72,7 +77,7 @@
  cairo_public cairo_font_face_t *
  cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
  

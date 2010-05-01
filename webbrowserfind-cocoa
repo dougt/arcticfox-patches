@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID c557f99eb16699c5d1d4c724fedf0636a83c200b
-# Parent  d330037d863aa20138f924fd90c53d7d83fb184b
+# Node ID 721ea98ba69193a438d4d1989b97eeabde731953
+# Parent  f37b6c4a4d05dcf264c13df19f53be58225fce33
 imported patch webbrowserfind-cocoa
 
 diff --git a/embedding/components/find/src/nsWebBrowserFind.cpp b/embedding/components/find/src/nsWebBrowserFind.cpp
 --- a/embedding/components/find/src/nsWebBrowserFind.cpp
 +++ b/embedding/components/find/src/nsWebBrowserFind.cpp
-@@ -81,7 +81,7 @@
+@@ -82,7 +82,7 @@
  #include "nsXPIDLString.h"
  #endif
  
@@ -17,7 +17,7 @@ diff --git a/embedding/components/find/src/nsWebBrowserFind.cpp b/embedding/comp
  #include "nsAutoPtr.h"
  #include <Carbon/Carbon.h>
  #endif
-@@ -280,7 +280,7 @@
+@@ -281,7 +281,7 @@
  NS_IMETHODIMP nsWebBrowserFind::GetSearchString(PRUnichar * *aSearchString)
  {
      NS_ENSURE_ARG_POINTER(aSearchString);
@@ -26,7 +26,7 @@ diff --git a/embedding/components/find/src/nsWebBrowserFind.cpp b/embedding/comp
      OSStatus err;
      ScrapRef scrap;
      err = ::GetScrapByName(kScrapFindScrap, kScrapGetNamedScrap, &scrap);
-@@ -306,7 +306,7 @@
+@@ -307,7 +307,7 @@
  NS_IMETHODIMP nsWebBrowserFind::SetSearchString(const PRUnichar * aSearchString)
  {
      mSearchString.Assign(aSearchString);

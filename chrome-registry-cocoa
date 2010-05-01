@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID d330037d863aa20138f924fd90c53d7d83fb184b
-# Parent  68d221bf08ab0ae2bc58f1bae203cb23a4fee946
+# Node ID f37b6c4a4d05dcf264c13df19f53be58225fce33
+# Parent  9f012a1356bee37a02ca1c9e9c8a004e9b8a8aeb
 imported patch chrome-registry-cocoa
 
 diff --git a/chrome/src/nsChromeRegistry.cpp b/chrome/src/nsChromeRegistry.cpp
@@ -17,7 +17,7 @@ diff --git a/chrome/src/nsChromeRegistry.cpp b/chrome/src/nsChromeRegistry.cpp
  #include <CoreServices/CoreServices.h>
  #elif defined(MOZ_WIDGET_GTK2)
  #include <gtk/gtk.h>
-@@ -1668,7 +1668,7 @@
+@@ -1669,7 +1669,7 @@
                                           info.dwMajorVersion,
                                           info.dwMinorVersion);
    }

@@ -1,16 +1,16 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID aff695803b7ce8061844f7725ec5b36859f8b3e2
-# Parent  bb11c1e111c573bbb3526f362f68ee78a8e0fa05
+# Node ID 3708d874f7ee10b441f02046d94a8b5df6729199
+# Parent  a6b67350a23367d63e30ccddf3dfed964e3667f3
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 --- a/config/autoconf.mk.in
 +++ b/config/autoconf.mk.in
-@@ -128,6 +128,7 @@
+@@ -127,6 +127,7 @@
+ ACCESSIBILITY = @ACCESSIBILITY@
  MOZ_VIEW_SOURCE = @MOZ_VIEW_SOURCE@
- MOZ_XPINSTALL = @MOZ_XPINSTALL@
  MOZ_JSLOADER  = @MOZ_JSLOADER@
 +MOZ_LIBREG    = @MOZ_LIBREG@
  MOZ_USE_NATIVE_UCONV = @MOZ_USE_NATIVE_UCONV@
@@ -19,7 +19,7 @@ diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -4845,6 +4845,7 @@
+@@ -4895,6 +4895,7 @@
  MOZ_JAVAXPCOM=
  MOZ_JSDEBUGGER=1
  MOZ_JSLOADER=1
@@ -27,7 +27,7 @@ diff --git a/configure.in b/configure.in
  MOZ_MATHML=1
  MOZ_MORK=
  MOZ_MORKREADER=1
-@@ -8373,7 +8374,7 @@
+@@ -8415,7 +8416,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)
@@ -45,9 +45,9 @@ diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
  
 -ifndef WINCE
 +ifdef MOZ_LIBREG
- ifdef MOZ_XPINSTALL
  STATIC_LIBS += \
  	mozreg_s \
+ 	$(NULL)
 diff --git a/toolkit/toolkit-tiers.mk b/toolkit/toolkit-tiers.mk
 --- a/toolkit/toolkit-tiers.mk
 +++ b/toolkit/toolkit-tiers.mk
@@ -57,6 +57,6 @@ diff --git a/toolkit/toolkit-tiers.mk b/toolkit/toolkit-tiers.mk
  
 -ifndef WINCE
 +ifdef MOZ_LIBREG
- ifneq (,$(MOZ_XPINSTALL))
  tier_platform_dirs += modules/libreg
  endif
+ 

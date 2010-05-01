@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373068 14400
-# Node ID e06af88512dd91effa5c8e1bac7b0c8555c2868b
-# Parent  96822bcf2d52b9d7a81ad083f184c421a859d5ea
+# Node ID b763dfb05e099e3a689f892fa2b22c911d1ac443
+# Parent  855f69717cb359b72f603ff3683175fde931b2da
 imported patch thebes-extra
 
 diff --git a/gfx/thebes/public/gfxQuartzPDFSurface.h b/gfx/thebes/public/gfxQuartzPDFSurface.h
@@ -23,7 +23,7 @@ diff --git a/gfx/thebes/public/gfxQuartzPDFSurface.h b/gfx/thebes/public/gfxQuar
 diff --git a/gfx/thebes/src/Makefile.in b/gfx/thebes/src/Makefile.in
 --- a/gfx/thebes/src/Makefile.in
 +++ b/gfx/thebes/src/Makefile.in
-@@ -161,7 +161,7 @@
+@@ -174,7 +174,7 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  

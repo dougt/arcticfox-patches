@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID e769224536a0754806d616434a6aa2ed4c93c1a6
-# Parent  aff695803b7ce8061844f7725ec5b36859f8b3e2
+# Node ID c14f2fbfe69d8c097c848ac9ba02f466dd75d6cf
+# Parent  3708d874f7ee10b441f02046d94a8b5df6729199
 imported patch uikit-http-user-agent
 
 diff --git a/netwerk/protocol/http/src/nsHttpHandler.cpp b/netwerk/protocol/http/src/nsHttpHandler.cpp
