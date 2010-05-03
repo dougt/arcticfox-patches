@@ -19,15 +19,18 @@ diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -4895,6 +4895,7 @@
- MOZ_JAVAXPCOM=
- MOZ_JSDEBUGGER=1
- MOZ_JSLOADER=1
-+MOZ_LIBREG=1
- MOZ_MATHML=1
- MOZ_MORK=
- MOZ_MORKREADER=1
-@@ -8415,7 +8416,7 @@
+@@ -6632,6 +6632,10 @@
+      AC_DEFINE(MOZ_HELP_VIEWER)
+ fi
+ 
++if test -z "$SKIP_LIBREG"; then
++    MOZ_LIBREG=1
++fi
++
+ dnl ========================================================
+ dnl = Enable safe browsing (anti-phishing)
+ dnl ========================================================
+@@ -8415,7 +8419,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)

@@ -10,7 +10,7 @@ uikit-http-user-agent
 uikit-skip-applefiledecoder
 exthandler-uikit-skip-plugins
 script-security-manager-plugins
-thebes-uikit-tweaks
+thebes-uikit
 npapi-uikit
 event-state-manager-uikit
 plugin-utils
@@ -26,5 +26,7 @@ skip-webgl-uikit
 exthandler-cocoa
 cairo-quartz-uikit
 libxul-makefile
-thebes-extra
+nsobjectframe-no-coreanimation
+uikit-directory-service
+widget-uikit
 iphone_xptcall

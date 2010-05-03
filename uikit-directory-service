@@ -1,0 +1,25 @@
+diff --git a/xpcom/io/nsUIKitDirectories.h b/xpcom/io/nsUIKitDirectories.h
+new file mode 100644
+--- /dev/null
++++ b/xpcom/io/nsUIKitDirectories.h
+@@ -0,0 +1,4 @@
++#ifndef NSUIKITDIRECTORIES_H_
++#define NSUIKITDIRECTORIES_H_
++nsresult GetTemporaryFolder(nsILocalFile** aFile);
++#endif // NSUIKITDIRECTORIES_H_
+diff --git a/xpcom/io/nsUIKitDirectories.mm b/xpcom/io/nsUIKitDirectories.mm
+new file mode 100644
+--- /dev/null
++++ b/xpcom/io/nsUIKitDirectories.mm
+@@ -0,0 +1,11 @@
++#include <Foundation/NSPathUtilities.h>
++
++#include "nsString.h"
++#include "nsILocalFile.h"
++
++nsresult GetTemporaryFolder(nsILocalFile** aFile)
++{
++  return NS_NewNativeLocalFile(
++          nsDependentCString([NSTemporaryDirectory() UTF8String]),
++          PR_TRUE, aFile);
++}

@@ -39,4 +39,4 @@ new file mode 100644
 +ac_add_options --disable-updater
 +ac_add_options --disable-crashreporter
 +#ac_add_options --disable-tests
-+export MOZ_LIBREG=
++export SKIP_LIBREG=1

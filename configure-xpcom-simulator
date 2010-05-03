@@ -53,7 +53,7 @@ diff --git a/configure.in b/configure.in
 +                    AC_MSG_ERROR([Neither Cocoa nor UIKit frameworks were found. Are you using the correct SDK?]))
 +        MOZ_WIDGET_TOOLKIT=uikit
 +      AC_DEFINE(MOZ_WIDGET_UIKIT)
-+      TK_LIBS='-framework CoreFoundation -framework CoreGraphics'
++      TK_LIBS='-framework CoreFoundation -framework CoreGraphics -framework CoreText'
 +    else
 +      MOZ_WIDGET_TOOLKIT=cocoa
 +      AC_DEFINE(MOZ_WIDGET_COCOA)

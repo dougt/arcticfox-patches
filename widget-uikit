@@ -1,0 +1,12 @@
+diff --git a/widget/src/Makefile.in b/widget/src/Makefile.in
+--- a/widget/src/Makefile.in
++++ b/widget/src/Makefile.in
+@@ -46,7 +46,7 @@
+ 
+ DIRS		= xpwidgets
+ 
+-ifneq (,$(filter beos os2 cocoa qt,$(MOZ_WIDGET_TOOLKIT)))
++ifneq (,$(filter beos os2 cocoa qt uikit,$(MOZ_WIDGET_TOOLKIT)))
+ DIRS		+= $(MOZ_WIDGET_TOOLKIT)
+ endif
+ 

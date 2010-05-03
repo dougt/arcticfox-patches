@@ -1,0 +1,40 @@
+diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
+--- a/layout/generic/nsObjectFrame.cpp
++++ b/layout/generic/nsObjectFrame.cpp
+@@ -164,8 +164,10 @@
+ #ifdef XP_MACOSX
+ #include "gfxQuartzNativeDrawing.h"
+ #include "nsPluginUtilsOSX.h"
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsCoreAnimationSupport.h"
+ #endif
++#endif
+ 
+ #ifdef MOZ_X11
+ #include <X11/Xlib.h>
+@@ -447,7 +449,9 @@
+   NP_CGContext                              mCGPluginPortCopy;
+   NP_Port                                   mQDPluginPortCopy;
+   PRInt32                                   mInCGPaintLevel;
++#ifdef MOZ_WIDGET_COCOA
+   nsCARenderer                              mCARenderer;
++#endif
+   static nsCOMPtr<nsITimer>                *sCATimer;
+   static nsTArray<nsPluginInstanceOwner*>  *sCARefreshListeners;
+   PRBool                                    mSentInitialTopLevelWindowEvent;
+@@ -3534,6 +3538,7 @@
+ nsCOMPtr<nsITimer>                *nsPluginInstanceOwner::sCATimer = NULL;
+ nsTArray<nsPluginInstanceOwner*>  *nsPluginInstanceOwner::sCARefreshListeners = NULL;
+ 
++#ifdef MOZ_WIDGET_COCOA
+ void nsPluginInstanceOwner::CARefresh(nsITimer *aTimer, void *aClosure) {
+   if (!sCARefreshListeners) {
+     return;
+@@ -3622,6 +3627,7 @@
+     ::CGContextDrawImage(aCGContext, CGRectMake(0,0,aWidth,aHeight), caImage);
+   }
+ }
++#endif
+ 
+ void* nsPluginInstanceOwner::GetPluginPortCopy()
+ {
