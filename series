@@ -3,7 +3,7 @@ nspr-iphone-arm
 js-cross-fixes
 js-iphone-arm
 mozconfig
-configure-xpcom-simulator
+configure-xpcom-uikit
 uikit-locale
 skip-libreg-hack
 uikit-http-user-agent
@@ -27,6 +27,12 @@ exthandler-cocoa
 cairo-quartz-uikit
 libxul-makefile
 nsobjectframe-no-coreanimation
+thebes-uikit-extra
+exthandler-uikit
+exthandler-uikit-extra
+xpcom-uikit-extra
+nsapprunner-uikit
+static-xul-components
 uikit-directory-service
 widget-uikit
 iphone_xptcall

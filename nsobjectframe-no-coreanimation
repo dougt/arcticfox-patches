@@ -22,7 +22,38 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    static nsCOMPtr<nsITimer>                *sCATimer;
    static nsTArray<nsPluginInstanceOwner*>  *sCARefreshListeners;
    PRBool                                    mSentInitialTopLevelWindowEvent;
-@@ -3534,6 +3538,7 @@
+@@ -777,6 +781,7 @@
+       return NS_ERROR_FAILURE;
+     pluginWidget->SetPluginEventModel(mInstanceOwner->GetEventModel());
+ 
++#ifdef MOZ_WIDGET_COCOA
+     if (mInstanceOwner->GetDrawingModel() == NPDrawingModelCoreAnimation) {
+       NPWindow* window;
+       mInstanceOwner->GetWindow(window);
+@@ -784,6 +789,7 @@
+       mInstanceOwner->SetupCARenderer(window->width, window->height);
+     }
+ #endif
++#endif
+   }
+ 
+   if (!IsHidden()) {
+@@ -1642,10 +1648,13 @@
+ #endif
+ 
+       mInstanceOwner->BeginCGPaint();
++#ifdef MOZ_WIDGET_COCOA
+       if (mInstanceOwner->GetDrawingModel() == NPDrawingModelCoreAnimation) {
+         // CoreAnimation is updated, render the layer and perform a readback.
+         mInstanceOwner->RenderCoreAnimation(cgContext, window->width, window->height);
+-      } else {
++      } else
++#endif
++        {
+         mInstanceOwner->Paint(nativeClipRect - offset, cgContext);
+       }
+       mInstanceOwner->EndCGPaint();
+@@ -3534,6 +3543,7 @@
  nsCOMPtr<nsITimer>                *nsPluginInstanceOwner::sCATimer = NULL;
  nsTArray<nsPluginInstanceOwner*>  *nsPluginInstanceOwner::sCARefreshListeners = NULL;
  
@@ -30,7 +61,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  void nsPluginInstanceOwner::CARefresh(nsITimer *aTimer, void *aClosure) {
    if (!sCARefreshListeners) {
      return;
-@@ -3622,6 +3627,7 @@
+@@ -3622,6 +3632,7 @@
      ::CGContextDrawImage(aCGContext, CGRectMake(0,0,aWidth,aHeight), caImage);
    }
  }

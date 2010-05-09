@@ -1,0 +1,12 @@
+diff --git a/xpcom/io/nsLocalFileCommon.cpp b/xpcom/io/nsLocalFileCommon.cpp
+--- a/xpcom/io/nsLocalFileCommon.cpp
++++ b/xpcom/io/nsLocalFileCommon.cpp
+@@ -63,7 +63,7 @@
+     nsLocalFile::GlobalShutdown();
+ }
+ 
+-#if !defined(XP_MACOSX) && !defined(XP_WIN)
++#if !defined(MOZ_WIDGET_COCOA) && !defined(XP_WIN)
+ NS_IMETHODIMP
+ nsLocalFile::InitWithFile(nsILocalFile *aFile)
+ {

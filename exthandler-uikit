@@ -1,0 +1,15 @@
+diff --git a/uriloader/exthandler/Makefile.in b/uriloader/exthandler/Makefile.in
+--- a/uriloader/exthandler/Makefile.in
++++ b/uriloader/exthandler/Makefile.in
+@@ -95,6 +95,11 @@
+ OSHELPER += nsMIMEInfoUnix.cpp
+ endif
+ 
++ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
++#XXX: fixme
++OSHELPER += nsMIMEInfoUnix.cpp
++endif
++
+ ifeq ($(MOZ_WIDGET_TOOLKIT),beos)
+ OSHELPER  += nsMIMEInfoBeOS.cpp
+ endif

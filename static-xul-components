@@ -1,0 +1,12 @@
+diff --git a/toolkit/library/nsStaticXULComponents.cpp b/toolkit/library/nsStaticXULComponents.cpp
+--- a/toolkit/library/nsStaticXULComponents.cpp
++++ b/toolkit/library/nsStaticXULComponents.cpp
+@@ -208,7 +208,7 @@
+ #define UNIXPROXY_MODULE
+ #endif
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+ #define OSXPROXY_MODULE MODULE(nsOSXProxyModule)
+ #else
+ #define OSXPROXY_MODULE
