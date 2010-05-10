@@ -1,0 +1,12 @@
+diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp
+--- a/netwerk/build/nsNetModule.cpp
++++ b/netwerk/build/nsNetModule.cpp
+@@ -639,7 +639,7 @@
+ 
+     // Release global state used by the URL helper module.
+     net_ShutdownURLHelper();
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     net_ShutdownURLHelperOSX();
+ #endif
+     

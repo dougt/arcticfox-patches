@@ -27,9 +27,10 @@ exthandler-cocoa
 cairo-quartz-uikit
 libxul-makefile
 nsobjectframe-ifdefs
-thebes-uikit-extra
+domclassinfo-media
 exthandler-uikit
 static-xul-components
+nsnetmodule-cocoa
 uikit-directory-service
 widget-uikit
 iphone_xptcall
