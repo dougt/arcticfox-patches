@@ -1,7 +1,19 @@
 diff --git a/toolkit/library/nsStaticXULComponents.cpp b/toolkit/library/nsStaticXULComponents.cpp
 --- a/toolkit/library/nsStaticXULComponents.cpp
 +++ b/toolkit/library/nsStaticXULComponents.cpp
-@@ -208,7 +208,7 @@
+@@ -71,8 +71,10 @@
+ 
+ #ifdef XP_WIN
+ #  define WIDGET_MODULES MODULE(nsWidgetModule)
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #  define WIDGET_MODULES MODULE(nsWidgetMacModule)
++#elif defined(MOZ_WIDGET_UIKIT)
++#  define WIDGET_MODULES MODULE(nsWidgetUIKitModule)
+ #elif defined(XP_BEOS)
+ #  define WIDGET_MODULES MODULE(nsWidgetBeOSModule)
+ #elif defined(XP_OS2)
+@@ -208,7 +210,7 @@
  #define UNIXPROXY_MODULE
  #endif
  

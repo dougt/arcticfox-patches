@@ -26,12 +26,9 @@ skip-webgl-uikit
 exthandler-cocoa
 cairo-quartz-uikit
 libxul-makefile
-nsobjectframe-no-coreanimation
+nsobjectframe-ifdefs
 thebes-uikit-extra
 exthandler-uikit
-exthandler-uikit-extra
-xpcom-uikit-extra
-nsapprunner-uikit
 static-xul-components
 uikit-directory-service
 widget-uikit

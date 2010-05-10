@@ -333,6 +333,18 @@ diff --git a/xpcom/io/nsLocalFile.h b/xpcom/io/nsLocalFile.h
  #include "nsLocalFileOSX.h"
  #elif defined(XP_UNIX) || defined(XP_BEOS)
  #include "nsLocalFileUnix.h"
+diff --git a/xpcom/io/nsLocalFileCommon.cpp b/xpcom/io/nsLocalFileCommon.cpp
+--- a/xpcom/io/nsLocalFileCommon.cpp
++++ b/xpcom/io/nsLocalFileCommon.cpp
+@@ -63,7 +63,7 @@
+     nsLocalFile::GlobalShutdown();
+ }
+ 
+-#if !defined(XP_MACOSX) && !defined(XP_WIN)
++#if !defined(MOZ_WIDGET_COCOA) && !defined(XP_WIN)
+ NS_IMETHODIMP
+ nsLocalFile::InitWithFile(nsILocalFile *aFile)
+ {
 diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
 --- a/xpcom/io/nsLocalFileUnix.cpp
 +++ b/xpcom/io/nsLocalFileUnix.cpp

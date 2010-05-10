@@ -53,6 +53,24 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
          mInstanceOwner->Paint(nativeClipRect - offset, cgContext);
        }
        mInstanceOwner->EndCGPaint();
+@@ -2933,7 +2942,7 @@
+   if (!menu || !event)
+     return NPERR_GENERIC_ERROR;
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   if (GetEventModel() != NPEventModelCocoa)
+     return NPERR_INCOMPATIBLE_VERSION_ERROR;
+ 
+@@ -2947,7 +2956,7 @@
+ NPBool nsPluginInstanceOwner::ConvertPoint(double sourceX, double sourceY, NPCoordinateSpace sourceSpace,
+                                            double *destX, double *destY, NPCoordinateSpace destSpace)
+ {
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   if (!mWidget)
+     return PR_FALSE;
+ 
 @@ -3534,6 +3543,7 @@
  nsCOMPtr<nsITimer>                *nsPluginInstanceOwner::sCATimer = NULL;
  nsTArray<nsPluginInstanceOwner*>  *nsPluginInstanceOwner::sCARefreshListeners = NULL;
@@ -69,3 +87,40 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
  void* nsPluginInstanceOwner::GetPluginPortCopy()
  {
+@@ -4848,7 +4859,7 @@
+   // stop the timer explicitly to reduce reference count.
+   CancelTimer();
+ #endif
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+   RemoveFromCARefreshTimer(this);
+ #endif
+ 
+@@ -5899,9 +5910,11 @@
+       NS_NPAPI_CarbonWindowFrame(static_cast<WindowRef>(static_cast<NP_CGContext*>(pluginPort)->window), windowRect);
+     else
+ #endif
++#ifdef MOZ_WIDGET_COCOA
+     {
+       NS_NPAPI_CocoaWindowFrame(cocoaTopLevelWindow, windowRect);
+     }
++#endif
+ 
+     mPluginWindow->x = geckoScreenCoords.x - windowRect.x;
+     mPluginWindow->y = geckoScreenCoords.y - windowRect.y;
+@@ -5948,6 +5961,7 @@
+     mPluginPortChanged = PR_FALSE;
+   }
+ 
++#ifdef MOZ_WIDGET_COCOA
+   // After the first NPP_SetWindow call we need to send an initial
+   // top-level window focus event.
+   if (eventModel == NPEventModelCocoa && !mSentInitialTopLevelWindowEvent) {
+@@ -5962,6 +5976,7 @@
+     pluginEvent.pluginEvent = &cocoaEvent;
+     ProcessEvent(pluginEvent);
+   }
++#endif
+ 
+ #ifndef NP_NO_QUICKDRAW
+   if (drawingModel == NPDrawingModelQuickDraw)

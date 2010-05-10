@@ -5,23 +5,40 @@
 # Parent  a3cba549ca6d77328f8ef699eb6adf982362e6d3
 imported patch xre-uikit
 
+diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
+--- a/toolkit/xre/Makefile.in
++++ b/toolkit/xre/Makefile.in
+@@ -120,12 +120,14 @@
+ endif
+ 
+ ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
+-CMMSRCS += MacLaunchHelper.mm
++CMMSRCS += \
++  MacLaunchHelper.mm \
++  MacApplicationDelegate.mm \
++  $(NULL)
+ CPPSRCS += nsCommandLineServiceMac.cpp
+ OS_CXXFLAGS += -fexceptions
+ endif
+-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
+-CMMSRCS += MacApplicationDelegate.mm
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CMMSRCS += MacAutoreleasePool.mm
+ endif
+ 
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -168,8 +168,11 @@
+@@ -168,7 +168,7 @@
  #include "nsThreadUtils.h"
  #endif
  
+-#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-+#include "nsILocalFileMac.h"
-+#endif
-+
- #ifdef XP_MACOSX
--#include "nsILocalFileMac.h"
+ #include "nsILocalFileMac.h"
  #include "nsCommandLineServiceMac.h"
  #endif
- 
-@@ -191,10 +194,14 @@
+@@ -191,10 +191,14 @@
  #include <malloc.h>
  #endif
  
@@ -37,7 +54,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #ifdef DEBUG
  #include "prlog.h"
  #endif
-@@ -1497,11 +1504,6 @@
+@@ -1497,11 +1501,6 @@
      return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
                                   aResult);
  
@@ -49,7 +66,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    // Works even if we're not bundled.
    CFBundleRef appBundle = CFBundleGetMainBundle();
    if (!appBundle)
-@@ -1511,6 +1513,14 @@
+@@ -1511,6 +1510,14 @@
    if (!bundleURL)
      return NS_ERROR_FAILURE;
  
@@ -64,7 +81,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    FSRef fileRef;
    if (!CFURLGetFSRef(bundleURL, &fileRef)) {
      CFRelease(bundleURL);
-@@ -1518,8 +1528,18 @@
+@@ -1518,8 +1525,18 @@
    }
  
    rv = lfm->InitWithFSRef(&fileRef);
@@ -84,7 +101,34 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (NS_FAILED(rv))
      return rv;
  
-@@ -2963,7 +2983,7 @@
+@@ -1732,7 +1749,7 @@
+ 
+   SaveToEnv("MOZ_LAUNCHED_CHILD=1");
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+   SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+   LaunchChildMac(gRestartArgc, gRestartArgv);
+ #else
+@@ -1937,7 +1954,7 @@
+     rv |= xpcom.SetWindowCreator(aNative);
+     NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+ #endif
+ 
+@@ -2027,7 +2044,7 @@
+       xpcom.DoAutoreg();
+       xpcom.RegisterProfileService();
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+       SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+ #endif
+ 
+@@ -2963,7 +2980,7 @@
    }
  #endif
  
@@ -93,7 +137,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3027,7 +3047,7 @@
+@@ -3027,7 +3044,7 @@
      gSafeMode = PR_TRUE;
    }
  
@@ -102,6 +146,34 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (GetCurrentEventKeyModifiers() & optionKey)
      gSafeMode = PR_TRUE;
  #endif
+@@ -3490,7 +3507,7 @@
+             }
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+             // we re-initialize the command-line service and do appleevents munging
+             // after we are sure that we're not restarting
+             cmdLine = do_CreateInstance("@mozilla.org/toolkit/command-line;1");
+@@ -3501,8 +3518,7 @@
+             rv = cmdLine->Init(gArgc, gArgv,
+                                workingDir, nsICommandLine::STATE_INITIAL_LAUNCH);
+             NS_ENSURE_SUCCESS(rv, 1);
+-#endif
+-#ifdef MOZ_WIDGET_COCOA
++
+             // Prepare Cocoa's form of Apple Event handling.
+             SetupMacApplicationDelegate();
+ #endif
+@@ -3588,7 +3604,7 @@
+           ProcessDDE(nativeApp, PR_TRUE);
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+           SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+ #endif
+         }
 diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 --- a/toolkit/xre/nsXREDirProvider.cpp
 +++ b/toolkit/xre/nsXREDirProvider.cpp
