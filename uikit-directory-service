@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1273581971 14400
+# Node ID a73cc81d9d52ab88a607ec15e64753f975fa818c
+# Parent  bb32c47f9eb4f7ad32abc43e2d6543eadb044667
+imported patch uikit-directory-service
+
 diff --git a/xpcom/io/nsUIKitDirectories.h b/xpcom/io/nsUIKitDirectories.h
 new file mode 100644
 --- /dev/null

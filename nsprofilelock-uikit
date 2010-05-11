@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID e466ca1d354c52b9ee62ba0e0a4f0e7b3ba93e68
-# Parent  721ea98ba69193a438d4d1989b97eeabde731953
+# Node ID c4f187ec6e0c731b5c8c2a524c295a3146aaed64
+# Parent  504bc4c2a643562d745bb5b72280e72e6f776adb
 imported patch nsprofilelock-uikit
 
 diff --git a/profile/dirserviceprovider/src/nsProfileLock.cpp b/profile/dirserviceprovider/src/nsProfileLock.cpp

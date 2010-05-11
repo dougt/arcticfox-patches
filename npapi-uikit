@@ -1,28 +1,37 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID ae306e15b7b3748100ce47e2a22428a7cbd589e3
-# Parent  b724ab653e62fadfb0c811989326887f205c1c1f
+# Node ID 7b38c89a8f071c03ff92a42ab3464414c5049623
+# Parent  7d8ea3011972d6d818ece5de9dc8199ba60d1b18
 imported patch npapi-uikit
 
 diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npapi.h
 --- a/modules/plugin/base/public/npapi.h
 +++ b/modules/plugin/base/public/npapi.h
-@@ -63,7 +63,13 @@
- #define NP_NO_CARBON
- #include <ApplicationServices/ApplicationServices.h>
- #else
-+#ifdef MOZ_WIDGET_COCOA
- #include <Carbon/Carbon.h>
-+#else
-+#define NP_NO_QUICKDRAW
-+#define NP_NO_CARBON
-+#include <CoreGraphics/CoreGraphics.h>
-+#endif
+@@ -57,17 +57,20 @@
  #endif
  #endif
  
-@@ -530,7 +536,10 @@
+-#if defined(XP_MACOSX) && defined(__LP64__)
++#if (defined(XP_MACOSX) && defined(__LP64__)) || defined(MOZ_WIDGET_UIKIT)
+ #define NP_NO_QUICKDRAW
+ #define NP_NO_CARBON
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <ApplicationServices/ApplicationServices.h>
+ #include <OpenGL/OpenGL.h>
+ #ifndef NP_NO_CARBON
+ #include <Carbon/Carbon.h>
+ #endif
++#elif defined(MOZ_WIDGET_UIKIT)
++#include <CoreGraphics/CoreGraphics.h>
++#define NP_NO_OPENGL
+ #endif
+ 
+ #if defined(XP_UNIX) 
+@@ -540,7 +543,10 @@
  
  typedef struct NP_Port
  {
@@ -33,3 +42,13 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
    int32_t portx; /* position inside the topmost window */
    int32_t porty;
  } NP_Port;
+@@ -562,7 +568,9 @@
+ 
+ typedef struct NP_GLContext
+ {
++#ifndef NP_NO_OPENGL
+   CGLContextObj context;
++#endif
+ #ifdef NP_NO_CARBON
+   NPNSWindow *window;
+ #else

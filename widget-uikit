@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1273581972 14400
+# Node ID c503bc0ef58848a00630bd69fd17113bf0413f0e
+# Parent  a73cc81d9d52ab88a607ec15e64753f975fa818c
+imported patch widget-uikit
+
 diff --git a/widget/src/Makefile.in b/widget/src/Makefile.in
 --- a/widget/src/Makefile.in
 +++ b/widget/src/Makefile.in

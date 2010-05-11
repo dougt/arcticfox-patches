@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 9f012a1356bee37a02ca1c9e9c8a004e9b8a8aeb
-# Parent  9ae838def62fafcfe69d9c75daee0d4d64830159
+# Node ID f7bdb4dc170100e0165709ee0d7a87bcbe34e38f
+# Parent  caaee80c446a81ae3d20a9e393ac688335c8eda1
 imported patch plugin-utils
 
 diff --git a/layout/generic/nsPluginUtilsOSX.h b/layout/generic/nsPluginUtilsOSX.h

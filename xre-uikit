@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 9b6423c3780849d237a11e18a80bbeeb35c4c637
-# Parent  a3cba549ca6d77328f8ef699eb6adf982362e6d3
+# Node ID d167643b342e6149cca7a12124debfbfddc93268
+# Parent  9aec37f120a44b70750eae8d7f07094a51fd8895
 imported patch xre-uikit
 
 diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in

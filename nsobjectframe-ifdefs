@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1273521097 14400
+# Node ID 25d4f49741250c4d5b41aa6636e8def13947caf9
+# Parent  3c855a469578fffa18e094b6d35feefc8a2b0abe
+imported patch nsobjectframe-ifdefs
+
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
@@ -87,7 +94,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
  void* nsPluginInstanceOwner::GetPluginPortCopy()
  {
-@@ -4848,7 +4859,7 @@
+@@ -4850,7 +4861,7 @@
    // stop the timer explicitly to reduce reference count.
    CancelTimer();
  #endif
@@ -96,7 +103,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    RemoveFromCARefreshTimer(this);
  #endif
  
-@@ -5899,9 +5910,11 @@
+@@ -5901,9 +5912,11 @@
        NS_NPAPI_CarbonWindowFrame(static_cast<WindowRef>(static_cast<NP_CGContext*>(pluginPort)->window), windowRect);
      else
  #endif
@@ -108,7 +115,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
      mPluginWindow->x = geckoScreenCoords.x - windowRect.x;
      mPluginWindow->y = geckoScreenCoords.y - windowRect.y;
-@@ -5948,6 +5961,7 @@
+@@ -5950,6 +5963,7 @@
      mPluginPortChanged = PR_FALSE;
    }
  
@@ -116,7 +123,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    // After the first NPP_SetWindow call we need to send an initial
    // top-level window focus event.
    if (eventModel == NPEventModelCocoa && !mSentInitialTopLevelWindowEvent) {
-@@ -5962,6 +5976,7 @@
+@@ -5964,6 +5978,7 @@
      pluginEvent.pluginEvent = &cocoaEvent;
      ProcessEvent(pluginEvent);
    }

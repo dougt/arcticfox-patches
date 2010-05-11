@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867183 14400
-# Node ID 34be472287351b375bb19e6db68a3fba80384489
-# Parent  826c62d0ab2bb12da5f59beb7843e6627ed6685e
+# Node ID b7640c945899d0a7ff7668df26cd8fff617c5ae9
+# Parent  a88cc0f3711864e777733281300b9671a2d057f7
 fixes for compiling js on arm-apple-darwin
 
 diff --git a/js/src/configure.in b/js/src/configure.in
@@ -39,7 +39,7 @@ diff --git a/js/src/jsnum.h b/js/src/jsnum.h
 diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
 --- a/js/src/jstracer.cpp
 +++ b/js/src/jstracer.cpp
-@@ -7390,6 +7390,7 @@
+@@ -7437,6 +7437,7 @@
  }
  
  #else

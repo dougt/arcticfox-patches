@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1273521097 14400
+# Node ID 2dd58e9d57753998b9b9be1963152de2faa86cac
+# Parent  25d4f49741250c4d5b41aa6636e8def13947caf9
+imported patch domclassinfo-media
+
 diff --git a/dom/base/nsDOMClassInfo.cpp b/dom/base/nsDOMClassInfo.cpp
 --- a/dom/base/nsDOMClassInfo.cpp
 +++ b/dom/base/nsDOMClassInfo.cpp

@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID 518d1e2ad792649fe1edb6b11ec027a983555d9c
-# Parent  57ba1c7c382124da17715730a5a40be1868d3bd0
+# Node ID a9404a85a947ae8422fe94ec1f78b7edacae0ce4
+# Parent  acb1510ebac615d27bc09790a51b72c18da822a3
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -3287,7 +3287,7 @@
+@@ -3269,7 +3269,7 @@
  AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
@@ -17,7 +17,7 @@ diff --git a/configure.in b/configure.in
  
  dnl Try for MMX support
  dnl NB - later gcc versions require -mmmx for this header to be successfully
-@@ -3386,11 +3386,19 @@
+@@ -3368,11 +3368,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -37,7 +37,7 @@ diff --git a/configure.in b/configure.in
    AC_MSG_RESULT([$ac_cv_have_core_text])
  
    if test "$ac_cv_have_core_text" = "no"; then
-@@ -5176,13 +5184,27 @@
+@@ -5156,13 +5164,27 @@
      ;;
  
  cairo-cocoa)
@@ -69,7 +69,7 @@ diff --git a/configure.in b/configure.in
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -7613,6 +7635,7 @@
+@@ -7603,6 +7625,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -77,7 +77,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -7637,6 +7660,7 @@
+@@ -7627,6 +7650,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -85,7 +85,7 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -8010,7 +8034,7 @@
+@@ -8000,7 +8024,7 @@
      if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
      fi

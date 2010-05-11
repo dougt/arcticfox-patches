@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID dc575834351eef669758f23c7b28f52fc2607111
-# Parent  398b63242a998180e8eba2196a8aae83938f3d8a
+# Node ID 71bba69ad71a047e1d152da173381c0f384048c7
+# Parent  aaa7171e6e6aaf09c5d1c4ce49b6b5376ac40f15
 imported patch skip-webgl-uikit
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5210,7 +5210,10 @@
+@@ -5189,7 +5189,10 @@
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
      MOZ_FS_LAYOUT=bundle
