@@ -5,6 +5,19 @@
 # Parent  a73cc81d9d52ab88a607ec15e64753f975fa818c
 imported patch widget-uikit
 
+diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
+--- a/toolkit/library/libxul-config.mk
++++ b/toolkit/library/libxul-config.mk
+@@ -313,6 +313,9 @@
+ ifeq (qt,$(MOZ_WIDGET_TOOLKIT))
+ COMPONENT_LIBS += widget_qt
+ endif
++ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
++COMPONENT_LIBS += widget_uikit
++endif
+ 
+ ifdef MOZ_ENABLE_PHOTON
+ COMPONENT_LIBS += widget_photon
 diff --git a/widget/src/Makefile.in b/widget/src/Makefile.in
 --- a/widget/src/Makefile.in
 +++ b/widget/src/Makefile.in
@@ -102,7 +115,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,79 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -148,12 +161,8 @@ new file mode 100644
 +#ifndef nsAppShell_h_
 +#define nsAppShell_h_
 +
-+//class nsCocoaWindow;
-+
 +#include "nsBaseAppShell.h"
 +#include "nsTArray.h"
-+
-+@class AppShellDelegate;
 +
 +class nsAppShell : public nsBaseAppShell
 +{
@@ -183,18 +192,6 @@ new file mode 100644
 +  PRBool InGeckoMainEventLoop();
 +
 +  static void ProcessGeckoEvents(void* aInfo);
-+
-+protected:
-+  AppShellDelegate*  mDelegate;
-+  CFRunLoopRef       mCFRunLoop;
-+  CFRunLoopSourceRef mCFRunLoopSource;
-+
-+  PRPackedBool       mRunningEventLoop;
-+
-+  PRPackedBool       mStarted;
-+  PRPackedBool       mTerminated;
-+  PRPackedBool       mNotifiedWillTerminate;
-+  PRPackedBool       mSkippedNativeCallback;
 +};
 +
 +#endif // nsAppShell_h_
@@ -202,7 +199,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,622 @@
+@@ -0,0 +1,230 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -240,8 +237,7 @@ new file mode 100644
 + *
 + * ***** END LICENSE BLOCK ***** */
 +
-+#import <UIKit/UIKit.h>
-+#include <dlfcn.h>
++//#import <UIKit/UIKit.h>
 +
 +#include "nsAppShell.h"
 +#include "nsCOMPtr.h"
@@ -256,62 +252,20 @@ new file mode 100644
 +#include "nsIInterfaceRequestor.h"
 +#include "nsIWebBrowserChrome.h"
 +
-+#include "npapi.h"
-+
-+// AppShellDelegate
-+//
-+// Cocoa bridge class.  An object of this class is registered to receive
-+// notifications.
-+//
-+@interface AppShellDelegate : NSObject
-+{
-+  @private
-+    nsAppShell* mAppShell;
-+}
-+
-+- (id)initWithAppShell:(nsAppShell*)aAppShell;
-+- (void)applicationWillTerminate:(NSNotification*)aNotification;
-+- (void)beginMenuTracking:(NSNotification*)aNotification;
-+@end
-+
 +// nsAppShell implementation
 +
 +NS_IMETHODIMP
 +nsAppShell::ResumeNative(void)
 +{
-+  nsresult retval = nsBaseAppShell::ResumeNative();
-+  if (NS_SUCCEEDED(retval) && (mSuspendNativeCount == 0) &&
-+      mSkippedNativeCallback)
-+  {
-+    mSkippedNativeCallback = PR_FALSE;
-+    ScheduleNativeEventCallback();
-+  }
-+  return retval;
++  return nsBaseAppShell::ResumeNative();
 +}
 +
 +nsAppShell::nsAppShell()
-+, mDelegate(nsnull)
-+, mCFRunLoop(NULL)
-+, mCFRunLoopSource(NULL)
-+, mRunningEventLoop(PR_FALSE)
-+, mStarted(PR_FALSE)
-+, mTerminated(PR_FALSE)
-+, mNotifiedWillTerminate(PR_FALSE)
 +{
 +}
 +
 +nsAppShell::~nsAppShell()
 +{
-+  if (mCFRunLoop) {
-+    if (mCFRunLoopSource) {
-+      ::CFRunLoopRemoveSource(mCFRunLoop, mCFRunLoopSource,
-+                              kCFRunLoopCommonModes);
-+      ::CFRelease(mCFRunLoopSource);
-+    }
-+    ::CFRelease(mCFRunLoop);
-+  }
-+
-+  [mDelegate release];
 +}
 +
 +// Init
@@ -320,36 +274,7 @@ new file mode 100644
 +nsresult
 +nsAppShell::Init()
 +{
-+  // No event loop is running yet (unless Camino is running, or another
-+  // embedding app that uses NSApplicationMain()).
-+  NSAutoreleasePool* localPool = [[NSAutoreleasePool alloc] init];
-+
-+  mDelegate = [[AppShellDelegate alloc] initWithAppShell:this];
-+  NS_ENSURE_STATE(mDelegate);
-+
-+  // Add a CFRunLoopSource to the main native run loop.  The source is
-+  // responsible for interrupting the run loop when Gecko events are ready.
-+
-+  mCFRunLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
-+  NS_ENSURE_STATE(mCFRunLoop);
-+  ::CFRetain(mCFRunLoop);
-+
-+  CFRunLoopSourceContext context;
-+  bzero(&context, sizeof(context));
-+  // context.version = 0;
-+  context.info = this;
-+  context.perform = ProcessGeckoEvents;
-+  
-+  mCFRunLoopSource = ::CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
-+  NS_ENSURE_STATE(mCFRunLoopSource);
-+
-+  ::CFRunLoopAddSource(mCFRunLoop, mCFRunLoopSource, kCFRunLoopCommonModes);
-+
-+  rv = nsBaseAppShell::Init();
-+
-+  [localPool release];
-+
-+  return rv;
++  return nsBaseAppShell::Init();
 +}
 +
 +// ProcessGeckoEvents
@@ -366,27 +291,6 @@ new file mode 100644
 +nsAppShell::ProcessGeckoEvents(void* aInfo)
 +{
 +  nsAppShell* self = static_cast<nsAppShell*> (aInfo);
-+  /*
-+  if (self->mRunningEventLoop) {
-+    self->mRunningEventLoop = PR_FALSE;
-+
-+    // The run loop may be sleeping -- [NSRunLoop runMode:...]
-+    // won't return until it's given a reason to wake up.  Awaken it by
-+    // posting a bogus event.  There's no need to make the event
-+    // presentable.
-+    [NSApp postEvent:[NSEvent otherEventWithType:NSApplicationDefined
-+                                        location:NSMakePoint(0,0)
-+                                   modifierFlags:0
-+                                       timestamp:0
-+                                    windowNumber:0
-+                                         context:NULL
-+                                         subtype:0
-+                                           data1:0
-+                                           data2:0]
-+             atStart:NO];
-+  }
-+  */
-+
 +}
 +
 +// WillTerminate
@@ -401,17 +305,6 @@ new file mode 100644
 +void
 +nsAppShell::WillTerminate()
 +{
-+  mNotifiedWillTerminate = PR_TRUE;
-+  if (mTerminated)
-+    return;
-+  mTerminated = PR_TRUE;
-+
-+  // Calling [NSApp terminate:] causes (among other things) an
-+  // NSApplicationWillTerminate notification to be posted and the main run
-+  // loop to die before returning (in the call to [NSApp run]).  So this is
-+  // our last crack at processing any remaining Gecko events.
-+  NS_ProcessPendingEvents(NS_GetCurrentThread());
-+
 +  // Unless we call nsBaseAppShell::Exit() here, it might not get called
 +  // at all.
 +  nsBaseAppShell::Exit();
@@ -440,18 +333,6 @@ new file mode 100644
 +void
 +nsAppShell::ScheduleNativeEventCallback()
 +{
-+  if (mTerminated)
-+    return;
-+
-+  // Each AddRef() here is normally balanced by exactly one Release() in
-+  // ProcessGeckoEvents().  But there are exceptions, for which see
-+  // ProcessGeckoEvents() and Exit().
-+  NS_ADDREF_THIS();
-+  PR_AtomicIncrement(&mNativeEventScheduledDepth);
-+
-+  // This will invoke ProcessGeckoEvents on the main thread.
-+  ::CFRunLoopSourceSignal(mCFRunLoopSource);
-+  ::CFRunLoopWakeUp(mCFRunLoop);
 +}
 +
 +// ProcessNextNativeEvent
@@ -470,24 +351,6 @@ new file mode 100644
 +PRBool
 +nsAppShell::ProcessNextNativeEvent(PRBool aMayWait)
 +{
-+  PRBool moreEvents = PR_FALSE;
-+
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
-+
-+  PRBool eventProcessed = PR_FALSE;
-+  NSString* currentMode = nil;
-+
-+  if (mTerminated)
-+    return PR_FALSE;
-+
-+  PRBool wasRunningEventLoop = mRunningEventLoop;
-+  mRunningEventLoop = aMayWait;
-+  NSDate* waitUntil = nil;
-+  if (aMayWait)
-+    waitUntil = [NSDate distantFuture];
-+
-+  NSRunLoop* currentRunLoop = [NSRunLoop currentRunLoop];
-+
 +  return PR_FALSE;
 +}
 +
@@ -528,72 +391,13 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsAppShell::Run(void)
 +{
-+  NS_ASSERTION(!mStarted, "nsAppShell::Run() called multiple times");
-+  if (mStarted)
-+    return NS_OK;
-+
-+  mStarted = PR_TRUE;
-+  NS_OBJC_TRY_ABORT([NSApp run]);
-+
 +  return NS_OK;
 +}
 +
 +NS_IMETHODIMP
 +nsAppShell::Exit(void)
 +{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
-+
-+  // This method is currently called more than once -- from (according to
-+  // mento) an nsAppExitEvent dispatched by nsAppStartup::Quit() and from an
-+  // XPCOM shutdown notification that nsBaseAppShell has registered to
-+  // receive.  So we need to ensure that multiple calls won't break anything.
-+  // But we should also complain about it (since it isn't quite kosher).
-+  if (mTerminated) {
-+    NS_WARNING("nsAppShell::Exit() called redundantly");
-+    return NS_OK;
-+  }
-+
-+  mTerminated = PR_TRUE;
-+
-+  delete gCocoaAppModalWindowList;
-+  gCocoaAppModalWindowList = NULL;
-+
-+#ifndef NP_NO_CARBON
-+  NS_RemovePluginKeyEventsHandler();
-+#endif
-+
-+  // Quoting from Apple's doc on the [NSApplication stop:] method (from their
-+  // doc on the NSApplication class):  "If this method is invoked during a
-+  // modal event loop, it will break that loop but not the main event loop."
-+  // nsAppShell::Exit() shouldn't be called from a modal event loop.  So if
-+  // it is we complain about it (to users of debug builds) and call [NSApp
-+  // stop:] one extra time.  (I'm not sure if modal event loops can be nested
-+  // -- Apple's docs don't say one way or the other.  But the return value
-+  // of [NSApp _isRunningModal] doesn't change immediately after a call to
-+  // [NSApp stop:], so we have to assume that one extra call to [NSApp stop:]
-+  // will do the job.)
-+  BOOL cocoaModal = [NSApp _isRunningModal];
-+  NS_ASSERTION(!cocoaModal,
-+               "Don't call nsAppShell::Exit() from a modal event loop!");
-+  if (cocoaModal)
-+    [NSApp stop:nsnull];
-+  [NSApp stop:nsnull];
-+
-+  // A call to Exit() just after a call to ScheduleNativeEventCallback()
-+  // prevents the (normally) matching call to ProcessGeckoEvents() from
-+  // happening.  If we've been called from ProcessGeckoEvents() (as usually
-+  // happens), we take care of it there.  But if we have an unbalanced call
-+  // to ScheduleNativeEventCallback() and ProcessGeckoEvents() isn't on the
-+  // stack, we need to take care of the problem here.
-+  if (!mNativeEventCallbackDepth && mNativeEventScheduledDepth) {
-+    PRInt32 releaseCount = PR_AtomicSet(&mNativeEventScheduledDepth, 0);
-+    while (releaseCount-- > 0)
-+      NS_RELEASE_THIS();
-+  }
-+
 +  return nsBaseAppShell::Exit();
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 +}
 +
 +// OnProcessNextEvent
@@ -610,19 +414,7 @@ new file mode 100644
 +nsAppShell::OnProcessNextEvent(nsIThreadInternal *aThread, PRBool aMayWait,
 +                               PRUint32 aRecursionDepth)
 +{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
-+
-+  mRecursionDepth = aRecursionDepth;
-+
-+  NS_ASSERTION(mAutoreleasePools,
-+               "No stack on which to store autorelease pool");
-+
-+  NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-+  ::CFArrayAppendValue(mAutoreleasePools, pool);
-+
 +  return nsBaseAppShell::OnProcessNextEvent(aThread, aMayWait, aRecursionDepth);
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 +}
 +
 +// AfterProcessNextEvent
@@ -636,195 +428,8 @@ new file mode 100644
 +nsAppShell::AfterProcessNextEvent(nsIThreadInternal *aThread,
 +                                  PRUint32 aRecursionDepth)
 +{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
-+
-+  mRecursionDepth = aRecursionDepth;
-+
-+  CFIndex count = ::CFArrayGetCount(mAutoreleasePools);
-+
-+  NS_ASSERTION(mAutoreleasePools && count,
-+               "Processed an event, but there's no autorelease pool?");
-+
-+  const NSAutoreleasePool* pool = static_cast<const NSAutoreleasePool*>
-+    (::CFArrayGetValueAtIndex(mAutoreleasePools, count - 1));
-+  ::CFArrayRemoveValueAtIndex(mAutoreleasePools, count - 1);
-+  [pool release];
-+
 +  return nsBaseAppShell::AfterProcessNextEvent(aThread, aRecursionDepth);
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 +}
-+
-+
-+// AppShellDelegate implementation
-+
-+
-+@implementation AppShellDelegate
-+// initWithAppShell:
-+//
-+// Constructs the AppShellDelegate object
-+- (id)initWithAppShell:(nsAppShell*)aAppShell
-+{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NIL;
-+
-+  if ((self = [self init])) {
-+    mAppShell = aAppShell;
-+
-+    [[NSNotificationCenter defaultCenter] addObserver:self
-+                                             selector:@selector(applicationWillTerminate:)
-+                                                 name:NSApplicationWillTerminateNotification
-+                                               object:NSApp];
-+    [[NSNotificationCenter defaultCenter] addObserver:self
-+                                             selector:@selector(applicationDidBecomeActive:)
-+                                                 name:NSApplicationDidBecomeActiveNotification
-+                                               object:NSApp];
-+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self
-+                                                        selector:@selector(beginMenuTracking:)
-+                                                            name:@"com.apple.HIToolbox.beginMenuTrackingNotification"
-+                                                          object:nil];
-+  }
-+
-+  return self;
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK_NIL;
-+}
-+
-+- (void)dealloc
-+{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
-+
-+  [[NSNotificationCenter defaultCenter] removeObserver:self];
-+  [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
-+  [super dealloc];
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK;
-+}
-+
-+// applicationWillTerminate:
-+//
-+// Notify the nsAppShell that native event processing should be discontinued.
-+- (void)applicationWillTerminate:(NSNotification*)aNotification
-+{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
-+
-+  mAppShell->WillTerminate();
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK;
-+}
-+
-+// applicationDidBecomeActive
-+//
-+// Make sure gLastModifierState is updated when we become active (since we
-+// won't have received [ChildView flagsChanged:] messages while inactive).
-+- (void)applicationDidBecomeActive:(NSNotification*)aNotification
-+{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
-+
-+  // [NSEvent modifierFlags] is valid on every kind of event, so we don't need
-+  // to worry about getting an NSInternalInconsistencyException here.
-+  NSEvent* currentEvent = [NSApp currentEvent];
-+  if (currentEvent) {
-+    gLastModifierState = [currentEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
-+  }
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK;
-+}
-+
-+// beginMenuTracking
-+//
-+// Roll up our context menu (if any) when some other app (or the OS) opens
-+// any sort of menu.  But make sure we don't do this for notifications we
-+// send ourselves (whose 'sender' will be @"org.mozilla.gecko.PopupWindow").
-+- (void)beginMenuTracking:(NSNotification*)aNotification
-+{
-+  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
-+
-+  NSString *sender = [aNotification object];
-+  if (!sender || ![sender isEqualToString:@"org.mozilla.gecko.PopupWindow"]) {
-+    if (gRollupListener && gRollupWidget)
-+      gRollupListener->Rollup(nsnull, nsnull);
-+  }
-+
-+  NS_OBJC_END_TRY_ABORT_BLOCK;
-+}
-+
-+@end
-+
-+// We hook these methods in order to maintain a list of Cocoa app-modal
-+// windows (and the "sessions" to which they correspond).  We need this in
-+// order to deal with the consequences of a Cocoa app-modal dialog being
-+// "interrupted" by a Gecko-modal dialog.  See nsCocoaAppModalWindowList::
-+// CurrentSession() and nsAppShell::ProcessNextNativeEvent() above.
-+@interface NSApplication (MethodSwizzling)
-+- (NSModalSession)nsAppShell_NSApplication_beginModalSessionForWindow:(NSWindow *)aWindow;
-+- (void)nsAppShell_NSApplication_endModalSession:(NSModalSession)aSession;
-+@end
-+
-+@implementation NSApplication (MethodSwizzling)
-+
-+// Called if and only if a Cocoa app-modal session is beginning.  Always call
-+// gCocoaAppModalWindowList->PushCocoa() here (if gCocoaAppModalWindowList is
-+// non-nil).
-+- (NSModalSession)nsAppShell_NSApplication_beginModalSessionForWindow:(NSWindow *)aWindow
-+{
-+  NSModalSession session =
-+    [self nsAppShell_NSApplication_beginModalSessionForWindow:aWindow];
-+  if (gCocoaAppModalWindowList)
-+    gCocoaAppModalWindowList->PushCocoa(aWindow, session);
-+  return session;
-+}
-+
-+// Called to end any Cocoa modal session (app-modal or otherwise).  Only call
-+// gCocoaAppModalWindowList->PopCocoa() when an app-modal session is ending
-+// (and when gCocoaAppModalWindowList is non-nil).
-+- (void)nsAppShell_NSApplication_endModalSession:(NSModalSession)aSession
-+{
-+  BOOL wasRunningAppModal = [NSApp _isRunningAppModal];
-+  NSWindow *prevAppModalWindow = [NSApp modalWindow];
-+  [self nsAppShell_NSApplication_endModalSession:aSession];
-+  if (gCocoaAppModalWindowList &&
-+      wasRunningAppModal && (prevAppModalWindow != [NSApp modalWindow]))
-+    gCocoaAppModalWindowList->PopCocoa(prevAppModalWindow, aSession);
-+}
-+
-+@end
-+
-+@interface NSObject (PDEPluginCallbackMethodSwizzling)
-+- (id)nsAppShell_PDEPluginCallback_initWithPrintWindowController:(id)controller;
-+- (void)nsAppShell_PDEPluginCallback_dealloc;
-+@end
-+
-+@implementation NSObject (PDEPluginCallbackMethodSwizzling)
-+
-+// On Leopard, the PDEPluginCallback class in Apple's PrintCocoaUI module
-+// fails to retain and release its PMPrintWindowController object.  This
-+// causes the PMPrintWindowController to sometimes be deleted prematurely,
-+// leading to crashes on attempts to access it.  One example is bug 396680,
-+// caused by attempting to call a deleted PMPrintWindowController object's
-+// printSettings method.  We work around the problem by hooking the
-+// appropriate methods and retaining and releasing the object ourselves.
-+// PrintCocoaUI.bundle is a "plugin" of the Carbon framework's Print
-+// framework.
-+
-+- (id)nsAppShell_PDEPluginCallback_initWithPrintWindowController:(id)controller
-+{
-+  return [self nsAppShell_PDEPluginCallback_initWithPrintWindowController:[controller retain]];
-+}
-+
-+- (void)nsAppShell_PDEPluginCallback_dealloc
-+{
-+  // Since the PDEPluginCallback class is undocumented (and the OS header
-+  // files have no definition for it), we need to use low-level methods to
-+  // access its _printWindowController variable.  (object_getInstanceVariable()
-+  // is also available in Objective-C 2.0, so this code is 64-bit safe.)
-+  id _printWindowController = nil;
-+  object_getInstanceVariable(self, "_printWindowController",
-+                             (void **) &_printWindowController);
-+  [_printWindowController release];
-+  [self nsAppShell_PDEPluginCallback_dealloc];
-+}
-+
-+@end
 diff --git a/widget/src/uikit/nsWidgetFactory.mm b/widget/src/uikit/nsWidgetFactory.mm
 new file mode 100644
 --- /dev/null
