@@ -1,0 +1,23 @@
+diff --git a/js/src/xpconnect/shell/Makefile.in b/js/src/xpconnect/shell/Makefile.in
+--- a/js/src/xpconnect/shell/Makefile.in
++++ b/js/src/xpconnect/shell/Makefile.in
+@@ -49,7 +49,7 @@
+ 
+ CPPSRCS		= xpcshell.cpp
+ 
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CMMSRCS += xpcshellMacUtils.mm
+ endif
+ 
+@@ -60,6 +60,10 @@
+ 		$(NSPR_LIBS) \
+ 		$(NULL)
+ 
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
++LIBS += $(TK_LIBS)
++endif
++
+ NSDISTMODE = copy
+ 
+ ifdef _MSC_VER

@@ -8,7 +8,7 @@ fixes for compiling js for iphone simulator
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -1733,7 +1733,15 @@
+@@ -1733,11 +1733,29 @@
      _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
      MOZ_ENABLE_POSTSCRIPT=
      TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
@@ -24,6 +24,21 @@ diff --git a/js/src/configure.in b/js/src/configure.in
      # The ExceptionHandling framework is needed for Objective-C exception
      # logging code in nsObjCExceptions.h. Currently we only use that in debug
      # builds.
+-    MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling"
++    _SAVE_LDFLAGS=$LDFLAGS
++     AC_MSG_CHECKING([for -framework ExceptionHandling])
++    LDFLAGS="$LDFLAGS -framework ExceptionHandling"
++    AC_TRY_LINK(,[return 0;],
++                ac_cv_have_framework_exceptionhandling="yes",
++                ac_cv_have_framework_exceptionhandling="no")
++    AC_MSG_RESULT([$ac_cv_have_framework_exceptionhandling])
++    if test  "$ac_cv_have_framework_exceptionhandling" = "yes"; then
++      MOZ_DEBUG_LDFLAGS="$MOZ_DEBUG_LDFLAGS -framework ExceptionHandling";
++    fi
++    LDFLAGS=$_SAVE_LDFLAGS
+ 
+     dnl DTrace and -dead_strip don't interact well. See bug 403132.
+     dnl ===================================================================
 diff --git a/js/src/jscpucfg.cpp b/js/src/jscpucfg.cpp
 --- a/js/src/jscpucfg.cpp
 +++ b/js/src/jscpucfg.cpp

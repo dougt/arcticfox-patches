@@ -115,7 +115,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,79 @@
+@@ -0,0 +1,86 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -164,6 +164,10 @@ new file mode 100644
 +#include "nsBaseAppShell.h"
 +#include "nsTArray.h"
 +
++#include <Foundation/NSAutoreleasePool.h>
++
++@class AppShellDelegate;
++
 +class nsAppShell : public nsBaseAppShell
 +{
 +public:
@@ -192,6 +196,9 @@ new file mode 100644
 +  PRBool InGeckoMainEventLoop();
 +
 +  static void ProcessGeckoEvents(void* aInfo);
++
++  NSAutoreleasePool* mAutoreleasePool;
++  AppShellDelegate*  mDelegate;
 +};
 +
 +#endif // nsAppShell_h_
@@ -199,7 +206,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,230 @@
+@@ -0,0 +1,255 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -237,7 +244,7 @@ new file mode 100644
 + *
 + * ***** END LICENSE BLOCK ***** */
 +
-+//#import <UIKit/UIKit.h>
++#import <UIKit/UIApplication.h>
 +
 +#include "nsAppShell.h"
 +#include "nsCOMPtr.h"
@@ -252,6 +259,22 @@ new file mode 100644
 +#include "nsIInterfaceRequestor.h"
 +#include "nsIWebBrowserChrome.h"
 +
++// AppShellDelegate
++//
++// Acts as a delegate for the UIApplication
++
++@interface AppShellDelegate : NSObject <UIApplicationDelegate> {
++}
++- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
++@end
++
++@implementation AppShellDelegate
++- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
++{
++  return YES;
++}
++@end
++
 +// nsAppShell implementation
 +
 +NS_IMETHODIMP
@@ -261,11 +284,16 @@ new file mode 100644
 +}
 +
 +nsAppShell::nsAppShell()
++  : mAutoreleasePool(NULL)
 +{
 +}
 +
 +nsAppShell::~nsAppShell()
 +{
++  if (mAutoreleasePool) {
++    [mAutoreleasePool release];
++    mAutoreleasePool = NULL;
++  }
 +}
 +
 +// Init
@@ -274,6 +302,7 @@ new file mode 100644
 +nsresult
 +nsAppShell::Init()
 +{
++  mAutoreleasePool = [[NSAutoreleasePool alloc] init];
 +  return nsBaseAppShell::Init();
 +}
 +
@@ -391,6 +420,9 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsAppShell::Run(void)
 +{
++  char *argv[1] = {"app"};
++  UIApplicationMain(1, argv, nil, @"");
++  // UIApplicationMain doesn't exit. :-(
 +  return NS_OK;
 +}
 +

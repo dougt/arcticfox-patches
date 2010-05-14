@@ -1,0 +1,207 @@
+diff --git a/browser/app/Info.plist.in b/browser/app/Info.plist.in
+new file mode 100644
+--- /dev/null
++++ b/browser/app/Info.plist.in
+@@ -0,0 +1,38 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
++<plist version="1.0">
++<dict>
++	<key>CFBundleDevelopmentRegion</key>
++	<string>English</string>
++	<key>CFBundleDisplayName</key>
++	<string>%APP_NAME%</string>
++	<key>CFBundleExecutable</key>
++	<string>firefox-bin</string>
++	<key>CFBundleIdentifier</key>
++	<string>org.mozilla.%LOWER_APP_NAME%</string>
++	<key>CFBundleInfoDictionaryVersion</key>
++	<string>6.0</string>
++	<key>CFBundleName</key>
++	<string>%APP_NAME%</string>
++	<key>CFBundlePackageType</key>
++	<string>APPL</string>
++	<key>CFBundleSignature</key>
++	<string>MOZB</string>
++	<key>CFBundleSupportedPlatforms</key>
++	<array>
++		<string>iPhoneSimulator</string>
++	</array>
++	<key>CFBundleVersion</key>
++	<string>1.0</string>
++	<key>DTPlatformName</key>
++	<string>iphonesimulator</string>
++	<key>DTSDKName</key>
++	<string>iphonesimulator3.2</string>
++	<key>LSRequiresIPhoneOS</key>
++	<true/>
++	<key>UIDeviceFamily</key>
++	<array>
++		<integer>1</integer>
++	</array>
++</dict>
++</plist>
+diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
+--- a/browser/app/Makefile.in
++++ b/browser/app/Makefile.in
+@@ -104,14 +104,14 @@
+ endif
+ LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
+ else
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ LIBS += $(DIST)/bin/XUL
+ else
+ EXTRA_DSO_LIBS += xul
+ endif
+ endif
+ 
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ TK_LIBS := $(TK_LIBS)
+ endif
+ 
+@@ -304,16 +304,15 @@
+ libs:: $(srcdir)/blocklist.xml
+ 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
+ 
++APP_NAME = $(MOZ_APP_DISPLAYNAME)
++LOWER_APP_NAME = $(shell echo $(APP_NAME) | tr '[A-Z]' '[a-z]')
++
+ ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+ 
+-APP_NAME = $(MOZ_APP_DISPLAYNAME)
+-
+ ifdef MOZ_DEBUG
+ APP_NAME := $(APP_NAME)Debug
+ endif
+ 
+-LOWER_APP_NAME = $(shell echo $(APP_NAME) | tr '[A-Z]' '[a-z]')
+-
+ AB_CD = $(MOZ_UI_LOCALE)
+ 
+ AB := $(firstword $(subst -, ,$(AB_CD)))
+@@ -356,6 +355,16 @@
+ endif
+ endif
+ 
++ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
++libs repackage:: $(PROGRAM) application.ini
++	mkdir -p $(DIST)/$(MOZ_APP_DISPLAYNAME).app/
++#XXX: convert to binary? plutil -convert binary1 Info.plist
++	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(MOZ_APP_DISPLAYNAME)/" -e "s/%LOWER_APP_NAME%/$(LOWER_APP_NAME)/" $(srcdir)/Info.plist.in > $(DIST)/$(MOZ_APP_DISPLAYNAME).app/Info.plist
++	rsync -a $(DIST)/bin/ $(DIST)/$(MOZ_APP_DISPLAYNAME).app/
++	cp -RL $(DIST)/branding/default57.png $(DIST)/$(APP_NAME).app/Icon.png
++	printf APPLMOZB > $(DIST)/$(MOZ_APP_DISPLAYNAME).app/PkgInfo
++endif
++
+ ifdef LIBXUL_SDK
+ ifndef SKIP_COPY_XULRUNNER
+ libs::
+diff --git a/browser/components/Makefile.in b/browser/components/Makefile.in
+--- a/browser/components/Makefile.in
++++ b/browser/components/Makefile.in
+@@ -71,7 +71,7 @@
+   sidebar \
+   $(NULL)
+ 
+-ifndef WINCE
++ifeq (,$(filter WINCE uikit,$(MOZ_WIDGET_TOOLKIT)))
+ PARALLEL_DIRS += migration
+ endif
+ 
+diff --git a/browser/components/build/Makefile.in b/browser/components/build/Makefile.in
+--- a/browser/components/build/Makefile.in
++++ b/browser/components/build/Makefile.in
+@@ -56,7 +56,7 @@
+ 
+ # migration requires mozreg, which doesn't build on WINCE; only include
+ # it on non-CE
+-ifndef WINCE
++ifeq (,$(filter WINCE uikit,$(MOZ_WIDGET_TOOLKIT)))
+ LOCAL_INCLUDES += -I$(srcdir)/../migration/src
+ SHARED_LIBRARY_LIBS += ../migration/src/$(LIB_PREFIX)migration_s.$(LIB_SUFFIX)
+ EXTRA_DSO_LDOPTS += $(LIBXUL_DIST)/lib/$(LIB_PREFIX)mozreg_s.$(LIB_SUFFIX)
+diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/nsModule.cpp
+--- a/browser/components/build/nsModule.cpp
++++ b/browser/components/build/nsModule.cpp
+@@ -43,14 +43,13 @@
+ 
+ #if defined(XP_WIN)
+ #include "nsWindowsShellService.h"
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #include "nsMacShellService.h"
+ #elif defined(MOZ_WIDGET_GTK2)
+ #include "nsGNOMEShellService.h"
+ #endif
+ 
+-#ifndef WINCE
+-
++#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
+ #include "nsProfileMigrator.h"
+ #if !defined(XP_BEOS)
+ #include "nsDogbertProfileMigrator.h"
+@@ -62,7 +61,7 @@
+ #include "nsSeamonkeyProfileMigrator.h"
+ #if defined(XP_WIN) && !defined(__MINGW32__)
+ #include "nsIEProfileMigrator.h"
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #include "nsSafariProfileMigrator.h"
+ #include "nsOmniWebProfileMigrator.h"
+ #include "nsMacIEProfileMigrator.h"
+@@ -87,14 +86,14 @@
+ NS_GENERIC_FACTORY_CONSTRUCTOR(DirectoryProvider)
+ #if defined(XP_WIN)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsWindowsShellService)
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacShellService)
+ #elif defined(MOZ_WIDGET_GTK2)
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsGNOMEShellService, Init)
+ #endif
+ 
+-#ifndef WINCE
+ 
++#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
+ #if !defined(XP_BEOS)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsDogbertProfileMigrator)
+ #endif
+@@ -106,7 +105,7 @@
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSeamonkeyProfileMigrator)
+ #if defined(XP_WIN) && !defined(__MINGW32__)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsIEProfileMigrator)
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSafariProfileMigrator)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsOmniWebProfileMigrator)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacIEProfileMigrator)
+@@ -189,8 +188,7 @@
+     NS_ABOUT_MODULE_CONTRACTID_PREFIX "sessionrestore",
+     AboutRedirector::Create },
+ 
+-#ifndef WINCE
+-
++#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
+   { "Profile Migrator",
+     NS_FIREFOX_PROFILEMIGRATOR_CID,
+     NS_PROFILEMIGRATOR_CONTRACTID,
+@@ -202,7 +200,7 @@
+     NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "ie",
+     nsIEProfileMigratorConstructor },
+ 
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+   { "Browser Shell Service",
+     NS_SHELLSERVICE_CID,
+     NS_SHELLSERVICE_CONTRACTID,
+@@ -259,7 +257,7 @@
+     NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "seamonkey",
+     nsSeamonkeyProfileMigratorConstructor },
+ 
+-#endif /* WINCE */
++#endif /* WINCE || UIKit */
+ 
+   { "PrivateBrowsing Service C++ Wrapper",
+     NS_PRIVATE_BROWSING_SERVICE_WRAPPER_CID,

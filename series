@@ -25,6 +25,7 @@ uikit-no-native-menus
 skip-webgl-uikit
 exthandler-cocoa
 cairo-quartz-uikit
+thebes-font-fixup
 libxul-makefile
 nsobjectframe-ifdefs
 domclassinfo-media
@@ -32,5 +33,9 @@ exthandler-uikit
 static-xul-components
 nsnetmodule-cocoa
 uikit-directory-service
+xpcshell-link
+uikit-branding-icons
+browser-uikit
 widget-uikit
+mozconfig-debug
 iphone_xptcall
