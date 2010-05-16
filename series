@@ -36,6 +36,6 @@ uikit-directory-service
 xpcshell-link
 uikit-branding-icons
 browser-uikit
-widget-uikit
 mozconfig-debug
+widget-uikit
 iphone_xptcall

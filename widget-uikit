@@ -34,7 +34,7 @@ diff --git a/widget/src/uikit/Makefile.in b/widget/src/uikit/Makefile.in
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/Makefile.in
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,80 @@
 +#
 +# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -91,7 +91,11 @@ new file mode 100644
 +
 +CMMSRCS = \
 +  nsAppShell.mm \
++  nsLookAndFeel.mm \
++  nsScreenManager.mm \
++  nsToolkit.mm \
 +  nsWidgetFactory.mm \
++  nsWindow.mm \
 +  $(NULL)
 +
 +SHARED_LIBRARY_LIBS = ../xpwidgets/libxpwidgets_s.a
@@ -115,7 +119,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,77 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -179,23 +183,14 @@ new file mode 100644
 +
 +  NS_IMETHOD Run(void);
 +  NS_IMETHOD Exit(void);
-+  NS_IMETHOD OnProcessNextEvent(nsIThreadInternal *aThread, PRBool aMayWait,
-+                                PRUint32 aRecursionDepth);
-+  NS_IMETHOD AfterProcessNextEvent(nsIThreadInternal *aThread,
-+                                   PRUint32 aRecursionDepth);
 +
-+  // public only to be visible to Objective-C code that must call it
-+  void WillTerminate();
++  static nsAppShell* gAppShell;
 +
 +protected:
 +  virtual ~nsAppShell();
 +
 +  virtual void ScheduleNativeEventCallback();
 +  virtual PRBool ProcessNextNativeEvent(PRBool aMayWait);
-+
-+  PRBool InGeckoMainEventLoop();
-+
-+  static void ProcessGeckoEvents(void* aInfo);
 +
 +  NSAutoreleasePool* mAutoreleasePool;
 +  AppShellDelegate*  mDelegate;
@@ -206,7 +201,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,255 @@
+@@ -0,0 +1,138 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -259,6 +254,8 @@ new file mode 100644
 +#include "nsIInterfaceRequestor.h"
 +#include "nsIWebBrowserChrome.h"
 +
++nsAppShell *nsAppShell::gAppShell = NULL;
++
 +// AppShellDelegate
 +//
 +// Acts as a delegate for the UIApplication
@@ -286,6 +283,7 @@ new file mode 100644
 +nsAppShell::nsAppShell()
 +  : mAutoreleasePool(NULL)
 +{
++  gAppShell = this;
 +}
 +
 +nsAppShell::~nsAppShell()
@@ -294,6 +292,7 @@ new file mode 100644
 +    [mAutoreleasePool release];
 +    mAutoreleasePool = NULL;
 +  }
++  gAppShell = NULL;
 +}
 +
 +// Init
@@ -306,57 +305,7 @@ new file mode 100644
 +  return nsBaseAppShell::Init();
 +}
 +
-+// ProcessGeckoEvents
-+//
-+// The "perform" target of mCFRunLoop, called when mCFRunLoopSource is
-+// signalled from ScheduleNativeEventCallback.
-+//
-+// Arrange for Gecko events to be processed on demand (in response to a call
-+// to ScheduleNativeEventCallback(), if processing of Gecko events via "native
-+// methods" hasn't been suspended).  This happens in NativeEventCallback().
-+//
-+// protected static
-+void
-+nsAppShell::ProcessGeckoEvents(void* aInfo)
-+{
-+  nsAppShell* self = static_cast<nsAppShell*> (aInfo);
-+}
-+
-+// WillTerminate
-+//
-+// Called by the AppShellDelegate when an NSApplicationWillTerminate
-+// notification is posted.  After this method is called, native events should
-+// no longer be processed.  The NSApplicationWillTerminate notification is
-+// only posted when [NSApp terminate:] is called, which doesn't happen on a
-+// "normal" application quit.
-+//
-+// public
-+void
-+nsAppShell::WillTerminate()
-+{
-+  // Unless we call nsBaseAppShell::Exit() here, it might not get called
-+  // at all.
-+  nsBaseAppShell::Exit();
-+}
-+
 +// ScheduleNativeEventCallback
-+//
-+// Called (possibly on a non-main thread) when Gecko has an event that
-+// needs to be processed.  The Gecko event needs to be processed on the
-+// main thread, so the native run loop must be interrupted.
-+//
-+// In nsBaseAppShell.cpp, the mNativeEventPending variable is used to
-+// ensure that ScheduleNativeEventCallback() is called no more than once
-+// per call to NativeEventCallback().  ProcessGeckoEvents() can skip its
-+// call to NativeEventCallback() if processing of Gecko events by native
-+// means is suspended (using nsIAppShell::SuspendNative()), which will
-+// suspend calls from nsBaseAppShell::OnDispatchedEvent() to
-+// ScheduleNativeEventCallback().  But when Gecko event processing by
-+// native means is resumed (in ResumeNative()), an extra call is made to
-+// ScheduleNativeEventCallback() (from ResumeNative()).  This triggers
-+// another call to ProcessGeckoEvents(), which calls NativeEventCallback(),
-+// and nsBaseAppShell::OnDispatchedEvent() resumes calling
-+// ScheduleNativeEventCallback().
 +//
 +// protected virtual
 +void
@@ -366,16 +315,6 @@ new file mode 100644
 +
 +// ProcessNextNativeEvent
 +//
-+// If aMayWait is false, process a single native event.  If it is true, run
-+// the native run loop until stopped by ProcessGeckoEvents.
-+//
-+// Returns true if more events are waiting in the native event queue.
-+//
-+// But (now that we're using [NSRunLoop runMode:beforeDate:]) it's too
-+// expensive to call ProcessNextNativeEvent() many times in a row (in a
-+// tight loop), so we never return true more than kHadMoreEventsCountMax
-+// times in a row.  This doesn't seem to cause native event starvation.
-+//
 +// protected virtual
 +PRBool
 +nsAppShell::ProcessNextNativeEvent(PRBool aMayWait)
@@ -383,38 +322,8 @@ new file mode 100644
 +  return PR_FALSE;
 +}
 +
-+// Returns PR_TRUE if Gecko events are currently being processed in its "main"
-+// event loop (or one of its "main" event loops).  Returns PR_FALSE if Gecko
-+// events are being processed in a "nested" event loop, or if we're not
-+// running in any sort of Gecko event loop.  How we process native events in
-+// ProcessNextNativeEvent() turns on our decision (and if we make the wrong
-+// choice, the result may be a hang).
-+//
-+// We define the "main" event loop(s) as the place (or places) where Gecko
-+// event processing "normally" takes place, and all other Gecko event loops
-+// as "nested".  The "nested" event loops are normally processed while a call
-+// from a "main" event loop is on the stack ... but not always.  For example,
-+// the Venkman JavaScript debugger runs a "nested" event loop (in jsdService::
-+// EnterNestedEventLoop()) whenever it breaks into the current script.  But
-+// if this happens as the result of the user pressing a key combination, there
-+// won't be any other Gecko event-processing call on the stack (e.g.
-+// NS_ProcessNextEvent() or NS_ProcessPendingEvents()).  (In the current
-+// nsAppShell implementation, what counts as the "main" event loop is what
-+// nsBaseAppShell::NativeEventCallback() does to process Gecko events.  We
-+// don't currently use nsBaseAppShell::Run().)
-+PRBool
-+nsAppShell::InGeckoMainEventLoop()
-+{
-+  return PR_FALSE;
-+}
 +
 +// Run
-+//
-+// Overrides the base class's Run() method to call [NSApp run] (which spins
-+// the native run loop until the application quits).  Since (unlike the base
-+// class's Run() method) we don't process any Gecko events here, they need
-+// to be processed elsewhere (in NativeEventCallback(), called from
-+// ProcessGeckoEvents()).
 +//
 +// public
 +NS_IMETHODIMP
@@ -431,42 +340,530 @@ new file mode 100644
 +{
 +  return nsBaseAppShell::Exit();
 +}
+diff --git a/widget/src/uikit/nsLookAndFeel.h b/widget/src/uikit/nsLookAndFeel.h
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsLookAndFeel.h
+@@ -0,0 +1,54 @@
++/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Ted Mielczarek <ted.mielczarek@gmail.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++#ifndef __nsLookAndFeel
++#define __nsLookAndFeel
 +
-+// OnProcessNextEvent
-+//
-+// This nsIThreadObserver method is called prior to processing an event.
-+// Set up an autorelease pool that will service any autoreleased Cocoa
-+// objects during this event.  This includes native events processed by
-+// ProcessNextNativeEvent.  The autorelease pool will be popped by
-+// AfterProcessNextEvent, it is important for these two methods to be
-+// tightly coupled.
-+//
-+// public
-+NS_IMETHODIMP
-+nsAppShell::OnProcessNextEvent(nsIThreadInternal *aThread, PRBool aMayWait,
-+                               PRUint32 aRecursionDepth)
++#include "nsXPLookAndFeel.h"
++
++class nsLookAndFeel: public nsXPLookAndFeel
 +{
-+  return nsBaseAppShell::OnProcessNextEvent(aThread, aMayWait, aRecursionDepth);
++public:
++  nsLookAndFeel();
++  virtual ~nsLookAndFeel();
++
++  nsresult NativeGetColor(const nsColorID aID, nscolor &aColor);
++  NS_IMETHOD GetMetric(const nsMetricID aID, PRInt32 & aMetric);
++  NS_IMETHOD GetMetric(const nsMetricFloatID aID, float & aMetric);
++};
++
++#endif
+diff --git a/widget/src/uikit/nsLookAndFeel.mm b/widget/src/uikit/nsLookAndFeel.mm
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsLookAndFeel.mm
+@@ -0,0 +1,67 @@
++/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Ted Mielczarek <ted.mielczarek@gmail.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#include "nsLookAndFeel.h"
++
++nsLookAndFeel::nsLookAndFeel()
++    : nsXPLookAndFeel()
++{
 +}
 +
-+// AfterProcessNextEvent
-+//
-+// This nsIThreadObserver method is called after event processing is complete.
-+// The Cocoa implementation cleans up the autorelease pool create by the
-+// previous OnProcessNextEvent call.
-+//
-+// public
-+NS_IMETHODIMP
-+nsAppShell::AfterProcessNextEvent(nsIThreadInternal *aThread,
-+                                  PRUint32 aRecursionDepth)
++nsLookAndFeel::~nsLookAndFeel()
 +{
-+  return nsBaseAppShell::AfterProcessNextEvent(aThread, aRecursionDepth);
++}
++
++nsresult
++nsLookAndFeel::NativeGetColor(const nsColorID aID, nscolor &aColor)
++{
++  return NS_ERROR_NOT_IMPLEMENTED;
++}
++
++NS_IMETHODIMP
++nsLookAndFeel::GetMetric(const nsMetricID aID, PRInt32 &aMetric)
++{
++  return NS_ERROR_NOT_IMPLEMENTED;
++}
++
++NS_IMETHODIMP
++nsLookAndFeel::GetMetric(const nsMetricFloatID aID,
++                         float &aMetric)
++{
++  return NS_ERROR_NOT_IMPLEMENTED;
++}
+diff --git a/widget/src/uikit/nsScreenManager.h b/widget/src/uikit/nsScreenManager.h
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsScreenManager.h
+@@ -0,0 +1,76 @@
++/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ *   Mozilla Corporation
++ * Portions created by the Initial Developer are Copyright (C) 2006
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Vladimir Vukicevic <vladimir@pobox.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsScreenManager_h_
++#define nsScreenManager_h_
++
++#include "nsCOMPtr.h"
++#include "nsIScreen.h"
++#include "nsIScreenManager.h"
++
++#include "gfxContext.h"
++
++class nsUIKitScreen : public nsIScreen
++{
++public:
++    nsUIKitScreen (void* screen) {}
++    ~nsUIKitScreen () {}
++
++    NS_DECL_ISUPPORTS
++
++    NS_DECL_NSISCREEN
++};
++
++class nsScreenManager : public nsIScreenManager
++{
++public:
++    nsScreenManager ();
++    ~nsScreenManager () {}
++
++    NS_DECL_ISUPPORTS
++
++    NS_DECL_NSISCREENMANAGER
++
++    static gfxIntSize GetBounds();
++
++private:
++    //TODO: support >1 screen, iPad supports external displays
++    nsCOMPtr<nsIScreen> mScreen;
++};
++
++#endif // nsScreenManager_h_
+diff --git a/widget/src/uikit/nsScreenManager.mm b/widget/src/uikit/nsScreenManager.mm
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsScreenManager.mm
+@@ -0,0 +1,135 @@
++/* -*- Mode: C++; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ *   Mozilla Corp
++ * Portions created by the Initial Developer are Copyright (C) 2010
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *    Ted Mielczarek <ted.mielczarek@gmail.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#import <UIKit/UIScreen.h>
++
++#include "gfxPoint.h"
++#include "nsScreenManager.h"
++
++static gfxIntSize gScreenBounds;
++
++NS_IMPL_ISUPPORTS1(nsUIKitScreen, nsIScreen)
++
++NS_IMETHODIMP
++nsUIKitScreen::GetRect(PRInt32 *outLeft, PRInt32 *outTop, PRInt32 *outWidth, PRInt32 *outHeight)
++{
++  CGRect rect = [[UIScreen mainScreen] bounds];
++
++  *outLeft = rect.origin.x;
++  *outTop = rect.origin.y;
++  *outWidth = rect.size.width;
++  *outHeight = rect.size.height;
++
++  return NS_OK;
++}
++
++
++NS_IMETHODIMP
++nsUIKitScreen::GetAvailRect(PRInt32 *outLeft, PRInt32 *outTop, PRInt32 *outWidth, PRInt32 *outHeight)
++{
++  CGRect rect = [[UIScreen mainScreen] applicationFrame];
++
++  *outLeft = rect.origin.x;
++  *outTop = rect.origin.y;
++  *outWidth = rect.size.width;
++  *outHeight = rect.size.height;
++
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsUIKitScreen::GetPixelDepth(PRInt32 *aPixelDepth)
++{
++  // XXX: this probably isn't right, but who knows?
++  *aPixelDepth = 24;
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsUIKitScreen::GetColorDepth(PRInt32 *aColorDepth)
++{
++  return GetPixelDepth(aColorDepth);
++}
++
++NS_IMPL_ISUPPORTS1(nsScreenManager, nsIScreenManager)
++
++nsScreenManager::nsScreenManager()
++: mScreen(new nsUIKitScreen(nsnull))
++{
++}
++
++gfxIntSize
++nsScreenManager::GetBounds()
++{
++    CGRect rect = [[UIScreen mainScreen] bounds];
++    gScreenBounds.width = rect.size.width;
++    gScreenBounds.height = rect.size.height;
++    return gScreenBounds;
++}
++
++NS_IMETHODIMP
++nsScreenManager::GetPrimaryScreen(nsIScreen **outScreen)
++{
++  NS_IF_ADDREF(*outScreen = mScreen.get());
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsScreenManager::ScreenForRect(PRInt32 inLeft,
++                               PRInt32 inTop,
++                               PRInt32 inWidth,
++                               PRInt32 inHeight,
++                               nsIScreen **outScreen)
++{
++  return GetPrimaryScreen(outScreen);
++}
++
++NS_IMETHODIMP
++nsScreenManager::ScreenForNativeWidget(void *aWidget, nsIScreen **outScreen)
++{
++  return GetPrimaryScreen(outScreen);
++}
++
++NS_IMETHODIMP
++nsScreenManager::GetNumberOfScreens(PRUint32 *aNumberOfScreens)
++{
++  //TODO: support multiple screens
++  *aNumberOfScreens = 1;
++  return NS_OK;
++}
++
+diff --git a/widget/src/uikit/nsToolkit.h b/widget/src/uikit/nsToolkit.h
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsToolkit.h
+@@ -0,0 +1,59 @@
++/* -*- Mode: c++; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 4; -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ *   Mozilla Corp
++ * Portions created by the Initial Developer are Copyright (C) 2009
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Vladimir Vukicevic <vladimir@pobox.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++// Just a copy of the Android/WebOS stub nsToolkit
++
++#ifndef nsToolkit_h__
++#define nsToolkit_h__
++
++#include <nsIToolkit.h>
++
++class nsToolkit :
++    public nsIToolkit
++{
++public:
++    NS_DECL_ISUPPORTS
++
++    // nsIToolkit
++    NS_IMETHOD		Init(PRThread *aThread);
++
++    nsToolkit();
++    virtual ~nsToolkit();
++};
++
++#endif /* nsToolkit_h__ */
+diff --git a/widget/src/uikit/nsToolkit.mm b/widget/src/uikit/nsToolkit.mm
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsToolkit.mm
+@@ -0,0 +1,98 @@
++/* -*- Mode: C++; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ *   Mozilla Corp
++ * Portions created by the Initial Developer are Copyright (C) 2009
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Vladimir Vukicevic <vladimir@pobox.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++// Just a copy of the Android/WebOS stub nsToolkit
++
++#include "nsToolkit.h"
++#include "nsGUIEvent.h"
++#include "nsWidgetAtoms.h"
++
++NS_IMPL_ISUPPORTS1(nsToolkit, nsIToolkit)
++
++// why do we have this?
++static PRUintn gToolkitTLSIndex = 0;
++
++nsToolkit::nsToolkit()
++{
++}
++
++nsToolkit::~nsToolkit()
++{
++    PR_SetThreadPrivate(gToolkitTLSIndex, nsnull);
++}
++
++NS_IMETHODIMP
++nsToolkit::Init(PRThread *aThread)
++{
++    nsWidgetAtoms::RegisterAtoms();
++    return NS_OK;
++}
++
++NS_METHOD
++NS_GetCurrentToolkit(nsIToolkit* *aResult)
++{
++    nsCOMPtr<nsIToolkit> toolkit = nsnull;
++    nsresult rv = NS_OK;
++    PRStatus status;
++
++    if (gToolkitTLSIndex == 0) {
++        status = PR_NewThreadPrivateIndex(&gToolkitTLSIndex, NULL);
++        if (PR_FAILURE == status)
++            rv = NS_ERROR_FAILURE;
++    }
++
++    if (NS_FAILED(rv))
++        return rv;
++
++    toolkit = (nsIToolkit*) PR_GetThreadPrivate(gToolkitTLSIndex);
++    if (!toolkit) {
++        toolkit = new nsToolkit();
++
++        if (toolkit) {
++            toolkit->Init(PR_GetCurrentThread());
++
++            PR_SetThreadPrivate(gToolkitTLSIndex, (void*)toolkit.get());
++        } else {
++            rv = NS_ERROR_OUT_OF_MEMORY;
++        }
++    }
++
++    NS_IF_ADDREF(*aResult = toolkit);
++
++    return rv;
 +}
 diff --git a/widget/src/uikit/nsWidgetFactory.mm b/widget/src/uikit/nsWidgetFactory.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWidgetFactory.mm
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,92 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -513,14 +910,554 @@ new file mode 100644
 +
 +#include "nsAppShell.h"
 +#include "nsAppShellSingleton.h"
++#include "nsLookAndFeel.h"
++#include "nsScreenManager.h"
++#include "nsToolkit.h"
++#include "nsWindow.h"
++
++NS_GENERIC_FACTORY_CONSTRUCTOR(nsLookAndFeel)
++NS_GENERIC_FACTORY_CONSTRUCTOR(nsScreenManager)
++NS_GENERIC_FACTORY_CONSTRUCTOR(nsToolkit)
++NS_GENERIC_FACTORY_CONSTRUCTOR(nsWindow)
 +
 +static const nsModuleComponentInfo gComponents[] =
 +{
 +  { "AppShell",
 +    NS_APPSHELL_CID,
-+    "@mozilla.org/widget/appshell/mac;1",
++    "@mozilla.org/widget/appshell/uikit;1",
 +    nsAppShellConstructor },
++  { "Toolkit",
++    NS_TOOLKIT_CID,
++    "@mozilla.org/widget/toolkit/uikit;1",
++    nsToolkitConstructor },
++  { "nsWindow",
++    NS_WINDOW_CID,
++    "@mozilla.org/widgets/window/uikit;1",
++    nsWindowConstructor },
++  /*
++  { "Popup nsWindow",
++    NS_POPUP_CID,
++    "@mozilla.org/widgets/popup/mac;1",
++    nsCocoaWindowConstructor },
++  { "Child nsWindow",
++    NS_CHILD_CID,
++    "@mozilla.org/widgets/childwindow/uikit;1",
++    nsChildViewConstructor },
++  */
++  { "Look And Feel",
++    NS_LOOKANDFEEL_CID,
++    "@mozilla.org/widget/lookandfeel/uikit;1",
++    nsLookAndFeelConstructor },
++  { "Screen Manager",
++    NS_SCREENMANAGER_CID,
++    "@mozilla.org/gfx/screenmanager;1",
++    nsScreenManagerConstructor },
 +};
 +
 +NS_IMPL_NSGETMODULE_WITH_CTOR_DTOR(nsWidgetUIKitModule, gComponents,
 +                                   nsAppShellInit, nsAppShellShutdown)
+diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsWindow.h
+@@ -0,0 +1,168 @@
++/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
++ * ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is Mozilla Android code.
++ *
++ * The Initial Developer of the Original Code is Mozilla Foundation.
++ * Portions created by the Initial Developer are Copyright (C) 2010
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Ted Mielczarek <ted.mielczarek@gmail.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef NSWINDOW_H_
++#define NSWINDOW_H_
++
++#include "nsBaseWidget.h"
++#include "gfxPoint.h"
++
++#include "nsTArray.h"
++
++@class UIWindow;
++class gfxASurface;
++
++class nsWindow :
++    public nsBaseWidget
++{
++public:
++    nsWindow();
++    virtual ~nsWindow();
++
++    NS_DECL_ISUPPORTS_INHERITED
++
++    void Redraw();
++
++    void InitEvent(nsGUIEvent& event, nsIntPoint* aPoint = 0);
++
++    //
++    // nsIWidget
++    //
++
++    NS_IMETHOD Create(nsIWidget *aParent,
++                      nsNativeWidget aNativeParent,
++                      const nsIntRect &aRect,
++                      EVENT_CALLBACK aHandleEventFunction,
++                      nsIDeviceContext *aContext,
++                      nsIAppShell *aAppShell,
++                      nsIToolkit *aToolkit,
++                      nsWidgetInitData *aInitData);
++    NS_IMETHOD Destroy(void);
++    NS_IMETHOD ConfigureChildren(const nsTArray<nsIWidget::Configuration>&);
++    NS_IMETHOD SetParent(nsIWidget* aNewParent);
++    virtual nsIWidget *GetParent(void);
++    NS_IMETHOD Show(PRBool aState);
++    NS_IMETHOD SetModal(PRBool aModal);
++    NS_IMETHOD IsVisible(PRBool & aState);
++    NS_IMETHOD ConstrainPosition(PRBool aAllowSlop,
++                                 PRInt32 *aX,
++                                 PRInt32 *aY);
++    NS_IMETHOD Move(PRInt32 aX,
++                    PRInt32 aY);
++    NS_IMETHOD Resize(PRInt32 aWidth,
++                      PRInt32 aHeight,
++                      PRBool  aRepaint);
++    NS_IMETHOD Resize(PRInt32 aX,
++                      PRInt32 aY,
++                      PRInt32 aWidth,
++                      PRInt32 aHeight,
++                      PRBool aRepaint);
++    NS_IMETHOD SetZIndex(PRInt32 aZIndex);
++    NS_IMETHOD PlaceBehind(nsTopLevelWidgetZPlacement aPlacement,
++                           nsIWidget *aWidget,
++                           PRBool aActivate);
++    NS_IMETHOD SetSizeMode(PRInt32 aMode);
++    NS_IMETHOD Enable(PRBool aState);
++    NS_IMETHOD IsEnabled(PRBool *aState);
++    NS_IMETHOD Invalidate(const nsIntRect &aRect,
++                          PRBool aIsSynchronous);
++    NS_IMETHOD Update();
++    void Scroll(const nsIntPoint&,
++                const nsTArray<nsIntRect>&,
++                const nsTArray<nsIWidget::Configuration>&);
++    NS_IMETHOD SetFocus(PRBool aRaise = PR_FALSE);
++    NS_IMETHOD GetScreenBounds(nsIntRect &aRect);
++    virtual nsIntPoint WidgetToScreenOffset();
++    NS_IMETHOD DispatchEvent(nsGUIEvent *aEvent, nsEventStatus &aStatus);
++    nsEventStatus DispatchEvent(nsGUIEvent *aEvent);
++    NS_IMETHOD SetWindowClass(const nsAString& xulWinType);
++
++
++
++    NS_IMETHOD SetForegroundColor(const nscolor &aColor) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD SetBackgroundColor(const nscolor &aColor);
++    NS_IMETHOD SetCursor(nsCursor aCursor) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD SetCursor(imgIContainer* aCursor,
++                         PRUint32 aHotspotX,
++                         PRUint32 aHotspotY) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD SetHasTransparentBackground(PRBool aTransparent) { return NS_OK; }
++    NS_IMETHOD GetHasTransparentBackground(PRBool& aTransparent) { aTransparent = PR_FALSE; return NS_OK; }
++    NS_IMETHOD HideWindowChrome(PRBool aShouldHide) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD MakeFullScreen(PRBool aFullScreen) { return NS_ERROR_NOT_IMPLEMENTED; }
++    virtual void* GetNativeData(PRUint32 aDataType);
++    NS_IMETHOD SetTitle(const nsAString& aTitle) { return NS_OK; }
++    NS_IMETHOD SetIcon(const nsAString& aIconSpec) { return NS_OK; }
++    NS_IMETHOD EnableDragDrop(PRBool aEnable) { return NS_OK; }
++    NS_IMETHOD CaptureMouse(PRBool aCapture) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD CaptureRollupEvents(nsIRollupListener *aListener,
++                                   nsIMenuRollup *aMenuRollup,
++                                   PRBool aDoCapture,
++                                   PRBool aConsumeRollupEvent) { return NS_ERROR_NOT_IMPLEMENTED; }
++
++    NS_IMETHOD GetAttention(PRInt32 aCycleCount) { return NS_ERROR_NOT_IMPLEMENTED; }
++    NS_IMETHOD BeginResizeDrag(nsGUIEvent* aEvent, PRInt32 aHorizontal, PRInt32 aVertical) { return NS_ERROR_NOT_IMPLEMENTED; }
++
++    NS_IMETHOD SetIMEEnabled(PRUint32 aState) { return NS_ERROR_NOT_IMPLEMENTED; };
++    NS_IMETHOD GetIMEEnabled(PRUint32* aState) { return NS_ERROR_NOT_IMPLEMENTED; };
++
++    gfxASurface* GetThebesSurface();
++
++protected:
++    void BringToFront();
++    nsWindow *FindTopLevel();
++    PRBool DrawTo(gfxASurface *targetSurface);
++    PRBool IsTopLevel();
++    nsresult GetCurrentOffset(PRUint32 &aOffset, PRUint32 &aLength);
++    nsresult DeleteRange(int aOffset, int aLen);
++
++    UIWindow* mNativeWindow;
++    PRPackedBool mIsVisible;
++    nsTArray<nsWindow*> mChildren;
++    nsWindow* mParent;
++    /*
++    void OnMouseEvent(SDL_Event *sdlevt, nsIntPoint pt);
++    void InitKeyEvent(nsKeyEvent& event, SDL_keysym &keysym);
++    void OnKeyEvent(SDL_KeyboardEvent &keyevt);
++    */
++    void OnSizeChanged(const gfxIntSize& aSize);
++
++    static void DumpWindows();
++    static void DumpWindows(const nsTArray<nsWindow*>& wins, int indent = 0);
++    static void LogWindow(nsWindow *win, int index, int indent);
++};
++
++#endif /* NSWINDOW_H_ */
+diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
+new file mode 100644
+--- /dev/null
++++ b/widget/src/uikit/nsWindow.mm
+@@ -0,0 +1,327 @@
++/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
++ * ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is Mozilla Android code.
++ *
++ * The Initial Developer of the Original Code is Mozilla Foundation.
++ * Portions created by the Initial Developer are Copyright (C) 2010
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Vladimir Vukicevic <vladimir@pobox.com>
++ *   Dave Townsend <dtownsend@oxymoronical.com>
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#import <UIKit/UIWindow.h>
++
++#include "nsWindow.h"
++#include "nsScreenManager.h"
++#include "nsAppShell.h"
++
++#include "nsIDeviceContext.h"
++#include "nsIRenderingContext.h"
++
++#include "nsWidgetsCID.h"
++#include "nsGfxCIID.h"
++
++#include "gfxImageSurface.h"
++#include "gfxContext.h"
++
++#include "nsTArray.h"
++
++#define ALOG(args...) printf(args); printf("\n")
++
++NS_IMPL_ISUPPORTS_INHERITED0(nsWindow, nsBaseWidget)
++
++nsWindow::nsWindow()
++: mNativeWindow(NULL),
++  mIsVisible(PR_FALSE),
++  mParent(NULL)
++{
++}
++
++nsWindow::~nsWindow()
++{
++}
++
++PRBool
++nsWindow::IsTopLevel()
++{
++    return mWindowType == eWindowType_toplevel ||
++        mWindowType == eWindowType_dialog ||
++        mWindowType == eWindowType_invisible;
++}
++
++void nsWindow::Redraw()
++{
++}
++
++void nsWindow::InitEvent(nsGUIEvent& event, nsIntPoint* aPoint)
++{
++}
++
++//
++// nsIWidget
++//
++
++NS_IMETHODIMP
++nsWindow::Create(nsIWidget *aParent,
++                 nsNativeWidget aNativeParent,
++                 const nsIntRect &aRect,
++                 EVENT_CALLBACK aHandleEventFunction,
++                 nsIDeviceContext *aContext,
++                 nsIAppShell *aAppShell,
++                 nsIToolkit *aToolkit,
++                 nsWidgetInitData *aInitData)
++{
++    ALOG("nsWindow[%p]::Create %p [%d %d %d %d]", (void*)this, (void*)aParent, aRect.x, aRect.y, aRect.width, aRect.height);
++    nsWindow *parent = (nsWindow*) aParent;
++
++    if (aNativeParent) {
++        if (parent) {
++            ALOG("Ignoring native parent on UiKit window [%p], since parent was specified (%p %p)", (void*)this, (void*)aNativeParent, (void*)aParent);
++        } else {
++            parent = (nsWindow*) aNativeParent;
++        }
++    }
++
++    mBounds = aRect;
++
++    // for toplevel windows, bounds are fixed to full screen size
++    if (parent == nsnull) {
++        gfxIntSize bounds = nsScreenManager::GetBounds();
++
++        mBounds.x = 0;
++        mBounds.y = 0;
++        mBounds.width = bounds.width;
++        mBounds.height = bounds.height;
++    }
++
++    BaseCreate(nsnull, mBounds, aHandleEventFunction, aContext,
++               aAppShell, aToolkit, aInitData);
++
++    NS_ASSERTION(IsTopLevel() || parent, "non top level window doesn't have a parent!");
++
++    if (IsTopLevel()) {
++      //gTopLevelWindows.AppendElement(this);
++    }
++
++    if (parent) {
++        parent->mChildren.AppendElement(this);
++        mParent = parent;
++    }
++
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Destroy(void)
++{
++    for (PRUint32 i = 0; i < mChildren.Length(); ++i) {
++        // why do we still have children?
++        ALOG("### Warning: Destroying window %p and reparenting child %p to null!", (void*)this, (void*)mChildren[i]);
++        mChildren[i]->SetParent(nsnull);
++    }
++    /*
++    if (IsTopLevel())
++        gTopLevelWindows.RemoveElement(this);
++    */
++    if (mParent)
++        mParent->mChildren.RemoveElement(this);
++
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::ConfigureChildren(const nsTArray<nsIWidget::Configuration>&)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::SetParent(nsIWidget* aNewParent)
++{
++  return NS_OK;
++}
++
++nsIWidget *nsWindow::GetParent(void)
++{
++  return NULL;
++}
++
++NS_IMETHODIMP
++nsWindow::Show(PRBool aState)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::SetModal(PRBool aModal)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::IsVisible(PRBool & aState)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::ConstrainPosition(PRBool aAllowSlop,
++                            PRInt32 *aX,
++                            PRInt32 *aY)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Move(PRInt32 aX,
++               PRInt32 aY)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Resize(PRInt32 aWidth,
++                 PRInt32 aHeight,
++                 PRBool  aRepaint)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Resize(PRInt32 aX,
++                 PRInt32 aY,
++                 PRInt32 aWidth,
++                 PRInt32 aHeight,
++                 PRBool aRepaint)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::SetZIndex(PRInt32 aZIndex)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::PlaceBehind(nsTopLevelWidgetZPlacement aPlacement,
++                      nsIWidget *aWidget,
++                      PRBool aActivate)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::SetSizeMode(PRInt32 aMode)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Enable(PRBool aState)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::IsEnabled(PRBool *aState)
++{
++  *aState = PR_FALSE;
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Invalidate(const nsIntRect &aRect,
++                     PRBool aIsSynchronous)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::Update()
++{
++  return NS_OK;
++}
++
++void nsWindow::Scroll(const nsIntPoint&,
++                      const nsTArray<nsIntRect>&,
++                      const nsTArray<nsIWidget::Configuration>&)
++{
++}
++
++NS_IMETHODIMP
++nsWindow::SetFocus(PRBool aRaise)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::GetScreenBounds(nsIntRect &aRect)
++{
++  return NS_OK;
++}
++
++nsIntPoint nsWindow::WidgetToScreenOffset()
++{
++  return nsIntPoint(0,0);
++}
++
++NS_IMETHODIMP
++nsWindow::DispatchEvent(nsGUIEvent *aEvent, nsEventStatus &aStatus)
++{
++  return NS_OK;
++}
++
++nsEventStatus nsWindow::DispatchEvent(nsGUIEvent *aEvent)
++{
++  return nsEventStatus_eIgnore;
++}
++
++NS_IMETHODIMP
++nsWindow::SetWindowClass(const nsAString& xulWinType)
++{
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsWindow::SetBackgroundColor(const nscolor &aColor)
++{
++  return NS_ERROR_NOT_IMPLEMENTED;
++}
++
++void* nsWindow::GetNativeData(PRUint32 aDataType)
++{
++  return NULL;
++}
++
++gfxASurface* nsWindow::GetThebesSurface()
++{
++  return NULL;
++}
