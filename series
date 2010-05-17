@@ -38,4 +38,6 @@ uikit-branding-icons
 browser-uikit
 mozconfig-debug
 widget-uikit
+browser-xul-hax
+nsappshell-hidden-window
 iphone_xptcall

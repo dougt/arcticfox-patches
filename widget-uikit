@@ -119,7 +119,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,81 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -169,6 +169,7 @@ new file mode 100644
 +#include "nsTArray.h"
 +
 +#include <Foundation/NSAutoreleasePool.h>
++#include <CoreFoundation/CFRunLoop.h>
 +
 +@class AppShellDelegate;
 +
@@ -189,11 +190,14 @@ new file mode 100644
 +protected:
 +  virtual ~nsAppShell();
 +
++  static void ProcessGeckoEvents(void* aInfo);
 +  virtual void ScheduleNativeEventCallback();
 +  virtual PRBool ProcessNextNativeEvent(PRBool aMayWait);
 +
 +  NSAutoreleasePool* mAutoreleasePool;
 +  AppShellDelegate*  mDelegate;
++  CFRunLoopRef       mCFRunLoop;
++  CFRunLoopSourceRef mCFRunLoopSource;
 +};
 +
 +#endif // nsAppShell_h_
@@ -201,7 +205,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,225 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -262,13 +266,28 @@ new file mode 100644
 +
 +@interface AppShellDelegate : NSObject <UIApplicationDelegate> {
 +}
-+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
 +@end
 +
 +@implementation AppShellDelegate
 +- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 +{
 +  return YES;
++}
++
++- (void)applicationWillTerminate:(UIApplication *)application
++{
++}
++
++- (void)applicationDidBecomeActive:(UIApplication *)application
++{
++}
++
++- (void)applicationWillResignActive:(UIApplication *)application
++{
++}
++
++- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
++{
 +}
 +@end
 +
@@ -281,7 +300,10 @@ new file mode 100644
 +}
 +
 +nsAppShell::nsAppShell()
-+  : mAutoreleasePool(NULL)
++  : mAutoreleasePool(NULL),
++    mDelegate(NULL),
++    mCFRunLoop(NULL),
++    mCFRunLoopSource(NULL)
 +{
 +  gAppShell = this;
 +}
@@ -292,6 +314,16 @@ new file mode 100644
 +    [mAutoreleasePool release];
 +    mAutoreleasePool = NULL;
 +  }
++
++  if (mCFRunLoop) {
++    if (mCFRunLoopSource) {
++      ::CFRunLoopRemoveSource(mCFRunLoop, mCFRunLoopSource,
++                              kCFRunLoopCommonModes);
++      ::CFRelease(mCFRunLoopSource);
++    }
++    ::CFRelease(mCFRunLoop);
++  }
++
 +  gAppShell = NULL;
 +}
 +
@@ -302,7 +334,42 @@ new file mode 100644
 +nsAppShell::Init()
 +{
 +  mAutoreleasePool = [[NSAutoreleasePool alloc] init];
++
++  // Add a CFRunLoopSource to the main native run loop.  The source is
++  // responsible for interrupting the run loop when Gecko events are ready.
++
++  mCFRunLoop = [[NSRunLoop currentRunLoop] getCFRunLoop];
++  NS_ENSURE_STATE(mCFRunLoop);
++  ::CFRetain(mCFRunLoop);
++
++  CFRunLoopSourceContext context;
++  bzero(&context, sizeof(context));
++  // context.version = 0;
++  context.info = this;
++  context.perform = ProcessGeckoEvents;
++  
++  mCFRunLoopSource = ::CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
++  NS_ENSURE_STATE(mCFRunLoopSource);
++
++  ::CFRunLoopAddSource(mCFRunLoop, mCFRunLoopSource, kCFRunLoopCommonModes);
++
 +  return nsBaseAppShell::Init();
++}
++
++// ProcessGeckoEvents
++//
++// The "perform" target of mCFRunLoop, called when mCFRunLoopSource is
++// signalled from ScheduleNativeEventCallback.
++//
++// protected static
++void
++nsAppShell::ProcessGeckoEvents(void* aInfo)
++{
++  //static int i = 0;
++  //printf("[%d] ProcessGeckoEvents\n", i++);
++  nsAppShell* self = static_cast<nsAppShell*> (aInfo);
++  self->NativeEventCallback();
++  self->Release();
 +}
 +
 +// ScheduleNativeEventCallback
@@ -311,6 +378,11 @@ new file mode 100644
 +void
 +nsAppShell::ScheduleNativeEventCallback()
 +{
++  NS_ADDREF_THIS();
++
++  // This will invoke ProcessGeckoEvents on the main thread.
++  ::CFRunLoopSourceSignal(mCFRunLoopSource);
++  ::CFRunLoopWakeUp(mCFRunLoop);
 +}
 +
 +// ProcessNextNativeEvent
@@ -319,9 +391,28 @@ new file mode 100644
 +PRBool
 +nsAppShell::ProcessNextNativeEvent(PRBool aMayWait)
 +{
++  //static int i = 0;
++  //printf("[%d] ProcessNextNativeEvent\n", i++);
++  NSString* currentMode = nil;
++  NSDate* waitUntil = nil;
++  if (aMayWait)
++    waitUntil = [NSDate distantFuture];
++  NSRunLoop* currentRunLoop = [NSRunLoop currentRunLoop];
++
++  BOOL eventProcessed = NO;
++  /*XXX: fix this so it doesn't hang!
++  do {
++    currentMode = [currentRunLoop currentMode];
++    if (!currentMode)
++      currentMode = NSDefaultRunLoopMode;
++
++    //XXX: peek for an event somehow if !aMayWait?
++    eventProcessed = [currentRunLoop runMode:currentMode beforeDate:waitUntil];
++  } while(eventProcessed);
++  */
++
 +  return PR_FALSE;
 +}
-+
 +
 +// Run
 +//
@@ -330,7 +421,7 @@ new file mode 100644
 +nsAppShell::Run(void)
 +{
 +  char *argv[1] = {"app"};
-+  UIApplicationMain(1, argv, nil, @"");
++  UIApplicationMain(1, argv, nil, @"AppShellDelegate");
 +  // UIApplicationMain doesn't exit. :-(
 +  return NS_OK;
 +}
@@ -403,7 +494,7 @@ diff --git a/widget/src/uikit/nsLookAndFeel.mm b/widget/src/uikit/nsLookAndFeel.
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsLookAndFeel.mm
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,479 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -442,6 +533,9 @@ new file mode 100644
 + *
 + * ***** END LICENSE BLOCK ***** */
 +
++#import <UIKit/UIColor.h>
++#import <UIKit/UIInterface.h>
++
 +#include "nsLookAndFeel.h"
 +
 +nsLookAndFeel::nsLookAndFeel()
@@ -453,23 +547,432 @@ new file mode 100644
 +{
 +}
 +
++static nscolor GetColorFromUIColor(UIColor* aColor)
++{
++    CGColorRef cgColor = [aColor CGColor];
++    const CGFloat* components = CGColorGetComponents(cgColor);
++    return NS_RGB((unsigned int)(components[0] * 255.0),
++                  (unsigned int)(components[1] * 255.0),
++                  (unsigned int)(components[2] * 255.0));
++}
++
 +nsresult
 +nsLookAndFeel::NativeGetColor(const nsColorID aID, nscolor &aColor)
 +{
-+  return NS_ERROR_NOT_IMPLEMENTED;
++  nsresult res = NS_OK;
++  
++  switch (aID) {
++    case eColor_WindowBackground:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_WindowForeground:
++      aColor = NS_RGB(0x00,0x00,0x00);        
++      break;
++    case eColor_WidgetBackground:
++      aColor = NS_RGB(0xdd,0xdd,0xdd);
++      break;
++    case eColor_WidgetForeground:
++      aColor = NS_RGB(0x00,0x00,0x00);        
++      break;
++    case eColor_WidgetSelectBackground:
++      aColor = NS_RGB(0x80,0x80,0x80);
++      break;
++    case eColor_WidgetSelectForeground:
++      aColor = NS_RGB(0x00,0x00,0x80);
++      break;
++    case eColor_Widget3DHighlight:
++      aColor = NS_RGB(0xa0,0xa0,0xa0);
++      break;
++    case eColor_Widget3DShadow:
++      aColor = NS_RGB(0x40,0x40,0x40);
++      break;
++    case eColor_TextBackground:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_TextForeground:
++      aColor = NS_RGB(0x00,0x00,0x00);
++      break;
++    case eColor_TextSelectBackground:
++    case eColor_highlight: // CSS2 color
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_menuhover:
++      aColor = NS_RGB(0xee,0xee,0xee);
++      break;      
++    case eColor_TextSelectForeground:
++    case eColor_highlighttext:  // CSS2 color
++    case eColor__moz_menuhovertext:
++      GetColor(eColor_TextSelectBackground, aColor);
++      if (aColor == 0x000000)
++        aColor = NS_RGB(0xff,0xff,0xff);
++      else
++        aColor = NS_DONT_CHANGE_COLOR;
++      break;
++    case eColor_IMESelectedRawTextBackground:
++    case eColor_IMESelectedConvertedTextBackground:
++    case eColor_IMERawInputBackground:
++    case eColor_IMEConvertedTextBackground:
++      aColor = NS_TRANSPARENT;
++      break;
++    case eColor_IMESelectedRawTextForeground:
++    case eColor_IMESelectedConvertedTextForeground:
++    case eColor_IMERawInputForeground:
++    case eColor_IMEConvertedTextForeground:
++      aColor = NS_SAME_AS_FOREGROUND_COLOR;
++      break;
++    case eColor_IMERawInputUnderline:
++    case eColor_IMEConvertedTextUnderline:
++      aColor = NS_40PERCENT_FOREGROUND_COLOR;
++      break;
++    case eColor_IMESelectedRawTextUnderline:
++    case eColor_IMESelectedConvertedTextUnderline:
++      aColor = NS_SAME_AS_FOREGROUND_COLOR;
++      break;
++    case eColor_SpellCheckerUnderline:
++      aColor = NS_RGB(0xff, 0, 0);
++      break;
++
++    //
++    // css2 system colors http://www.w3.org/TR/REC-CSS2/ui.html#system-colors
++    //
++    case eColor_buttontext:
++    case eColor__moz_buttonhovertext:
++    case eColor_captiontext:
++    case eColor_menutext:
++    case eColor_infotext:
++    case eColor__moz_menubartext:
++    case eColor_windowtext:
++      aColor = GetColorFromUIColor([UIColor darkTextColor]);
++      break;
++    case eColor_activecaption:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_activeborder:
++      aColor = NS_RGB(0x00,0x00,0x00);
++      break;
++     case eColor_appworkspace:
++      aColor = NS_RGB(0xFF,0xFF,0xFF);
++      break;
++    case eColor_background:
++      aColor = NS_RGB(0x63,0x63,0xCE);
++      break;
++    case eColor_buttonface:
++    case eColor__moz_buttonhoverface:
++      aColor = NS_RGB(0xF0,0xF0,0xF0);
++      break;
++    case eColor_buttonhighlight:
++      aColor = NS_RGB(0xFF,0xFF,0xFF);
++      break;
++    case eColor_buttonshadow:
++      aColor = NS_RGB(0xDC,0xDC,0xDC);
++      break;
++    case eColor_graytext:
++      aColor = NS_RGB(0x44,0x44,0x44);
++      break;
++    case eColor_inactiveborder:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_inactivecaption:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor_inactivecaptiontext:
++      aColor = NS_RGB(0x45,0x45,0x45);
++      break;
++    case eColor_scrollbar:
++      aColor = NS_RGB(0,0,0); //XXX
++      break;
++    case eColor_threeddarkshadow:
++      aColor = NS_RGB(0xDC,0xDC,0xDC);
++      break;
++    case eColor_threedshadow:
++      aColor = NS_RGB(0xE0,0xE0,0xE0);
++      break;
++    case eColor_threedface:
++      aColor = NS_RGB(0xF0,0xF0,0xF0);
++      break;
++    case eColor_threedhighlight:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_threedlightshadow:
++      aColor = NS_RGB(0xDA,0xDA,0xDA);
++      break;
++    case eColor_menu:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor_infobackground:
++      aColor = NS_RGB(0xFF,0xFF,0xC7);
++      break;
++    case eColor_windowframe:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor_window:
++    case eColor__moz_field:
++    case eColor__moz_combobox:
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor__moz_fieldtext:
++    case eColor__moz_comboboxtext:
++      aColor = GetColorFromUIColor([UIColor darkTextColor]);
++      break;
++    case eColor__moz_dialog:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_dialogtext:
++    case eColor__moz_cellhighlighttext:
++    case eColor__moz_html_cellhighlighttext:
++      aColor = GetColorFromUIColor([UIColor darkTextColor]);
++      break;
++    case eColor__moz_dragtargetzone:
++    case eColor__moz_mac_chrome_active:
++    case eColor__moz_mac_chrome_inactive:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_mac_focusring:
++      aColor = NS_RGB(0x3F,0x98,0xDD);
++      break;
++    case eColor__moz_mac_menushadow:
++      aColor = NS_RGB(0xA3,0xA3,0xA3);
++      break;          
++    case eColor__moz_mac_menutextdisable:
++      aColor = NS_RGB(0x88,0x88,0x88);
++      break;      
++    case eColor__moz_mac_menutextselect:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;      
++    case eColor__moz_mac_disabledtoolbartext:
++      aColor = NS_RGB(0x3F,0x3F,0x3F);
++      break;
++    case eColor__moz_mac_menuselect:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_buttondefault:
++      aColor = NS_RGB(0xDC,0xDC,0xDC);
++      break;
++    case eColor__moz_mac_alternateprimaryhighlight:
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_cellhighlight:
++    case eColor__moz_html_cellhighlight:
++    case eColor__moz_mac_secondaryhighlight:
++      // For inactive list selection
++      aColor = NS_RGB(0xaa,0xaa,0xaa);
++      break;
++    case eColor__moz_eventreerow:
++      // Background color of even list rows.
++      aColor = NS_RGB(0xff,0xff,0xff);
++      break;
++    case eColor__moz_oddtreerow:
++      // Background color of odd list rows.
++      aColor = NS_TRANSPARENT;
++      break;
++    case eColor__moz_nativehyperlinktext:
++      // There appears to be no available system defined color. HARDCODING to the appropriate color.
++      aColor = NS_RGB(0x14,0x4F,0xAE);
++      break;
++    default:
++      NS_WARNING("Someone asked nsILookAndFeel for a color I don't know about");
++      aColor = NS_RGB(0xff,0xff,0xff);
++      res = NS_ERROR_FAILURE;
++      break;
++    }
++  
++  return res;
 +}
 +
 +NS_IMETHODIMP
 +nsLookAndFeel::GetMetric(const nsMetricID aID, PRInt32 &aMetric)
 +{
-+  return NS_ERROR_NOT_IMPLEMENTED;
++  nsresult res = nsXPLookAndFeel::GetMetric(aID, aMetric);
++  if (NS_SUCCEEDED(res))
++    return res;
++  res = NS_OK;
++  
++  switch (aID) {
++    case eMetric_WindowTitleHeight:
++      aMetric = 0;
++      break;
++    case eMetric_WindowBorderWidth:
++      aMetric = 4;
++      break;
++    case eMetric_WindowBorderHeight:
++      aMetric = 4;
++      break;
++    case eMetric_Widget3DBorder:
++      aMetric = 4;
++      break;
++    case eMetric_TextFieldHeight:
++      aMetric = 16;
++      break;
++    case eMetric_TextFieldBorder:
++      aMetric = 2;
++      break;
++    case eMetric_ButtonHorizontalInsidePaddingNavQuirks:
++      aMetric = 20;
++      break;
++    case eMetric_ButtonHorizontalInsidePaddingOffsetNavQuirks:
++      aMetric = 0;
++      break;
++    case eMetric_CheckboxSize:
++      aMetric = 14;
++      break;
++    case eMetric_RadioboxSize:
++      aMetric = 14;
++      break;
++    case eMetric_TextHorizontalInsideMinimumPadding:
++      aMetric = 4;
++      break;
++    case eMetric_TextVerticalInsidePadding:
++      aMetric = 4;
++      break;
++    case eMetric_TextShouldUseVerticalInsidePadding:
++      aMetric = 1;
++      break;
++    case eMetric_TextShouldUseHorizontalInsideMinimumPadding:
++      aMetric = 1;
++      break;
++    case eMetric_ListShouldUseHorizontalInsideMinimumPadding:
++      aMetric = 0;
++      break;
++    case eMetric_ListHorizontalInsideMinimumPadding:
++      aMetric = 4;
++      break;
++    case eMetric_ListShouldUseVerticalInsidePadding:
++      aMetric = 1;
++      break;
++    case eMetric_ListVerticalInsidePadding:
++      aMetric = 3;
++      break;
++    case eMetric_CaretBlinkTime:
++      aMetric = 567;
++      break;
++    case eMetric_CaretWidth:
++      aMetric = 1;
++      break;
++    case eMetric_ShowCaretDuringSelection:
++      aMetric = 0;
++      break;
++    case eMetric_SelectTextfieldsOnKeyFocus:
++      // Select textfield content when focused by kbd
++      // used by nsEventStateManager::sTextfieldSelectModel
++      aMetric = 1;
++      break;
++    case eMetric_SubmenuDelay:
++      aMetric = 200;
++      break;
++    case eMetric_MenusCanOverlapOSBar:
++      // xul popups are not allowed to overlap the menubar.
++      aMetric = 0;
++      break;
++    case eMetric_SkipNavigatingDisabledMenuItem:
++      aMetric = 1;
++      break;
++    case eMetric_DragThresholdX:
++    case eMetric_DragThresholdY:
++      aMetric = 4;
++      break;
++    case eMetric_ScrollArrowStyle:
++      aMetric = eMetric_ScrollArrowStyleSingle;
++      break;
++    case eMetric_ScrollSliderStyle:
++      aMetric = eMetric_ScrollThumbStyleProportional;
++      break;
++    case eMetric_TreeOpenDelay:
++      aMetric = 1000;
++      break;
++    case eMetric_TreeCloseDelay:
++      aMetric = 1000;
++      break;
++    case eMetric_TreeLazyScrollDelay:
++      aMetric = 150;
++      break;
++    case eMetric_TreeScrollDelay:
++      aMetric = 100;
++      break;
++    case eMetric_TreeScrollLinesMax:
++      aMetric = 3;
++      break;
++    case eMetric_DWMCompositor:
++    case eMetric_WindowsClassic:
++    case eMetric_WindowsDefaultTheme:
++    case eMetric_TouchEnabled:
++    case eMetric_MaemoClassic:
++      aMetric = 0;
++      res = NS_ERROR_NOT_IMPLEMENTED;
++      break;
++    case eMetric_MacGraphiteTheme:
++      aMetric = 0;
++      break;
++    case eMetric_TabFocusModel:
++      aMetric = 1;    // default to just textboxes
++      break;
++    case eMetric_ScrollToClick:
++      aMetric = 0;
++      break;
++    case eMetric_ChosenMenuItemsShouldBlink:
++      aMetric = 1;
++      break;
++    case eMetric_IMERawInputUnderlineStyle:
++    case eMetric_IMEConvertedTextUnderlineStyle:
++    case eMetric_IMESelectedRawTextUnderlineStyle:
++    case eMetric_IMESelectedConvertedTextUnderline:
++      aMetric = NS_UNDERLINE_STYLE_SOLID;
++      break;
++    case eMetric_SpellCheckerUnderlineStyle:
++      aMetric = NS_UNDERLINE_STYLE_DOTTED;
++      break;
++    default:
++      aMetric = 0;
++      res = NS_ERROR_FAILURE;
++  }
++  return res;
 +}
 +
 +NS_IMETHODIMP
 +nsLookAndFeel::GetMetric(const nsMetricFloatID aID,
 +                         float &aMetric)
 +{
-+  return NS_ERROR_NOT_IMPLEMENTED;
++  nsresult res = nsXPLookAndFeel::GetMetric(aID, aMetric);
++  if (NS_SUCCEEDED(res))
++    return res;
++  res = NS_OK;
++  
++  switch (aID) {
++    case eMetricFloat_TextFieldVerticalInsidePadding:
++      aMetric = 0.25f;
++      break;
++    case eMetricFloat_TextFieldHorizontalInsidePadding:
++      aMetric = 0.95f;
++      break;
++    case eMetricFloat_TextAreaVerticalInsidePadding:
++      aMetric = 0.40f;
++      break;
++    case eMetricFloat_TextAreaHorizontalInsidePadding:
++      aMetric = 0.40f;
++      break;
++    case eMetricFloat_ListVerticalInsidePadding:
++      aMetric = 0.08f;
++      break;
++    case eMetricFloat_ListHorizontalInsidePadding:
++      aMetric = 0.40f;
++      break;
++    case eMetricFloat_ButtonVerticalInsidePadding:
++      aMetric = 0.5f;
++      break;
++    case eMetricFloat_ButtonHorizontalInsidePadding:
++      aMetric = 0.5f;
++      break;
++    case eMetricFloat_IMEUnderlineRelativeSize:
++      aMetric = 2.0f;
++      break;
++    case eMetricFloat_SpellCheckerUnderlineRelativeSize:
++      aMetric = 2.0f;
++      break;
++    default:
++      aMetric = -1.0;
++      res = NS_ERROR_FAILURE;
++  }
++
++  return res;
 +}
 diff --git a/widget/src/uikit/nsScreenManager.h b/widget/src/uikit/nsScreenManager.h
 new file mode 100644
@@ -960,7 +1463,7 @@ diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.h
-@@ -0,0 +1,168 @@
+@@ -0,0 +1,174 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1007,6 +1510,7 @@ new file mode 100644
 +#include "nsTArray.h"
 +
 +@class UIWindow;
++@class UIView;
 +class gfxASurface;
 +
 +class nsWindow :
@@ -1070,8 +1574,11 @@ new file mode 100644
 +    NS_IMETHOD SetFocus(PRBool aRaise = PR_FALSE);
 +    NS_IMETHOD GetScreenBounds(nsIntRect &aRect);
 +    virtual nsIntPoint WidgetToScreenOffset();
++    static  PRBool          ConvertStatus(nsEventStatus aStatus)
++    { return aStatus == nsEventStatus_eConsumeNoDefault; }
++
 +    NS_IMETHOD DispatchEvent(nsGUIEvent *aEvent, nsEventStatus &aStatus);
-+    nsEventStatus DispatchEvent(nsGUIEvent *aEvent);
++    PRBool DispatchWindowEvent(nsGUIEvent &event);
 +    NS_IMETHOD SetWindowClass(const nsAString& xulWinType);
 +
 +
@@ -1111,16 +1618,18 @@ new file mode 100644
 +    PRBool IsTopLevel();
 +    nsresult GetCurrentOffset(PRUint32 &aOffset, PRUint32 &aLength);
 +    nsresult DeleteRange(int aOffset, int aLen);
++    PRBool ReportMoveEvent();
++    PRBool ReportSizeEvent();
 +
++    // This will be NULL for non-top-level windows
 +    UIWindow* mNativeWindow;
-+    PRPackedBool mIsVisible;
++    // UIWindow subclasses UIView, so this is always valid
++    UIView*   mNativeView;
++    PRPackedBool mVisible;
 +    nsTArray<nsWindow*> mChildren;
 +    nsWindow* mParent;
-+    /*
-+    void OnMouseEvent(SDL_Event *sdlevt, nsIntPoint pt);
-+    void InitKeyEvent(nsKeyEvent& event, SDL_keysym &keysym);
-+    void OnKeyEvent(SDL_KeyboardEvent &keyevt);
-+    */
++    nsRefPtr<gfxASurface> mTempThebesSurface;
++
 +    void OnSizeChanged(const gfxIntSize& aSize);
 +
 +    static void DumpWindows();
@@ -1133,7 +1642,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,327 @@
+@@ -0,0 +1,638 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1172,6 +1681,10 @@ new file mode 100644
 + *
 + * ***** END LICENSE BLOCK ***** */
 +
++#import <UIKit/UIGraphics.h>
++#import <UIKit/UIInterface.h>
++#import <UIKit/UIScreen.h>
++#import <UIKit/UIView.h>
 +#import <UIKit/UIWindow.h>
 +
 +#include "nsWindow.h"
@@ -1185,18 +1698,122 @@ new file mode 100644
 +#include "nsGfxCIID.h"
 +
 +#include "gfxImageSurface.h"
++#include "gfxQuartzSurface.h"
 +#include "gfxContext.h"
++#include "nsRegion.h"
++#include "Layers.h"
 +
 +#include "nsTArray.h"
 +
 +#define ALOG(args...) printf(args); printf("\n")
 +
++static inline void
++GeckoRectToCGRect(const nsIntRect & inGeckoRect, CGRect & outRect)
++{
++  outRect.origin.x = inGeckoRect.x;
++  outRect.origin.y = inGeckoRect.y;
++  outRect.size.width = inGeckoRect.width;
++  outRect.size.height = inGeckoRect.height;
++}
++
++// Used to retain a Cocoa object for the remainder of a method's execution.
++class nsAutoRetainUIKitObject {
++public:
++nsAutoRetainUIKitObject(id anObject)
++{
++  mObject = [anObject retain];
++}
++~nsAutoRetainUIKitObject()
++{
++  [mObject release];
++}
++private:
++  id mObject;  // [STRONG]
++};
++
++@interface ChildView : UIView
++{
++@private
++    nsWindow* mGeckoChild; // weak ref
++}
++// sets up our view, attaching it to its owning gecko view
++- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild;
++@end
++
++@implementation ChildView
++- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild
++{
++    if ((self = [super initWithFrame:inFrame])) {
++        mGeckoChild = inChild;
++    }
++    return self;
++}
++
++// The display system has told us that a portion of our view is dirty. Tell
++// gecko to paint it
++- (void)drawRect:(CGRect)aRect
++{
++  CGContextRef cgContext = UIGraphicsGetCurrentContext();
++  CGAffineTransform xform = CGContextGetCTM(cgContext);
++
++  nsPaintEvent paintEvent(PR_TRUE, NS_PAINT, mGeckoChild);
++  paintEvent.region =
++      nsIntRect(aRect.origin.x, aRect.origin.y, aRect.size.width, aRect.size.height);
++
++  // Subtract child view rectangles from the region
++  NSArray* subviews = [self subviews];
++  for (int i = 0; i < int([subviews count]); ++i) {
++    UIView* view = [subviews objectAtIndex:i];
++    if (![view isKindOfClass:[ChildView class]] || [view isHidden])
++      continue;
++    CGRect frame = [view frame];
++    paintEvent.region.Sub(paintEvent.region,
++      nsIntRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height));
++  }
++
++  // Create Cairo objects.
++  CGSize bufferSize = [self bounds].size;
++  nsRefPtr<gfxQuartzSurface> targetSurface =
++    new gfxQuartzSurface(cgContext, gfxSize(bufferSize.width, bufferSize.height));
++
++  nsRefPtr<gfxContext> targetContext = new gfxContext(targetSurface);
++
++  // Set up the clip region.
++  nsIntRegionRectIterator iter(paintEvent.region);
++  targetContext->NewPath();
++  for (;;) {
++    const nsIntRect* r = iter.Next();
++    if (!r)
++      break;
++    targetContext->Rectangle(gfxRect(r->x, r->y, r->width, r->height));
++  }
++  targetContext->Clip();
++
++  nsAutoRetainUIKitObject kungFuDeathGrip(self);
++  PRBool painted;
++  {
++    nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext);
++    painted = mGeckoChild->DispatchWindowEvent(paintEvent);
++  }
++
++  if (!painted && [self isOpaque]) {
++    // Gecko refused to draw, but we've claimed to be opaque, so we have to
++    // draw something--fill with white.
++    CGContextSetRGBFillColor(cgContext, 1, 1, 1, 1);
++    CGContextFillRect(cgContext, CGRectMake(aRect.origin.x, aRect.origin.y,
++                                            aRect.size.width, aRect.size.height));
++  }
++}
++@end
++
 +NS_IMPL_ISUPPORTS_INHERITED0(nsWindow, nsBaseWidget)
 +
 +nsWindow::nsWindow()
 +: mNativeWindow(NULL),
-+  mIsVisible(PR_FALSE),
-+  mParent(NULL)
++  mNativeView(NULL),
++  mVisible(PR_FALSE),
++  mParent(NULL),
++  mTempThebesSurface(NULL)
 +{
 +}
 +
@@ -1262,13 +1879,26 @@ new file mode 100644
 +
 +    NS_ASSERTION(IsTopLevel() || parent, "non top level window doesn't have a parent!");
 +
++    CGRect cgRect;
++    cgRect.origin.x = mBounds.x;
++    cgRect.origin.y = mBounds.y;
++    cgRect.size.width = mBounds.width;
++    cgRect.size.height = mBounds.height;
++
 +    if (IsTopLevel()) {
-+      //gTopLevelWindows.AppendElement(this);
++        ALOG("Creating top-level window [%p]", (void*)this);
++        mNativeWindow = [[UIWindow alloc] initWithFrame:cgRect];
++        //mNativeWindow.backgroundColor = [UIColor blueColor];
 +    }
++
++    mNativeView = [[ChildView alloc] initWithFrame:cgRect geckoChild:this];
++    if (mNativeWindow)
++        [mNativeWindow addSubview:mNativeView];
 +
 +    if (parent) {
 +        parent->mChildren.AppendElement(this);
 +        mParent = parent;
++        [mParent->mNativeView addSubview:mNativeView];
 +    }
 +
 +  return NS_OK;
@@ -1282,36 +1912,68 @@ new file mode 100644
 +        ALOG("### Warning: Destroying window %p and reparenting child %p to null!", (void*)this, (void*)mChildren[i]);
 +        mChildren[i]->SetParent(nsnull);
 +    }
-+    /*
-+    if (IsTopLevel())
-+        gTopLevelWindows.RemoveElement(this);
-+    */
++
 +    if (mParent)
 +        mParent->mChildren.RemoveElement(this);
 +
-+  return NS_OK;
++    if (mNativeView)
++        [mNativeView release];
++    if (mNativeWindow)
++        [mNativeWindow release];
++
++    return NS_OK;
 +}
 +
 +NS_IMETHODIMP
-+nsWindow::ConfigureChildren(const nsTArray<nsIWidget::Configuration>&)
++nsWindow::ConfigureChildren(const nsTArray<nsIWidget::Configuration>& config)
 +{
-+  return NS_OK;
++    for (PRUint32 i = 0; i < config.Length(); ++i) {
++        nsWindow *childWin = (nsWindow*) config[i].mChild;
++        childWin->Resize(config[i].mBounds.x,
++                         config[i].mBounds.y,
++                         config[i].mBounds.width,
++                         config[i].mBounds.height,
++                         PR_FALSE);
++    }
++
++    return NS_OK;
 +}
 +
 +NS_IMETHODIMP
 +nsWindow::SetParent(nsIWidget* aNewParent)
 +{
++  if ((nsIWidget*)mParent == aNewParent)
++    return NS_OK;
++
++  if (mParent) {
++    mParent->mChildren.RemoveElement(this);
++    [mNativeView removeFromSuperview];
++  }
++
++  mParent = (nsWindow*)aNewParent;
++
++  if (mParent) {
++    mParent->mChildren.AppendElement(this);
++    [mParent->mNativeView addSubview:mNativeView];
++  }
++  //nsAppShell::ScheduleRedraw(); ?
 +  return NS_OK;
 +}
 +
 +nsIWidget *nsWindow::GetParent(void)
 +{
-+  return NULL;
++  return mParent;
 +}
 +
 +NS_IMETHODIMP
 +nsWindow::Show(PRBool aState)
 +{
++  if (aState != mVisible) {
++    if (mNativeWindow)
++      [mNativeWindow makeKeyAndVisible];
++    [mNativeView setHidden:!aState];
++    mVisible = aState;
++  }
 +  return NS_OK;
 +}
 +
@@ -1324,6 +1986,7 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::IsVisible(PRBool & aState)
 +{
++  aState = mVisible;
 +  return NS_OK;
 +}
 +
@@ -1339,6 +2002,20 @@ new file mode 100644
 +nsWindow::Move(PRInt32 aX,
 +               PRInt32 aY)
 +{
++  if (!mNativeView || (mBounds.x == aX && mBounds.y == aY))
++    return NS_OK;
++
++  mBounds.x = aX;
++  mBounds.y = aY;
++
++  CGRect r;
++  GeckoRectToCGRect(mBounds, r);
++  mNativeView.frame = r;
++
++  if (mVisible)
++    [mNativeView setNeedsDisplay];
++
++  ReportMoveEvent();
 +  return NS_OK;
 +}
 +
@@ -1347,6 +2024,21 @@ new file mode 100644
 +                 PRInt32 aHeight,
 +                 PRBool  aRepaint)
 +{
++  if (!mNativeView || (mBounds.width == aWidth && mBounds.height == aHeight))
++    return NS_OK;
++
++  mBounds.width  = aWidth;
++  mBounds.height = aHeight;
++
++  CGRect r;
++  GeckoRectToCGRect(mBounds, r);
++  [mNativeView setFrame:r];
++
++  if (mVisible && aRepaint)
++    [mNativeView setNeedsDisplay];
++
++  ReportSizeEvent();
++
 +  return NS_OK;
 +}
 +
@@ -1357,6 +2049,37 @@ new file mode 100644
 +                 PRInt32 aHeight,
 +                 PRBool aRepaint)
 +{
++  BOOL isMoving = (mBounds.x != aX || mBounds.y != aY);
++  BOOL isResizing = (mBounds.width != aWidth || mBounds.height != aHeight);
++  if (!mNativeView || (!isMoving && !isResizing))
++    return NS_OK;
++
++  if (isMoving) {
++    mBounds.x = aX;
++    mBounds.y = aY;
++  }
++  if (isResizing) {
++    mBounds.width  = aWidth;
++    mBounds.height = aHeight;
++  }
++
++  CGRect r;
++  GeckoRectToCGRect(mBounds, r);
++  [mNativeView setFrame:r];
++
++  if (mVisible && aRepaint)
++    [mNativeView setNeedsDisplay];
++
++  if (isMoving) {
++    ReportMoveEvent();
++    /*
++    if (mOnDestroyCalled)
++      return NS_OK;
++    */
++  }
++  if (isResizing)
++    ReportSizeEvent();
++
 +  return NS_OK;
 +}
 +
@@ -1389,7 +2112,7 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::IsEnabled(PRBool *aState)
 +{
-+  *aState = PR_FALSE;
++  *aState = PR_TRUE;
 +  return NS_OK;
 +}
 +
@@ -1397,6 +2120,19 @@ new file mode 100644
 +nsWindow::Invalidate(const nsIntRect &aRect,
 +                     PRBool aIsSynchronous)
 +{
++  if (!mNativeView || !mVisible)
++    return NS_OK;
++
++  CGRect r;
++  GeckoRectToCGRect(aRect, r);
++  
++  if (aIsSynchronous) {
++    [mNativeView drawRect:r];
++  }
++  else {
++    [mNativeView setNeedsDisplayInRect:r];
++  }
++
 +  return NS_OK;
 +}
 +
@@ -1410,34 +2146,78 @@ new file mode 100644
 +                      const nsTArray<nsIntRect>&,
 +                      const nsTArray<nsIWidget::Configuration>&)
 +{
++    //XXX: implement me
 +}
 +
 +NS_IMETHODIMP
 +nsWindow::SetFocus(PRBool aRaise)
 +{
++  [[mNativeView window] makeKeyWindow];
 +  return NS_OK;
 +}
++
++PRBool nsWindow::ReportMoveEvent()
++{
++  nsGUIEvent moveEvent(PR_TRUE, NS_MOVE, this);
++  moveEvent.refPoint.x = mBounds.x;
++  moveEvent.refPoint.y = mBounds.y;
++  moveEvent.time       = PR_IntervalNow();
++  return DispatchWindowEvent(moveEvent);
++}
++
++PRBool nsWindow::ReportSizeEvent()
++{
++  nsSizeEvent sizeEvent(PR_TRUE, NS_SIZE, this);
++  sizeEvent.time        = PR_IntervalNow();
++  sizeEvent.windowSize  = &mBounds;
++  sizeEvent.mWinWidth   = mBounds.width;
++  sizeEvent.mWinHeight  = mBounds.height;
++  return DispatchWindowEvent(sizeEvent);
++}
++
 +
 +NS_IMETHODIMP
 +nsWindow::GetScreenBounds(nsIntRect &aRect)
 +{
++  nsIntPoint p = WidgetToScreenOffset();
++  aRect.x = p.x;
++  aRect.y = p.y;
++  aRect.width = mBounds.width;
++  aRect.height = mBounds.height;
++
 +  return NS_OK;
 +}
 +
 +nsIntPoint nsWindow::WidgetToScreenOffset()
 +{
-+  return nsIntPoint(0,0);
++  CGPoint temp;
++  temp.x = 0;
++  temp.y = 0;
++  
++  // Translate this point into window coords. Since our top-level
++  // windows are always screen-sized, these are screen coords too.
++  temp = [mNativeView convertPoint:temp toView:nil];
++
++  return nsIntPoint(NSToIntRound(temp.x), NSToIntRound(temp.y));
 +}
 +
 +NS_IMETHODIMP
 +nsWindow::DispatchEvent(nsGUIEvent *aEvent, nsEventStatus &aStatus)
 +{
++  aStatus = nsEventStatus_eIgnore;
++  nsCOMPtr<nsIWidget> kungFuDeathGrip = do_QueryInterface(mParent ? mParent : this);
++
++  if (mEventCallback)
++    aStatus = (*mEventCallback)(aEvent);
++
 +  return NS_OK;
 +}
 +
-+nsEventStatus nsWindow::DispatchEvent(nsGUIEvent *aEvent)
++PRBool nsWindow::DispatchWindowEvent(nsGUIEvent &event)
 +{
-+  return nsEventStatus_eIgnore;
++  nsEventStatus status;
++  DispatchEvent(&event, status);
++  return ConvertStatus(status);
 +}
 +
 +NS_IMETHODIMP
@@ -1449,15 +2229,55 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::SetBackgroundColor(const nscolor &aColor)
 +{
-+  return NS_ERROR_NOT_IMPLEMENTED;
++    mNativeView.backgroundColor = [UIColor colorWithRed:NS_GET_R(aColor)
++                                   green:NS_GET_G(aColor)
++                                   blue:NS_GET_B(aColor)
++                                   alpha:NS_GET_A(aColor)];
++    return NS_OK;
 +}
 +
 +void* nsWindow::GetNativeData(PRUint32 aDataType)
 +{
-+  return NULL;
++  void* retVal = NULL;
++
++  switch (aDataType) 
++  {
++    case NS_NATIVE_WIDGET:
++    case NS_NATIVE_DISPLAY:
++      retVal = (void*)mNativeView;
++      break;
++
++    case NS_NATIVE_WINDOW:
++      retVal = [mNativeView window];
++      break;
++
++    case NS_NATIVE_GRAPHIC:
++      NS_ERROR("Requesting NS_NATIVE_GRAPHIC on a UIKit child view!");
++      break;
++
++    case NS_NATIVE_OFFSETX:
++      retVal = 0;
++      break;
++
++    case NS_NATIVE_OFFSETY:
++      retVal = 0;
++      break;
++
++    case NS_NATIVE_PLUGIN_PORT:
++    case NS_NATIVE_PLUGIN_PORT_QD:
++    case NS_NATIVE_PLUGIN_PORT_CG:
++        // not implemented
++        break;
++  }
++
++  return retVal;
 +}
 +
 +gfxASurface* nsWindow::GetThebesSurface()
 +{
-+  return NULL;
++  if (!mTempThebesSurface) {
++    mTempThebesSurface = new gfxQuartzSurface(gfxSize(1, 1), gfxASurface::ImageFormatARGB32);
++  }
++
++  return mTempThebesSurface;
 +}

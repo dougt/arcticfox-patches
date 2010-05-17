@@ -40,3 +40,19 @@ diff --git a/dom/base/nsDOMClassInfo.cpp b/dom/base/nsDOMClassInfo.cpp
  
    DOM_CLASSINFO_MAP_BEGIN(ProgressEvent, nsIDOMProgressEvent)
      DOM_CLASSINFO_MAP_ENTRY(nsIDOMProgressEvent)
+diff --git a/dom/base/nsDOMClassInfoClasses.h b/dom/base/nsDOMClassInfoClasses.h
+--- a/dom/base/nsDOMClassInfoClasses.h
++++ b/dom/base/nsDOMClassInfoClasses.h
+@@ -424,10 +424,12 @@
+ DOMCI_CLASS(CSSFontFaceStyleDecl)
+ 
+ // WhatWG Video Element
++#ifdef MOZ_MEDIA
+ DOMCI_CLASS(HTMLVideoElement)
+ DOMCI_CLASS(HTMLSourceElement)
+ DOMCI_CLASS(HTMLMediaError)
+ DOMCI_CLASS(HTMLAudioElement)
++#endif
+ 
+ DOMCI_CLASS(ProgressEvent)
+ 
