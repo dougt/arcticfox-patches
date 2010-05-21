@@ -25,7 +25,6 @@ uikit-no-native-menus
 skip-webgl-uikit
 exthandler-cocoa
 cairo-quartz-uikit
-thebes-font-fixup
 libxul-makefile
 nsobjectframe-ifdefs
 domclassinfo-media
@@ -37,7 +36,8 @@ xpcshell-link
 uikit-branding-icons
 browser-uikit
 mozconfig-debug
-widget-uikit
 browser-xul-hax
 nsappshell-hidden-window
+widget-uikit
+mozconfig-disable-optimize
 iphone_xptcall

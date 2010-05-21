@@ -205,7 +205,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,226 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -366,10 +366,11 @@ new file mode 100644
 +nsAppShell::ProcessGeckoEvents(void* aInfo)
 +{
 +  //static int i = 0;
-+  //printf("[%d] ProcessGeckoEvents\n", i++);
++  //printf("[%d] +ProcessGeckoEvents\n", i);
 +  nsAppShell* self = static_cast<nsAppShell*> (aInfo);
 +  self->NativeEventCallback();
 +  self->Release();
++  //printf("[%d] -ProcessGeckoEvents\n", i++);
 +}
 +
 +// ScheduleNativeEventCallback
@@ -400,16 +401,16 @@ new file mode 100644
 +  NSRunLoop* currentRunLoop = [NSRunLoop currentRunLoop];
 +
 +  BOOL eventProcessed = NO;
-+  /*XXX: fix this so it doesn't hang!
 +  do {
 +    currentMode = [currentRunLoop currentMode];
 +    if (!currentMode)
 +      currentMode = NSDefaultRunLoopMode;
 +
-+    //XXX: peek for an event somehow if !aMayWait?
-+    eventProcessed = [currentRunLoop runMode:currentMode beforeDate:waitUntil];
-+  } while(eventProcessed);
-+  */
++    if (aMayWait)
++      eventProcessed = [currentRunLoop runMode:currentMode beforeDate:waitUntil];
++    else
++      [currentRunLoop acceptInputForMode:currentMode beforeDate:waitUntil];
++  } while(eventProcessed && aMayWait);
 +
 +  return PR_FALSE;
 +}
@@ -1437,15 +1438,15 @@ new file mode 100644
 +    NS_WINDOW_CID,
 +    "@mozilla.org/widgets/window/uikit;1",
 +    nsWindowConstructor },
++  { "Child nsWindow",
++    NS_CHILD_CID,
++    "@mozilla.org/widgets/childwindow/uikit;1",
++    nsWindowConstructor }, // Same as nsWindow
 +  /*
 +  { "Popup nsWindow",
 +    NS_POPUP_CID,
 +    "@mozilla.org/widgets/popup/mac;1",
 +    nsCocoaWindowConstructor },
-+  { "Child nsWindow",
-+    NS_CHILD_CID,
-+    "@mozilla.org/widgets/childwindow/uikit;1",
-+    nsChildViewConstructor },
 +  */
 +  { "Look And Feel",
 +    NS_LOOKANDFEEL_CID,
@@ -1463,7 +1464,7 @@ diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.h
-@@ -0,0 +1,174 @@
+@@ -0,0 +1,177 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1618,8 +1619,11 @@ new file mode 100644
 +    PRBool IsTopLevel();
 +    nsresult GetCurrentOffset(PRUint32 &aOffset, PRUint32 &aLength);
 +    nsresult DeleteRange(int aOffset, int aLen);
++    PRBool ReportDestroyEvent();
 +    PRBool ReportMoveEvent();
 +    PRBool ReportSizeEvent();
++
++    void TearDownView();
 +
 +    // This will be NULL for non-top-level windows
 +    UIWindow* mNativeWindow;
@@ -1642,7 +1646,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,638 @@
+@@ -0,0 +1,690 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1733,26 +1737,46 @@ new file mode 100644
 +
 +@interface ChildView : UIView
 +{
-+@private
++@public
 +    nsWindow* mGeckoChild; // weak ref
 +}
 +// sets up our view, attaching it to its owning gecko view
 +- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild;
++// Our Gecko child was Destroy()ed
++- (void)widgetDestroyed;
++// Tear down this ChildView
++- (void)delayedTearDown;
 +@end
 +
 +@implementation ChildView
 +- (id)initWithFrame:(CGRect)inFrame geckoChild:(nsWindow*)inChild
 +{
 +    if ((self = [super initWithFrame:inFrame])) {
-+        mGeckoChild = inChild;
++      mGeckoChild = inChild;
 +    }
++    ALOG("[ChildView[%p] initWithFrame:] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
 +    return self;
++}
++
++- (void)widgetDestroyed
++{
++  mGeckoChild = nsnull;
++}
++
++- (void)delayedTearDown
++{
++  ALOG("[ChildView[%p] delayedTearDown] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
++  [self removeFromSuperview];
++  [self release];
 +}
 +
 +// The display system has told us that a portion of our view is dirty. Tell
 +// gecko to paint it
 +- (void)drawRect:(CGRect)aRect
 +{
++  ALOG("[ChildView[%p] drawRect:] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
++  if (!mGeckoChild)
++      return;
 +  CGContextRef cgContext = UIGraphicsGetCurrentContext();
 +  CGAffineTransform xform = CGContextGetCTM(cgContext);
 +
@@ -1819,6 +1843,17 @@ new file mode 100644
 +
 +nsWindow::~nsWindow()
 +{
++    [mNativeView widgetDestroyed]; // Safe if mNativeView is nil.
++    TearDownView(); // Safe if called twice.
++}
++
++void nsWindow::TearDownView()
++{
++  if (!mNativeView)
++    return;
++
++  [mNativeView performSelectorOnMainThread:@selector(delayedTearDown) withObject:nil waitUntilDone:false];
++  mNativeView = nil;
 +}
 +
 +PRBool
@@ -1831,6 +1866,8 @@ new file mode 100644
 +
 +void nsWindow::Redraw()
 +{
++  ALOG("nsWindow[%p]::Redraw");
++    [mNativeView setNeedsDisplay];
 +}
 +
 +void nsWindow::InitEvent(nsGUIEvent& event, nsIntPoint* aPoint)
@@ -1851,21 +1888,19 @@ new file mode 100644
 +                 nsIToolkit *aToolkit,
 +                 nsWidgetInitData *aInitData)
 +{
-+    ALOG("nsWindow[%p]::Create %p [%d %d %d %d]", (void*)this, (void*)aParent, aRect.x, aRect.y, aRect.width, aRect.height);
-+    nsWindow *parent = (nsWindow*) aParent;
++    ALOG("nsWindow[%p]::Create %p/%p [%d %d %d %d]", (void*)this, (void*)aParent, (void*)aNativeParent, aRect.x, aRect.y, aRect.width, aRect.height);
++    nsWindow* parent = (nsWindow*) aParent;
++    ChildView* nativeParent = (ChildView*)aNativeParent;
 +
-+    if (aNativeParent) {
-+        if (parent) {
-+            ALOG("Ignoring native parent on UiKit window [%p], since parent was specified (%p %p)", (void*)this, (void*)aNativeParent, (void*)aParent);
-+        } else {
-+            parent = (nsWindow*) aNativeParent;
-+        }
-+    }
++    if (parent == NULL && nativeParent)
++        parent = nativeParent->mGeckoChild;
++    if (parent && nativeParent == NULL)
++        nativeParent = parent->mNativeView;
 +
 +    mBounds = aRect;
 +
 +    // for toplevel windows, bounds are fixed to full screen size
-+    if (parent == nsnull) {
++    if (parent == NULL) {
 +        gfxIntSize bounds = nsScreenManager::GetBounds();
 +
 +        mBounds.x = 0;
@@ -1886,19 +1921,22 @@ new file mode 100644
 +    cgRect.size.height = mBounds.height;
 +
 +    if (IsTopLevel()) {
-+        ALOG("Creating top-level window [%p]", (void*)this);
 +        mNativeWindow = [[UIWindow alloc] initWithFrame:cgRect];
++        ALOG("nsWindow[%p]::Create: mNativeWindow: %p", (void*)this, (void*)mNativeWindow);
 +        //mNativeWindow.backgroundColor = [UIColor blueColor];
 +    }
 +
 +    mNativeView = [[ChildView alloc] initWithFrame:cgRect geckoChild:this];
++    ALOG("nsWindow[%p]::Create: mNativeView: %p", (void*)this, (void*)mNativeView);
 +    if (mNativeWindow)
 +        [mNativeWindow addSubview:mNativeView];
 +
 +    if (parent) {
 +        parent->mChildren.AppendElement(this);
 +        mParent = parent;
-+        [mParent->mNativeView addSubview:mNativeView];
++
++        ALOG("nsWindow[%p]::Create [aNativeParent(%p) addSubview:%p]", (void*)this, (void*)nativeParent, (void*)mNativeView);
++        [nativeParent addSubview:mNativeView];
 +    }
 +
 +  return NS_OK;
@@ -1907,6 +1945,7 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::Destroy(void)
 +{
++    ALOG("nsWindow[%p]::Destroy (mNativeView = %p)", (void*)this, (void*)mNativeView);
 +    for (PRUint32 i = 0; i < mChildren.Length(); ++i) {
 +        // why do we still have children?
 +        ALOG("### Warning: Destroying window %p and reparenting child %p to null!", (void*)this, (void*)mChildren[i]);
@@ -1916,10 +1955,20 @@ new file mode 100644
 +    if (mParent)
 +        mParent->mChildren.RemoveElement(this);
 +
-+    if (mNativeView)
-+        [mNativeView release];
-+    if (mNativeWindow)
++    [mNativeView widgetDestroyed];
++
++    nsBaseWidget::Destroy();
++
++    ReportDestroyEvent(); 
++
++    TearDownView();
++
++    nsBaseWidget::OnDestroy();
++
++    if (mNativeWindow) {
 +        [mNativeWindow release];
++        mNativeWindow = nil;
++    }
 +
 +    return NS_OK;
 +}
@@ -1942,6 +1991,7 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::SetParent(nsIWidget* aNewParent)
 +{
++  ALOG("nsWindow[%p]::SetParent(%p)", (void*)this, (void*)aNewParent);
 +  if ((nsIWidget*)mParent == aNewParent)
 +    return NS_OK;
 +
@@ -1954,6 +2004,7 @@ new file mode 100644
 +
 +  if (mParent) {
 +    mParent->mChildren.AppendElement(this);
++    ALOG("nsWindow[%p]::Create [mParent(%p)->mNativeView(%p) addSubview:%p]", (void*)this, (void*)mParent, (void*)mParent->mNativeView, (void*)mNativeView);
 +    [mParent->mNativeView addSubview:mNativeView];
 +  }
 +  //nsAppShell::ScheduleRedraw(); ?
@@ -1968,8 +2019,9 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::Show(PRBool aState)
 +{
++  ALOG("nsWindow[%p]::Show(%d) (toplevel: %d)", (void*)this, aState, mNativeWindow != NULL);
 +  if (aState != mVisible) {
-+    if (mNativeWindow)
++    if (mNativeWindow && aState)
 +      [mNativeWindow makeKeyAndVisible];
 +    [mNativeView setHidden:!aState];
 +    mVisible = aState;
@@ -2120,18 +2172,14 @@ new file mode 100644
 +nsWindow::Invalidate(const nsIntRect &aRect,
 +                     PRBool aIsSynchronous)
 +{
++  ALOG("nsWindow[%p]::Invalidate");
 +  if (!mNativeView || !mVisible)
 +    return NS_OK;
 +
 +  CGRect r;
 +  GeckoRectToCGRect(aRect, r);
-+  
-+  if (aIsSynchronous) {
-+    [mNativeView drawRect:r];
-+  }
-+  else {
-+    [mNativeView setNeedsDisplayInRect:r];
-+  }
++  //XXX: handle aIsSynchronous?
++  [mNativeView setNeedsDisplayInRect:r];
 +
 +  return NS_OK;
 +}
@@ -2152,8 +2200,16 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::SetFocus(PRBool aRaise)
 +{
++  ALOG("nsWindow[%p]::SetFocus(%d)", (void*)this, aRaise);
 +  [[mNativeView window] makeKeyWindow];
 +  return NS_OK;
++}
++
++PRBool nsWindow::ReportDestroyEvent()
++{
++  nsGUIEvent event(PR_TRUE, NS_DESTROY, this);
++  event.time = PR_IntervalNow();
++  return DispatchWindowEvent(event);
 +}
 +
 +PRBool nsWindow::ReportMoveEvent()

@@ -685,7 +685,7 @@ diff --git a/gfx/thebes/src/gfxUIKitFont.mm b/gfx/thebes/src/gfxUIKitFont.mm
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/src/gfxUIKitFont.mm
-@@ -0,0 +1,256 @@
+@@ -0,0 +1,258 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -741,6 +741,7 @@ new file mode 100644
 +      mScaledFont(nsnull),
 +      mAdjustedSize(0.0)
 +{
++    ::CFRetain(mPostscriptName);
 +    if (aNeedsBold) {
 +        mSyntheticBoldOffset = 1;  // devunit offset when double-striking text to fake boldness
 +    }
@@ -802,6 +803,7 @@ new file mode 100644
 +
 +gfxUIKitFont::~gfxUIKitFont()
 +{
++    ::CFRelease(mPostscriptName);
 +    if (mScaledFont) {
 +        cairo_scaled_font_destroy(mScaledFont);
 +    }
@@ -946,7 +948,7 @@ diff --git a/gfx/thebes/src/gfxUIKitPlatformFontList.h b/gfx/thebes/src/gfxUIKit
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/src/gfxUIKitPlatformFontList.h
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,118 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1008,6 +1010,9 @@ new file mode 100644
 +
 +    UIKitFontEntry(const nsAString& aPostscriptName, PRInt32 aWeight,
 +                   gfxFontFamily *aFamily, PRBool aIsStandardFace = PR_FALSE);
++    ~UIKitFontEntry() {
++        ::CFRelease(mPostscriptName);
++    }
 +
 +    nsresult ReadCMAP();
 +
@@ -1066,7 +1071,7 @@ diff --git a/gfx/thebes/src/gfxUIKitPlatformFontList.mm b/gfx/thebes/src/gfxUIKi
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/src/gfxUIKitPlatformFontList.mm
-@@ -0,0 +1,530 @@
+@@ -0,0 +1,493 @@
 +/* -*- Mode: ObjC; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: BSD
@@ -1144,34 +1149,6 @@ new file mode 100644
 +static const PRUint32 kIntervalBetweenLoadingCmaps = 150; // 150ms
 +static const PRUint32 kNumFontsPerSlice = 10; // read in info 10 fonts at a time
 +
-+// indexes into the NSArray objects that the Cocoa font manager returns
-+// as the available members of a family
-+#define INDEX_FONT_POSTSCRIPT_NAME 0
-+#define INDEX_FONT_FACE_NAME 1
-+#define INDEX_FONT_WEIGHT 2
-+#define INDEX_FONT_TRAITS 3
-+
-+static const int kAppleMaxWeight = 14;
-+static const int kAppleExtraLightWeight = 3;
-+static const int kAppleUltraLightWeight = 2;
-+
-+static const int gAppleWeightToCSSWeight[] = {
-+    0,
-+    1, // 1.
-+    1, // 2.  W1, ultralight
-+    2, // 3.  W2, extralight
-+    3, // 4.  W3, light
-+    4, // 5.  W4, semilight
-+    5, // 6.  W5, medium
-+    6, // 7.
-+    6, // 8.  W6, semibold
-+    7, // 9.  W7, bold
-+    8, // 10. W8, extrabold
-+    8, // 11.
-+    9, // 12. W9, ultrabold
-+    9, // 13
-+    9  // 14
-+};
 +
 +static void GetStringForNSString(const NSString *aSrc, nsAString& aDist)
 +{
@@ -1192,7 +1169,7 @@ new file mode 100644
 +#define LOG(args) PR_LOG(gFontInfoLog, PR_LOG_DEBUG, args)
 +#define LOG_ENABLED() PR_LOG_TEST(gFontInfoLog, PR_LOG_DEBUG)
 +
-+/* MacOSFontEntry */
++/* UIKitFontEntry */
 +#pragma mark-
 +
 +UIKitFontEntry::UIKitFontEntry(const nsAString& aPostscriptName,
@@ -1203,6 +1180,7 @@ new file mode 100644
 +      mPostscriptName((CFStringRef)GetNSStringForString(aPostscriptName))
 +{
 +    mWeight = aWeight;
++    ::CFRetain(mPostscriptName);
 +}
 +
 +UIKitFontEntry::UIKitFontEntry(const nsAString& aPostscriptName,
@@ -1211,6 +1189,7 @@ new file mode 100644
 +    : gfxFontEntry(aPostscriptName),
 +      mPostscriptName((CFStringRef)GetNSStringForString(aPostscriptName))
 +{
++    ::CFRetain(mPostscriptName);
 +    // xxx - stretch is basically ignored for now
 +
 +    mUserFontData = aUserFontData;
@@ -1361,26 +1340,14 @@ new file mode 100644
 +        CFNumberGetValue(weight, kCFNumberDoubleType, &ctWeight);
 +        ::CFRelease(traits);
 +        ::CFRelease(weight);
-+        PRInt32 cssWeight = PRInt32(round(((ctWeight + 1.0) / 2.0) * 9.0));
 +
-+
++        PRInt32 cssWeight = PRInt32(round(((ctWeight + 1.0) / 2.0) * 800.0 + 100.0));
++        printf("FindStyleVariations: %s: ctWeight: %lf, cssWeight: %d\n",
++               [psname UTF8String], ctWeight, cssWeight);
 +        // create a font entry
 +        UIKitFontEntry *fontEntry = new UIKitFontEntry(postscriptFontName,
 +                                                       cssWeight, this, isStandardFace);
 +        if (!fontEntry) break;
-+
-+#ifdef PR_LOGGING
-+        if (LOG_ENABLED()) {
-+            LOG(("(fontinit) added (%s) to family (%s)"
-+                 " with style: %s weight: %d stretch: %d"
-+                 " (apple-weight: %d macTraits: %8.8x)",
-+                 NS_ConvertUTF16toUTF8(fontEntry->Name()).get(), 
-+                 NS_ConvertUTF16toUTF8(Name()).get(), 
-+                 fontEntry->IsItalic() ? "italic" : "normal",
-+                 cssWeight, fontEntry->Stretch(),
-+                 appKitWeight, macTraits));
-+        }
-+#endif
 +
 +        // insert into font entry array of family
 +        AddFontEntry(fontEntry);
@@ -1462,6 +1429,7 @@ new file mode 100644
 +void
 +gfxUIKitPlatformFontList::InitFontList()
 +{
++    printf("gfxUIKitPlatformFontList::InitFontList()\n");
 +    nsAutoreleasePool localPool;
 +
 +    // reset font lists
@@ -1470,9 +1438,9 @@ new file mode 100644
 +    nsAutoString availableFamilyName;
 +    NSString *availableFamily = nil;
 +    for (availableFamily in [UIFont familyNames]) {
-+        // make a nsString
-+        GetStringForNSString(availableFamily, availableFamilyName);
++        //printf("Font family: %s\n", [availableFamily UTF8String]);
 +
++        GetStringForNSString(availableFamily, availableFamilyName);
 +        // create a family entry
 +        gfxFontFamily *familyEntry = new gfxUIKitFontFamily(availableFamilyName);
 +        if (!familyEntry) break;

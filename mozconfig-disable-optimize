@@ -1,0 +1,11 @@
+diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig
+--- a/build/iphone-simulator-mozconfig
++++ b/build/iphone-simulator-mozconfig
+@@ -2,6 +2,7 @@
+ mk_add_options MOZ_MAKE_FLAGS="-j4"
+ ac_add_options --enable-application=browser
+ ac_add_options --enable-debug
++ac_add_options --disable-optimize
+ 
+ export CROSS_COMPILE=1
+ export CC="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -mmacosx-version-min=10.5"
