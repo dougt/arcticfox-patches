@@ -38,6 +38,8 @@ browser-uikit
 mozconfig-debug
 browser-xul-hax
 nsappshell-hidden-window
-widget-uikit
 mozconfig-disable-optimize
+nsmenupopupframe-cocoa
+hardcode-dtd-content-type
+widget-uikit
 iphone_xptcall

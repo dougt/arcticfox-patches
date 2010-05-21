@@ -1,0 +1,11 @@
+diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
+--- a/uriloader/exthandler/nsExternalHelperAppService.cpp
++++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
+@@ -468,6 +468,7 @@
+   // sorted by order used
+   { IMAGE_GIF, "gif" },
+   { TEXT_XML, "xml" },
++  { "text/plain", "dtd" },
+   { APPLICATION_RDF, "rdf" },
+   { TEXT_XUL, "xul" },
+   { IMAGE_PNG, "png" },

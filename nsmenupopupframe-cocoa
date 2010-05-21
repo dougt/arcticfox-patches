@@ -1,0 +1,12 @@
+diff --git a/layout/xul/base/src/nsMenuPopupFrame.cpp b/layout/xul/base/src/nsMenuPopupFrame.cpp
+--- a/layout/xul/base/src/nsMenuPopupFrame.cpp
++++ b/layout/xul/base/src/nsMenuPopupFrame.cpp
+@@ -285,7 +285,7 @@
+       baseWindow->GetMainWidget(getter_AddRefs(parentWidget));
+   }
+ 
+-#if defined(XP_MACOSX) || defined(XP_BEOS)
++#if defined(MOZ_WIDGET_COCOA) || defined(XP_BEOS)
+   static NS_DEFINE_IID(kCPopupCID,  NS_POPUP_CID);
+   aView->CreateWidget(kCPopupCID, &widgetData, nsnull, PR_TRUE, PR_TRUE, 
+                       eContentTypeUI, parentWidget);

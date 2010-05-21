@@ -979,7 +979,7 @@ diff --git a/widget/src/uikit/nsScreenManager.h b/widget/src/uikit/nsScreenManag
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsScreenManager.h
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,77 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1026,6 +1026,7 @@ new file mode 100644
 +#include "nsIScreenManager.h"
 +
 +#include "gfxContext.h"
++#include "nsRect.h"
 +
 +class nsUIKitScreen : public nsIScreen
 +{
@@ -1048,7 +1049,7 @@ new file mode 100644
 +
 +    NS_DECL_NSISCREENMANAGER
 +
-+    static gfxIntSize GetBounds();
++    static nsIntRect GetBounds();
 +
 +private:
 +    //TODO: support >1 screen, iPad supports external displays
@@ -1060,7 +1061,7 @@ diff --git a/widget/src/uikit/nsScreenManager.mm b/widget/src/uikit/nsScreenMana
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsScreenManager.mm
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,147 @@
 +/* -*- Mode: C++; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1104,7 +1105,7 @@ new file mode 100644
 +#include "gfxPoint.h"
 +#include "nsScreenManager.h"
 +
-+static gfxIntSize gScreenBounds;
++static nsIntRect gScreenBounds;
 +
 +NS_IMPL_ISUPPORTS1(nsUIKitScreen, nsIScreen)
 +
@@ -1156,12 +1157,24 @@ new file mode 100644
 +{
 +}
 +
-+gfxIntSize
++nsIntRect
 +nsScreenManager::GetBounds()
 +{
-+    CGRect rect = [[UIScreen mainScreen] bounds];
++    //XXX: this doesn't work right if your app hasn't finished launching.
++    // the status bar isn't there yet, so you get the full screen
++    CGRect rect = [[UIScreen mainScreen] applicationFrame];
++    gScreenBounds.x = rect.origin.x;
++    gScreenBounds.y = rect.origin.y;
 +    gScreenBounds.width = rect.size.width;
 +    gScreenBounds.height = rect.size.height;
++    if (rect.size.height == [[UIScreen mainScreen] bounds].size.height) {
++        // try to subtract out the status bar frame
++        // screw you UIKit
++        gScreenBounds.y += 20;
++        gScreenBounds.height -= 20;
++    }
++    printf("nsScreenManager::GetBounds: %d %d %d %d\n",
++           gScreenBounds.x, gScreenBounds.y, gScreenBounds.width, gScreenBounds.height);
 +    return gScreenBounds;
 +}
 +
@@ -1464,7 +1477,7 @@ diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.h
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,178 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1512,6 +1525,7 @@ new file mode 100644
 +
 +@class UIWindow;
 +@class UIView;
++@class ChildView;
 +class gfxASurface;
 +
 +class nsWindow :
@@ -1628,7 +1642,7 @@ new file mode 100644
 +    // This will be NULL for non-top-level windows
 +    UIWindow* mNativeWindow;
 +    // UIWindow subclasses UIView, so this is always valid
-+    UIView*   mNativeView;
++    ChildView*   mNativeView;
 +    PRPackedBool mVisible;
 +    nsTArray<nsWindow*> mChildren;
 +    nsWindow* mParent;
@@ -1646,7 +1660,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,690 @@
+@@ -0,0 +1,786 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1685,9 +1699,11 @@ new file mode 100644
 + *
 + * ***** END LICENSE BLOCK ***** */
 +
++#import <UIKit/UIEvent.h>
 +#import <UIKit/UIGraphics.h>
 +#import <UIKit/UIInterface.h>
 +#import <UIKit/UIScreen.h>
++#import <UIKit/UITouch.h>
 +#import <UIKit/UIView.h>
 +#import <UIKit/UIWindow.h>
 +
@@ -1746,6 +1762,11 @@ new file mode 100644
 +- (void)widgetDestroyed;
 +// Tear down this ChildView
 +- (void)delayedTearDown;
++// Event handling (UIResponder)
++- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
++- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
++- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
++- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 +@end
 +
 +@implementation ChildView
@@ -1770,6 +1791,88 @@ new file mode 100644
 +  [self release];
 +}
 +
++- (void)initGeckoEvent:(nsInputEvent*)outGeckoEvent
++{
++  outGeckoEvent->widget = mGeckoChild;
++  outGeckoEvent->time = PR_IntervalNow();
++}
++
++- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
++{
++    if (!mGeckoChild)
++        return;
++
++    if ([touches count] != 1) // ignore multitouch for now
++        return;
++
++    UITouch* theTouch = [touches anyObject];
++
++    nsMouseEvent geckoEvent(PR_TRUE, NS_MOUSE_BUTTON_DOWN, nsnull, nsMouseEvent::eReal);
++    geckoEvent.clickCount = theTouch.tapCount;
++    geckoEvent.button = nsMouseEvent::eLeftButton;
++
++    [self initGeckoEvent:&geckoEvent];
++
++    // convert point to view coordinate system
++    CGPoint loc = [theTouch locationInView:self];
++   geckoEvent.refPoint.x = static_cast<nscoord>(loc.x);
++   geckoEvent.refPoint.y = static_cast<nscoord>(loc.y);
++
++    mGeckoChild->DispatchWindowEvent(geckoEvent);
++}
++
++- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
++{
++    //XXX: handle like touchesEnded?
++}
++
++- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
++{
++    if (!mGeckoChild)
++        return;
++
++    if ([touches count] != 1) // ignore multitouch for now
++        return;
++
++    UITouch* theTouch = [touches anyObject];
++
++    nsMouseEvent geckoEvent(PR_TRUE, NS_MOUSE_BUTTON_UP, nsnull, nsMouseEvent::eReal);
++
++    geckoEvent.button = nsMouseEvent::eLeftButton;
++    geckoEvent.clickCount = theTouch.tapCount;
++    [self initGeckoEvent:&geckoEvent];
++
++    // convert point to view coordinate system
++    CGPoint loc = [theTouch locationInView:self];
++   geckoEvent.refPoint.x = static_cast<nscoord>(loc.x);
++   geckoEvent.refPoint.y = static_cast<nscoord>(loc.y);
++
++    mGeckoChild->DispatchWindowEvent(geckoEvent);
++}
++
++- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
++{
++    if (!mGeckoChild)
++        return;
++
++    if ([touches count] != 1) // ignore multitouch for now
++        return;
++
++    UITouch* theTouch = [touches anyObject];
++
++    nsMouseEvent geckoEvent(PR_TRUE, NS_MOUSE_MOVE, nsnull, nsMouseEvent::eReal);
++    geckoEvent.button = nsMouseEvent::eLeftButton;
++    geckoEvent.clickCount = theTouch.tapCount;
++    [self initGeckoEvent:&geckoEvent];
++
++    // convert point to view coordinate system
++    CGPoint loc = [theTouch locationInView:self];
++   geckoEvent.refPoint.x = static_cast<nscoord>(loc.x);
++   geckoEvent.refPoint.y = static_cast<nscoord>(loc.y);
++
++    mGeckoChild->DispatchWindowEvent(geckoEvent);
++}
++
 +// The display system has told us that a portion of our view is dirty. Tell
 +// gecko to paint it
 +- (void)drawRect:(CGRect)aRect
@@ -1790,7 +1893,7 @@ new file mode 100644
 +    UIView* view = [subviews objectAtIndex:i];
 +    if (![view isKindOfClass:[ChildView class]] || [view isHidden])
 +      continue;
-+    CGRect frame = [view frame];
++    CGRect frame = [self convertRect:[view frame] fromView:view];
 +    paintEvent.region.Sub(paintEvent.region,
 +      nsIntRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height));
 +  }
@@ -1897,17 +2000,16 @@ new file mode 100644
 +    if (parent && nativeParent == NULL)
 +        nativeParent = parent->mNativeView;
 +
-+    mBounds = aRect;
-+
 +    // for toplevel windows, bounds are fixed to full screen size
 +    if (parent == NULL) {
-+        gfxIntSize bounds = nsScreenManager::GetBounds();
-+
-+        mBounds.x = 0;
-+        mBounds.y = 0;
-+        mBounds.width = bounds.width;
-+        mBounds.height = bounds.height;
++        mBounds = nsScreenManager::GetBounds();
 +    }
++    else {
++        mBounds = aRect;
++    }
++
++    ALOG("nsWindow[%p]::Create bounds: %d %d %d %d", (void*)this,
++         mBounds.x, mBounds.y, mBounds.width, mBounds.height);
 +
 +    BaseCreate(nsnull, mBounds, aHandleEventFunction, aContext,
 +               aAppShell, aToolkit, aInitData);
@@ -1923,7 +2025,6 @@ new file mode 100644
 +    if (IsTopLevel()) {
 +        mNativeWindow = [[UIWindow alloc] initWithFrame:cgRect];
 +        ALOG("nsWindow[%p]::Create: mNativeWindow: %p", (void*)this, (void*)mNativeWindow);
-+        //mNativeWindow.backgroundColor = [UIColor blueColor];
 +    }
 +
 +    mNativeView = [[ChildView alloc] initWithFrame:cgRect geckoChild:this];
@@ -2122,13 +2223,9 @@ new file mode 100644
 +  if (mVisible && aRepaint)
 +    [mNativeView setNeedsDisplay];
 +
-+  if (isMoving) {
++  if (isMoving) 
 +    ReportMoveEvent();
-+    /*
-+    if (mOnDestroyCalled)
-+      return NS_OK;
-+    */
-+  }
++
 +  if (isResizing)
 +    ReportSizeEvent();
 +
@@ -2240,6 +2337,8 @@ new file mode 100644
 +  aRect.y = p.y;
 +  aRect.width = mBounds.width;
 +  aRect.height = mBounds.height;
++  ALOG("nsWindow[%p]::GetScreenBounds: [%d %d %d %d]", (void*)this,
++       aRect.x, aRect.y, aRect.width, aRect.height);
 +
 +  return NS_OK;
 +}
@@ -2250,11 +2349,22 @@ new file mode 100644
 +  temp.x = 0;
 +  temp.y = 0;
 +  
-+  // Translate this point into window coords. Since our top-level
-+  // windows are always screen-sized, these are screen coords too.
-+  temp = [mNativeView convertPoint:temp toView:nil];
 +
-+  return nsIntPoint(NSToIntRound(temp.x), NSToIntRound(temp.y));
++  if (mNativeWindow) {
++      // convert to screen coords
++      temp = [mNativeWindow convertPoint:temp toWindow:nil];
++      return nsIntPoint(NSToIntRound(temp.x), NSToIntRound(temp.y));
++  }
++
++  nsIntPoint offset;
++  if (mParent) {
++      offset = mParent->WidgetToScreenOffset();
++      temp = [mNativeView convertPoint:temp toView:nil];
++      offset.x += temp.x;
++      offset.y += temp.y;
++  }
++
++  return offset;
 +}
 +
 +NS_IMETHODIMP
