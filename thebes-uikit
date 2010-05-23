@@ -1342,8 +1342,8 @@ new file mode 100644
 +        ::CFRelease(weight);
 +
 +        PRInt32 cssWeight = PRInt32(round(((ctWeight + 1.0) / 2.0) * 800.0 + 100.0));
-+        printf("FindStyleVariations: %s: ctWeight: %lf, cssWeight: %d\n",
-+               [psname UTF8String], ctWeight, cssWeight);
++        //printf("FindStyleVariations: %s: ctWeight: %lf, cssWeight: %d\n",
++        //       [psname UTF8String], ctWeight, cssWeight);
 +        // create a font entry
 +        UIKitFontEntry *fontEntry = new UIKitFontEntry(postscriptFontName,
 +                                                       cssWeight, this, isStandardFace);

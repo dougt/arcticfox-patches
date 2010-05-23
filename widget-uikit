@@ -3,7 +3,7 @@
 # Date 1273581972 14400
 # Node ID c503bc0ef58848a00630bd69fd17113bf0413f0e
 # Parent  a73cc81d9d52ab88a607ec15e64753f975fa818c
-imported patch widget-uikit
+UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
@@ -119,7 +119,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,86 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -184,6 +184,8 @@ new file mode 100644
 +
 +  NS_IMETHOD Run(void);
 +  NS_IMETHOD Exit(void);
++  // Called by the application delegate
++  void WillTerminate(void);
 +
 +  static nsAppShell* gAppShell;
 +
@@ -198,6 +200,9 @@ new file mode 100644
 +  AppShellDelegate*  mDelegate;
 +  CFRunLoopRef       mCFRunLoop;
 +  CFRunLoopSourceRef mCFRunLoopSource;
++
++  PRPackedBool       mTerminated;
++  PRPackedBool       mNotifiedWillTerminate;
 +};
 +
 +#endif // nsAppShell_h_
@@ -205,7 +210,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,226 @@
+@@ -0,0 +1,252 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -276,6 +281,7 @@ new file mode 100644
 +
 +- (void)applicationWillTerminate:(UIApplication *)application
 +{
++  nsAppShell::gAppShell->WillTerminate();
 +}
 +
 +- (void)applicationDidBecomeActive:(UIApplication *)application
@@ -303,7 +309,9 @@ new file mode 100644
 +  : mAutoreleasePool(NULL),
 +    mDelegate(NULL),
 +    mCFRunLoop(NULL),
-+    mCFRunLoopSource(NULL)
++    mCFRunLoopSource(NULL),
++    mTerminated(PR_FALSE),
++    mNotifiedWillTerminate(PR_FALSE)
 +{
 +  gAppShell = this;
 +}
@@ -365,12 +373,27 @@ new file mode 100644
 +void
 +nsAppShell::ProcessGeckoEvents(void* aInfo)
 +{
-+  //static int i = 0;
-+  //printf("[%d] +ProcessGeckoEvents\n", i);
 +  nsAppShell* self = static_cast<nsAppShell*> (aInfo);
 +  self->NativeEventCallback();
 +  self->Release();
-+  //printf("[%d] -ProcessGeckoEvents\n", i++);
++}
++
++// WillTerminate
++//
++// public
++void
++nsAppShell::WillTerminate()
++{
++  mNotifiedWillTerminate = PR_TRUE;
++  if (mTerminated)
++    return;
++  mTerminated = PR_TRUE;
++  // We won't get another chance to process events
++  NS_ProcessPendingEvents(NS_GetCurrentThread());
++  
++  // Unless we call nsBaseAppShell::Exit() here, it might not get called
++  // at all.
++  nsBaseAppShell::Exit();
 +}
 +
 +// ScheduleNativeEventCallback
@@ -379,6 +402,9 @@ new file mode 100644
 +void
 +nsAppShell::ScheduleNativeEventCallback()
 +{
++  if (mTerminated)
++    return;
++
 +  NS_ADDREF_THIS();
 +
 +  // This will invoke ProcessGeckoEvents on the main thread.
@@ -392,8 +418,9 @@ new file mode 100644
 +PRBool
 +nsAppShell::ProcessNextNativeEvent(PRBool aMayWait)
 +{
-+  //static int i = 0;
-+  //printf("[%d] ProcessNextNativeEvent\n", i++);
++  if (mTerminated)
++    return PR_FALSE;
++
 +  NSString* currentMode = nil;
 +  NSDate* waitUntil = nil;
 +  if (aMayWait)
@@ -430,6 +457,10 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsAppShell::Exit(void)
 +{
++  if (mTerminated)
++    return NS_OK;
++
++  mTerminated = PR_TRUE;
 +  return nsBaseAppShell::Exit();
 +}
 diff --git a/widget/src/uikit/nsLookAndFeel.h b/widget/src/uikit/nsLookAndFeel.h
@@ -495,7 +526,7 @@ diff --git a/widget/src/uikit/nsLookAndFeel.mm b/widget/src/uikit/nsLookAndFeel.
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsLookAndFeel.mm
-@@ -0,0 +1,479 @@
+@@ -0,0 +1,489 @@
 +/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -551,10 +582,20 @@ new file mode 100644
 +static nscolor GetColorFromUIColor(UIColor* aColor)
 +{
 +    CGColorRef cgColor = [aColor CGColor];
++    CGColorSpaceModel model = CGColorSpaceGetModel(CGColorGetColorSpace(cgColor));
 +    const CGFloat* components = CGColorGetComponents(cgColor);
-+    return NS_RGB((unsigned int)(components[0] * 255.0),
-+                  (unsigned int)(components[1] * 255.0),
-+                  (unsigned int)(components[2] * 255.0));
++    if (model == kCGColorSpaceModelRGB) {
++        return NS_RGB((unsigned int)(components[0] * 255.0),
++                      (unsigned int)(components[1] * 255.0),
++                      (unsigned int)(components[2] * 255.0));
++    }
++    else if (model == kCGColorSpaceModelMonochrome) {
++        unsigned int val = (unsigned int)(components[0] * 255.0);
++        return NS_RGBA(val, val, val,
++                       (unsigned int)(components[1] * 255.0));
++    }
++    NS_NOTREACHED("Unhandled color space!");
++    return 0;
 +}
 +
 +nsresult
@@ -1477,7 +1518,7 @@ diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.h
-@@ -0,0 +1,178 @@
+@@ -0,0 +1,175 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1594,9 +1635,6 @@ new file mode 100644
 +
 +    NS_IMETHOD DispatchEvent(nsGUIEvent *aEvent, nsEventStatus &aStatus);
 +    PRBool DispatchWindowEvent(nsGUIEvent &event);
-+    NS_IMETHOD SetWindowClass(const nsAString& xulWinType);
-+
-+
 +
 +    NS_IMETHOD SetForegroundColor(const nscolor &aColor) { return NS_ERROR_NOT_IMPLEMENTED; }
 +    NS_IMETHOD SetBackgroundColor(const nscolor &aColor);
@@ -1660,7 +1698,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,786 @@
+@@ -0,0 +1,780 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -2384,12 +2422,6 @@ new file mode 100644
 +  nsEventStatus status;
 +  DispatchEvent(&event, status);
 +  return ConvertStatus(status);
-+}
-+
-+NS_IMETHODIMP
-+nsWindow::SetWindowClass(const nsAString& xulWinType)
-+{
-+  return NS_OK;
 +}
 +
 +NS_IMETHODIMP
