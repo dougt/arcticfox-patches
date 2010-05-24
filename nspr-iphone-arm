@@ -2,7 +2,7 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271780673 14400
 # Node ID a788e3cf5f60303cd63c94e8ccc37f73c0f3f080
-# Parent  b08d530cebb391b1aec8fbe901fdf4615c742a1b
+# Parent b08d530cebb391b1aec8fbe901fdf4615c742a1b
 fix NSPR compilation for Darwin/ARM
 
 diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in
@@ -987,7 +987,16 @@ diff --git a/nsprpub/configure.in b/nsprpub/configure.in
 diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
 --- a/nsprpub/pr/include/md/_darwin.h
 +++ b/nsprpub/pr/include/md/_darwin.h
-@@ -54,6 +54,8 @@
+@@ -46,6 +46,8 @@
+ #include <AvailabilityMacros.h>
+ #endif
+ 
++#include <TargetConditionals.h>
++
+ #define PR_LINKER_ARCH	"darwin"
+ #define _PR_SI_SYSNAME  "DARWIN"
+ #ifdef __i386__
+@@ -54,6 +56,8 @@
  #define _PR_SI_ARCHITECTURE "x86-64"
  #elif defined(__ppc__)
  #define _PR_SI_ARCHITECTURE "ppc"
@@ -996,12 +1005,12 @@ diff --git a/nsprpub/pr/include/md/_darwin.h b/nsprpub/pr/include/md/_darwin.h
  #endif
  #define PR_DLL_SUFFIX		".dylib"
  
-@@ -64,7 +66,7 @@
+@@ -64,7 +68,7 @@
  
  #undef  HAVE_STACK_GROWING_UP
  #define HAVE_DLL
 -#ifdef __x86_64__
-+#if defined(__x86_64__) || defined(__arm__)
++#if defined(__x86_64__) || defined(TARGET_OS_IPHONE)
  #define USE_DLFCN
  #else
  #define USE_MACH_DYLD
