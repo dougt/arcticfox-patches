@@ -2,9 +2,23 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
 # Node ID a9404a85a947ae8422fe94ec1f78b7edacae0ce4
-# Parent  acb1510ebac615d27bc09790a51b72c18da822a3
+# Parent c4dcc703f03aca264ed700d010d2872c2552002c
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 
+diff --git a/config/config.mk b/config/config.mk
+--- a/config/config.mk
++++ b/config/config.mk
+@@ -546,6 +546,10 @@
+ HOST_CMMFLAGS += -fobjc-exceptions
+ OS_COMPILE_CMFLAGS += -fobjc-exceptions
+ OS_COMPILE_CMMFLAGS += -fobjc-exceptions
++ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
++OS_COMPILE_CMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
++OS_COMPILE_CMMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
++endif
+ endif
+ 
+ COMPILE_CFLAGS	= $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(CFLAGS) $(RTL_FLAGS) $(OS_COMPILE_CFLAGS)
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
@@ -113,6 +127,20 @@ diff --git a/configure.in b/configure.in
          QUARTZ_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_SURFACE 1"
          QUARTZ_IMAGE_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_IMAGE_SURFACE 1"
          QUARTZ_FONT_FEATURE="#define CAIRO_HAS_QUARTZ_FONT 1"
+diff --git a/js/src/config/config.mk b/js/src/config/config.mk
+--- a/js/src/config/config.mk
++++ b/js/src/config/config.mk
+@@ -546,6 +546,10 @@
+ HOST_CMMFLAGS += -fobjc-exceptions
+ OS_COMPILE_CMFLAGS += -fobjc-exceptions
+ OS_COMPILE_CMMFLAGS += -fobjc-exceptions
++ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
++OS_COMPILE_CMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
++OS_COMPILE_CMMFLAGS += -fobjc-abi-version=2 -fobjc-legacy-dispatch
++endif
+ endif
+ 
+ COMPILE_CFLAGS	= $(VISIBILITY_FLAGS) $(DEFINES) $(INCLUDES) $(DSO_CFLAGS) $(DSO_PIC_CFLAGS) $(CFLAGS) $(RTL_FLAGS) $(OS_COMPILE_CFLAGS)
 diff --git a/xpcom/build/XPCOM.h b/xpcom/build/XPCOM.h
 --- a/xpcom/build/XPCOM.h
 +++ b/xpcom/build/XPCOM.h

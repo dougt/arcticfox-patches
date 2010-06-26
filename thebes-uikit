@@ -2,10 +2,12 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
 # Node ID 7d8ea3011972d6d818ece5de9dc8199ba60d1b18
-# Parent  311bbe2a4221f71d0c5b94807193275d053c1b5c
+# Parent 65889f86eda863124c23572e3932c09a3f7ce7b9
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
+* * *
+fix font metrics
 
 diff --git a/gfx/src/thebes/Makefile.in b/gfx/src/thebes/Makefile.in
 --- a/gfx/src/thebes/Makefile.in
@@ -283,7 +285,7 @@ diff --git a/gfx/thebes/public/Makefile.in b/gfx/thebes/public/Makefile.in
 diff --git a/gfx/thebes/public/gfxFont.h b/gfx/thebes/public/gfxFont.h
 --- a/gfx/thebes/public/gfxFont.h
 +++ b/gfx/thebes/public/gfxFont.h
-@@ -247,6 +247,7 @@
+@@ -251,6 +251,7 @@
  protected:
      friend class gfxPlatformFontList;
      friend class gfxMacPlatformFontList;
@@ -685,7 +687,7 @@ diff --git a/gfx/thebes/src/gfxUIKitFont.mm b/gfx/thebes/src/gfxUIKitFont.mm
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/src/gfxUIKitFont.mm
-@@ -0,0 +1,258 @@
+@@ -0,0 +1,246 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -824,83 +826,71 @@ new file mode 100644
 +    return PR_TRUE;
 +}
 +
-+static double
-+RoundToNearestMultiple(double aValue, double aFraction)
-+{
-+    return floor(aValue/aFraction + 0.5) * aFraction;
-+}
-+
 +void
 +gfxUIKitFont::InitMetrics(CTFontRef aCTFont, gfxFloat size)
 +{
++    mIsValid = PR_FALSE;
++    ::memset(&mMetrics, 0, sizeof(mMetrics));
 +
-+    mMetrics.xHeight = GetCharHeight(aCTFont, 'x');
++    mAdjustedSize = PR_MAX(mStyle.size, 1.0f);
++    if (!InitMetricsFromSfntTables(mMetrics, mAdjustedSize)) {
++        return;
++    }
 +
-+    if (mAdjustedSize == 0.0f) {
-+        if (mMetrics.xHeight != 0.0f && mStyle.sizeAdjust != 0.0f) {
-+            gfxFloat aspect = mMetrics.xHeight / size;
-+            mAdjustedSize = mStyle.GetAdjustedSize(aspect);
++    if (mMetrics.xHeight == 0.0) {
++        mMetrics.xHeight = ::CTFontGetXHeight(aCTFont);
++        if (mMetrics.xHeight <= 0.0) {
++            mMetrics.xHeight = mMetrics.maxAscent * DEFAULT_XHEIGHT_FACTOR;
++        }
++    }
 +
-+            // the recursive call to InitMetrics will see the adjusted size,
-+            // and set up the rest of the metrics fields accordingly
-+            InitMetrics(aCTFont, size);
++    if (mStyle.sizeAdjust != 0.0 && mStyle.size > 0.0 &&
++        mMetrics.xHeight > 0.0) {
++        // apply font-size-adjust, and recalculate metrics
++        gfxFloat aspect = mMetrics.xHeight / mStyle.size;
++        mAdjustedSize = mStyle.GetAdjustedSize(aspect);
++        mMetrics.xHeight = 0.0;
++
++        if (!InitMetricsFromSfntTables(mMetrics, mAdjustedSize)) {
 +            return;
 +        }
-+        mAdjustedSize = size;
++        if (mMetrics.xHeight == 0.0) {
++            mMetrics.xHeight = ::CTFontGetXHeight(aCTFont);
++        }
 +    }
 +
-+    mMetrics.superscriptOffset = mMetrics.xHeight;
-+    mMetrics.subscriptOffset = mMetrics.xHeight;
-+    mMetrics.strikeoutSize = mMetrics.underlineSize;
-+    mMetrics.strikeoutOffset = mMetrics.xHeight / 2;
++    mMetrics.emHeight = mAdjustedSize;
 +
-+    mMetrics.emHeight = size;
-+
-+    mMetrics.maxHeight = mMetrics.maxAscent + mMetrics.maxDescent;
-+    if (mMetrics.maxHeight - mMetrics.emHeight > 0.0)
-+        mMetrics.internalLeading = mMetrics.maxHeight - mMetrics.emHeight;
-+    else
-+        mMetrics.internalLeading = 0.0;
-+
-+    mMetrics.emAscent = mMetrics.maxAscent * mMetrics.emHeight / mMetrics.maxHeight;
-+    mMetrics.emDescent = mMetrics.emHeight - mMetrics.emAscent;
-+
++    // Measure/calculate additional metrics.
 +    PRUint32 glyphID;
-+    float xWidth = GetCharWidth(aCTFont, 'x', &glyphID);
-+    if (glyphID != 0)
-+        mMetrics.aveCharWidth = xWidth;
-+    else
-+        mMetrics.aveCharWidth = mMetrics.maxAdvance;
-+    mMetrics.aveCharWidth += mSyntheticBoldOffset;
-+
-+    if (mFontEntry->IsFixedPitch()) {
-+        // Some Quartz fonts are fixed pitch, but there's some glyph with a bigger
-+        // advance than the average character width... this forces
-+        // those fonts to be recognized like fixed pitch fonts by layout.
-+        mMetrics.maxAdvance = mMetrics.aveCharWidth;
++    if (mMetrics.aveCharWidth <= 0) {
++        mMetrics.aveCharWidth = GetCharWidth(aCTFont, 'x', &glyphID);
++        if (glyphID == 0) {
++            // we didn't find 'x', so use maxAdvance rather than zero
++            mMetrics.aveCharWidth = mMetrics.maxAdvance;
++        }
 +    }
++
++    mMetrics.aveCharWidth += mSyntheticBoldOffset;
++    mMetrics.maxAdvance += mSyntheticBoldOffset;
 +
 +    mMetrics.spaceWidth = GetCharWidth(aCTFont, ' ', &glyphID);
++    if (glyphID == 0) {
++        // no space glyph?!
++        mMetrics.spaceWidth = mMetrics.aveCharWidth;
++    }
 +    mSpaceGlyph = glyphID;
 +
 +    mMetrics.zeroOrAveCharWidth = GetCharWidth(aCTFont, '0', &glyphID);
-+    if (glyphID == 0)
++    if (glyphID == 0) {
 +        mMetrics.zeroOrAveCharWidth = mMetrics.aveCharWidth;
++    }
++
++    CalculateDerivedMetrics(mMetrics);
 +
 +    SanitizeMetrics(&mMetrics, mFontEntry->mIsBadUnderlineFont);
 +
 +    mIsValid = PR_TRUE;
-+
-+#if 0
-+    fprintf (stderr, "Font: %p (%s) size: %f\n", this,
-+             NS_ConvertUTF16toUTF8(GetName()).get(), mStyle.size);
-+//    fprintf (stderr, "    fbounds.origin.x %f y %f size.width %f height %f\n", fbounds.origin.x, fbounds.origin.y, fbounds.size.width, fbounds.size.height);
-+    fprintf (stderr, "    emHeight: %f emAscent: %f emDescent: %f\n", mMetrics.emHeight, mMetrics.emAscent, mMetrics.emDescent);
-+    fprintf (stderr, "    maxAscent: %f maxDescent: %f maxAdvance: %f\n", mMetrics.maxAscent, mMetrics.maxDescent, mMetrics.maxAdvance);
-+    fprintf (stderr, "    internalLeading: %f externalLeading: %f\n", mMetrics.internalLeading, mMetrics.externalLeading);
-+    fprintf (stderr, "    spaceWidth: %f aveCharWidth: %f xHeight: %f\n", mMetrics.spaceWidth, mMetrics.aveCharWidth, mMetrics.xHeight);
-+    fprintf (stderr, "    uOff: %f uSize: %f stOff: %f stSize: %f suOff: %f suSize: %f\n", mMetrics.underlineOffset, mMetrics.underlineSize, mMetrics.strikeoutOffset, mMetrics.strikeoutSize, mMetrics.superscriptOffset, mMetrics.subscriptOffset);
-+#endif
 +}
 +
 +float
@@ -1071,7 +1061,7 @@ diff --git a/gfx/thebes/src/gfxUIKitPlatformFontList.mm b/gfx/thebes/src/gfxUIKi
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/src/gfxUIKitPlatformFontList.mm
-@@ -0,0 +1,493 @@
+@@ -0,0 +1,495 @@
 +/* -*- Mode: ObjC; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: BSD
@@ -1262,6 +1252,8 @@ new file mode 100644
 +    CTFontRef ctFont = ::CTFontCreateWithName(mPostscriptName, 10, NULL);
 +    CFDataRef table  = ::CTFontCopyTable(ctFont, aTableTag, kCTFontTableOptionNoOptions);
 +    ::CFRelease(ctFont);
++    if (!table)
++        return NS_ERROR_FAILURE;
 +
 +    if (!aBuffer.AppendElements(CFDataGetLength(table))) {
 +        ::CFRelease(table);

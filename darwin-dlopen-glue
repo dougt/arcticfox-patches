@@ -1,0 +1,20 @@
+# HG changeset patch
+# Parent 2ab1401b63d6500b066087a0f5f294e4d4fd10e4
+diff --git a/xpcom/glue/standalone/Makefile.in b/xpcom/glue/standalone/Makefile.in
+--- a/xpcom/glue/standalone/Makefile.in
++++ b/xpcom/glue/standalone/Makefile.in
+@@ -54,13 +54,10 @@
+ 		-I$(srcdir)/../../build \
+ 		$(NULL)
+ 
+-ifeq (Darwin,$(OS_ARCH))
+-LINKSRC = nsGlueLinkingOSX.cpp
+-endif
+ ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ LINKSRC = nsGlueLinkingWin.cpp
+ endif
+-ifneq (,$(filter AIX DragonFly FreeBSD GNU GNU_% Linux NetBSD OpenBSD SunOS,$(OS_ARCH)))
++ifneq (,$(filter AIX Darwin DragonFly FreeBSD GNU GNU_% Linux NetBSD OpenBSD SunOS,$(OS_ARCH)))
+ LINKSRC = nsGlueLinkingDlopen.cpp
+ endif
+ ifeq (OS2,$(OS_ARCH))

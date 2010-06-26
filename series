@@ -10,6 +10,7 @@ uikit-http-user-agent
 uikit-skip-applefiledecoder
 exthandler-uikit-skip-plugins
 script-security-manager-plugins
+bug-532533-font-metrics.patch
 thebes-uikit
 npapi-uikit
 event-state-manager-uikit
@@ -42,4 +43,7 @@ mozconfig-disable-optimize
 nsmenupopupframe-cocoa
 hardcode-dtd-content-type
 widget-uikit
+cflags-fixup
+struct-stat64
+darwin-dlopen-glue
 iphone_xptcall

@@ -1,0 +1,35 @@
+# HG changeset patch
+# Parent f7e04c02cd149bda3c5d5718afd982b29d9c3b3b
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -3732,6 +3732,17 @@
+ AC_CHECK_FUNCS(flockfile getpagesize)
+ AC_CHECK_FUNCS(localtime_r strtok_r)
+ 
++dnl check for struct stat64
++if test "$ac_cv_func_stat64" = "yes"; then
++  AC_TRY_COMPILE([#include <sys/stat.h>],
++                 [struct stat64 st;],
++                 ac_cv_struct_stat64=yes,
++                 ac_cv_struct_stat64=no)
++  if test "$ac_cv_struct_stat64" = "yes"; then
++    AC_DEFINE(HAVE_STRUCT_STAT64)
++  fi
++fi
++
+ dnl check for clock_gettime(), the CLOCK_MONOTONIC clock, and -lrt
+ _SAVE_LDFLAGS=$LDFLAGS
+ LDFLAGS="$LDFLAGS -lrt"
+diff --git a/xpcom/io/nsLocalFileUnix.h b/xpcom/io/nsLocalFileUnix.h
+--- a/xpcom/io/nsLocalFileUnix.h
++++ b/xpcom/io/nsLocalFileUnix.h
+@@ -86,7 +86,7 @@
+     #include <sys/mount.h>
+ #endif
+ 
+-#if defined(HAVE_STAT64) && defined(HAVE_LSTAT64)
++#if defined(HAVE_STAT64) && defined(HAVE_LSTAT64) && defined(HAVE_STRUCT_STAT64)
+     #if defined (AIX)
+         #if defined STAT
+             #undef STAT
