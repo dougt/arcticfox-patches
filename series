@@ -46,4 +46,12 @@ widget-uikit
 cflags-fixup
 struct-stat64
 darwin-dlopen-glue
+device-mozconfig
 iphone_xptcall
+mozconfig-fix-compiler
+contentutils-finite
+exceptions-wtf
+pixman-arm-darwin
+ycbcr-arm-darwin
+canvas-finite
+nss-arm-darwin

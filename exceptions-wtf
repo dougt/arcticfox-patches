@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent 4c3dda442b5fe32553a7997a31bb90deae7b1257
+diff --git a/config/gcc-stl-wrapper.template.h b/config/gcc-stl-wrapper.template.h
+--- a/config/gcc-stl-wrapper.template.h
++++ b/config/gcc-stl-wrapper.template.h
+@@ -42,7 +42,8 @@
+ #define mozilla_${HEADER}_h
+ 
+ #if __EXCEPTIONS
+-#  error "STL code can only be used with -fno-exceptions"
++//XXX: so bad
++//#  error "STL code can only be used with -fno-exceptions"
+ #endif
+ 
+ // Silence "warning: #include_next is a GCC extension"

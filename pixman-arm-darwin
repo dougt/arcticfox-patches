@@ -1,0 +1,21 @@
+# HG changeset patch
+# Parent 506f6721c1d658a32647828b16db07659d868123
+diff --git a/gfx/cairo/libpixman/src/Makefile.in b/gfx/cairo/libpixman/src/Makefile.in
+--- a/gfx/cairo/libpixman/src/Makefile.in
++++ b/gfx/cairo/libpixman/src/Makefile.in
+@@ -89,6 +89,7 @@
+ endif
+ endif
+ ifeq (arm,$(findstring arm,$(OS_TEST)))
++ifneq (Darwin,$(OS_ARCH))
+ ifdef HAVE_ARM_SIMD
+ USE_ARM_SIMD_GCC=1
+ endif
+@@ -96,6 +97,7 @@
+ USE_ARM_NEON_GCC=1
+ endif
+ endif
++endif
+ 
+ endif
+ 

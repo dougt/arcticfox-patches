@@ -1,0 +1,30 @@
+# HG changeset patch
+# Parent a5638a30e9446689c068a2b628e11f568c9370b2
+diff --git a/gfx/ycbcr/yuv_row.h b/gfx/ycbcr/yuv_row.h
+--- a/gfx/ycbcr/yuv_row.h
++++ b/gfx/ycbcr/yuv_row.h
+@@ -32,7 +32,7 @@
+ }  // extern "C"
+ 
+ // x64 uses MMX2 (SSE) so emms is not required.
+-#if !defined(ARCH_CPU_X86_64) && !defined(ARCH_CPU_PPC)
++#if !defined(ARCH_CPU_X86_64) && !defined(ARCH_CPU_PPC) && !defined(ARCH_CPU_ARMEL)
+ #if defined(_MSC_VER)
+ #define EMMS() __asm emms
+ #else
+diff --git a/gfx/ycbcr/yuv_row_mac.cpp b/gfx/ycbcr/yuv_row_mac.cpp
+--- a/gfx/ycbcr/yuv_row_mac.cpp
++++ b/gfx/ycbcr/yuv_row_mac.cpp
+@@ -8,10 +8,10 @@
+ 
+ extern "C" {
+ 
+-// PPC and 64 Bit builds use the C fallback. Optimized code
++// PPC, 64 Bit and ARM builds use the C fallback. Optimized code
+ // needs to be fixed for 64 bit builds. PPC has no optimized code
+ // option at all.
+-#if defined(ARCH_CPU_PPC) || defined(ARCH_CPU_64_BITS)
++#if defined(ARCH_CPU_PPC) || defined(ARCH_CPU_64_BITS) || defined(ARCH_CPU_ARMEL)
+ // PPC implementation uses C fallback
+ void FastConvertYUVToRGB32Row(const uint8* y_buf,
+                               const uint8* u_buf,

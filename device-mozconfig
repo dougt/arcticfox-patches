@@ -1,0 +1,84 @@
+# HG changeset patch
+# Parent 8731ad05344daf9aa89015218af8a923c7cbae9f
+
+diff --git a/build/iphone-simulator-mozconfig b/build/iphone-device-mozconfig
+copy from build/iphone-simulator-mozconfig
+copy to build/iphone-device-mozconfig
+--- a/build/iphone-simulator-mozconfig
++++ b/build/iphone-device-mozconfig
+@@ -1,22 +1,22 @@
+-mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../iphone-simulator-debug
++mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../iphone-device-debug
+ mk_add_options MOZ_MAKE_FLAGS="-j4"
+ ac_add_options --enable-application=browser
+ ac_add_options --enable-debug
+ ac_add_options --disable-optimize
+ 
+ export CROSS_COMPILE=1
+-export CC="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -miphoneos-version-min=3.2"
+-export CXX="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++-4.2 -arch i386 -miphoneos-version-min=3.2"
+-export CPP="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/cpp-4.2 -arch i386"
+-export LD="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ld -arch i386"
+-export AR=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ar
+-export AS="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/as -arch i386"
+-export STRIP=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/strip
++export CC="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.2 -arch armv6 -miphoneos-version-min=3.2"
++export CXX="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-4.2 -arch armv6 -miphoneos-version-min=3.2"
++export CPP="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/cpp-4.2 -arch armv6"
++export LD="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ld -arch armv6"
++export AR=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ar
++export AS="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/as -arch armv6"
++export STRIP=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/strip
+ 
+-export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/pkgconfig/
++export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.2.sdk/usr/lib/pkgconfig/
+ 
+-ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk
+-ac_add_options --target=i386-apple-darwin9
++ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.2.sdk
++ac_add_options --target=arm-apple-darwin9
+ 
+ #XXX: should make these defaults
+ ac_add_options --disable-printing
+diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
+--- a/content/events/src/nsIMEStateManager.cpp
++++ b/content/events/src/nsIMEStateManager.cpp
+@@ -122,6 +122,7 @@
+                                  nsIContent* aContent)
+ {
+   NS_ENSURE_ARG_POINTER(aPresContext);
++  printf("nsIMEStateManager::OnChangeFocus\n");
+ 
+   nsCOMPtr<nsIWidget> widget = GetWidget(aPresContext);
+   if (!widget) {
+diff --git a/dom/base/nsFocusManager.cpp b/dom/base/nsFocusManager.cpp
+--- a/dom/base/nsFocusManager.cpp
++++ b/dom/base/nsFocusManager.cpp
+@@ -1543,6 +1543,7 @@
+                       PRBool aFocusChanged,
+                       PRBool aWindowRaised)
+ {
++  printf("nsFocusManager::Focus\n");
+   if (!aWindow)
+     return;
+ 
+diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
+--- a/widget/src/uikit/nsWindow.h
++++ b/widget/src/uikit/nsWindow.h
+@@ -138,8 +138,14 @@
+     NS_IMETHOD GetAttention(PRInt32 aCycleCount) { return NS_ERROR_NOT_IMPLEMENTED; }
+     NS_IMETHOD BeginResizeDrag(nsGUIEvent* aEvent, PRInt32 aHorizontal, PRInt32 aVertical) { return NS_ERROR_NOT_IMPLEMENTED; }
+ 
+-    NS_IMETHOD SetIMEEnabled(PRUint32 aState) { return NS_ERROR_NOT_IMPLEMENTED; };
+-    NS_IMETHOD GetIMEEnabled(PRUint32* aState) { return NS_ERROR_NOT_IMPLEMENTED; };
++    NS_IMETHOD SetIMEEnabled(PRUint32 aState) {
++        printf("SetIMEEnabled(%x)\n");
++        return NS_ERROR_NOT_IMPLEMENTED;
++    };
++    NS_IMETHOD GetIMEEnabled(PRUint32* aState) {
++        printf("GetIMEEnabled\n");
++        return NS_ERROR_NOT_IMPLEMENTED;
++    };
+ 
+     gfxASurface* GetThebesSurface();
+ 

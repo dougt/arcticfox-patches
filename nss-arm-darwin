@@ -1,0 +1,34 @@
+# HG changeset patch
+# Parent 39a93757a124074d49d6229bb0d94345ad4039b1
+
+diff --git a/security/coreconf/Darwin.mk b/security/coreconf/Darwin.mk
+--- a/security/coreconf/Darwin.mk
++++ b/security/coreconf/Darwin.mk
+@@ -56,8 +56,12 @@
+ OS_REL_CFLAGS	= -Di386
+ endif
+ else
++ifeq (,$(filter-out arm%,$(CPU_ARCH)))
++OS_REL_CFLAGS   = -Darm
++else
+ OS_REL_CFLAGS	= -Dppc
+ endif
++endif
+ 
+ ifneq (,$(MACOS_SDK_DIR))
+     GCC_VERSION_FULL := $(shell $(CC) -v 2>&1 | grep "gcc version" | sed -e "s/^.*gcc version[  ]*//" | awk '{ print $$1 }')
+diff --git a/security/nss/lib/freebl/unix_rand.c b/security/nss/lib/freebl/unix_rand.c
+--- a/security/nss/lib/freebl/unix_rand.c
++++ b/security/nss/lib/freebl/unix_rand.c
+@@ -843,7 +843,11 @@
+ }
+ 
+ #ifdef DARWIN
++#if !defined(__arm__)
+ #include <crt_externs.h>
++#else
++extern char ***_NSGetEnviron();
++#endif
+ #endif
+ 
+ /* Fork netstat to collect its output by default. Do not unset this unless

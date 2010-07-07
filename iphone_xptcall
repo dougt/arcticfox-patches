@@ -2,7 +2,7 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373068 14400
 # Node ID d12c1ddc9ebc922cb68ece2f21ad7546495fba57
-# Parent  c503bc0ef58848a00630bd69fd17113bf0413f0e
+# Parent d8d15071db504b929d89521064df4e3b22478336
 imported patch iphone_xptcall
 
 diff --git a/xpcom/reflect/xptcall/src/md/unix/Makefile.in b/xpcom/reflect/xptcall/src/md/unix/Makefile.in
@@ -29,7 +29,7 @@ diff --git a/xpcom/reflect/xptcall/src/md/unix/xptcstubs_arm_darwin.cpp b/xpcom/
 new file mode 100644
 --- /dev/null
 +++ b/xpcom/reflect/xptcall/src/md/unix/xptcstubs_arm_darwin.cpp
-@@ -0,0 +1,249 @@
+@@ -0,0 +1,248 @@
 +/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -223,16 +223,16 @@ new file mode 100644
 +	".section \".text\", __text\n"				\
 +"	.align 2\n"						\
 +"	.if ("#n" - 10) < 0\n"                                  \
-+"	.globl	_ZN14nsXPTCStubBase5Stub"#n"Ev\n"		\
-+"_ZN14nsXPTCStubBase5Stub"#n"Ev:\n"				\
++"	.globl	__ZN14nsXPTCStubBase5Stub"#n"Ev\n"		\
++"__ZN14nsXPTCStubBase5Stub"#n"Ev:\n"				\
 +"	.else\n"                                                \
 +"	.if  ("#n" - 100) < 0\n"                                \
-+"	.globl	_ZN14nsXPTCStubBase6Stub"#n"Ev\n"		\
-+"_ZN14nsXPTCStubBase6Stub"#n"Ev:\n"				\
++"	.globl	__ZN14nsXPTCStubBase6Stub"#n"Ev\n"		\
++"__ZN14nsXPTCStubBase6Stub"#n"Ev:\n"				\
 +"	.else\n"                                                \
 +"	.if ("#n" - 1000) < 0\n"                                \
-+"	.globl	_ZN14nsXPTCStubBase7Stub"#n"Ev\n"		\
-+"_ZN14nsXPTCStubBase7Stub"#n"Ev:\n"				\
++"	.globl	__ZN14nsXPTCStubBase7Stub"#n"Ev\n"		\
++"__ZN14nsXPTCStubBase7Stub"#n"Ev:\n"				\
 +"	.else\n"                                                \
 +"	.err \"stub number "#n"> 1000 not yet supported\"\n"    \
 +"	.endif\n"                                               \
@@ -264,7 +264,6 @@ new file mode 100644
 +	".section \".text\", __text\n"					\
 +"	.align\n"						\
 +"	.globl	Stub"#n"__14nsXPTCStubBase\n"			\
-+        //"	.type	Stub"#n"__14nsXPTCStubBase,#function\n\n"	\
 +"Stub"#n"__14nsXPTCStubBase:\n"					\
 +"	mov	ip, #"#n"\n"					\
 +"	b	SharedStub\n\t");

@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent fc8992d78c9f8c9fffd9722e141fa258f45bac53
+
+diff --git a/content/base/public/nsContentUtils.h b/content/base/public/nsContentUtils.h
+--- a/content/base/public/nsContentUtils.h
++++ b/content/base/public/nsContentUtils.h
+@@ -1823,7 +1823,7 @@
+ #ifdef WIN32
+   return _finite(f);
+ #else
+-  return finite(f);
++  return isfinite(f);
+ #endif
+ }
+ 
