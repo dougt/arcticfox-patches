@@ -1,0 +1,23 @@
+# HG changeset patch
+# Parent 42e5219f61931df5a27353a6585747b8557c387f
+diff --git a/toolkit/mozapps/installer/packager.mk b/toolkit/mozapps/installer/packager.mk
+--- a/toolkit/mozapps/installer/packager.mk
++++ b/toolkit/mozapps/installer/packager.mk
+@@ -43,7 +43,7 @@
+ # This is how we create the binary packages we release to the public.
+ 
+ ifndef MOZ_PKG_FORMAT
+-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifeq (,$(filter-out cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ MOZ_PKG_FORMAT  = DMG
+ else
+ ifeq (,$(filter-out OS2 WINNT WINCE BeOS, $(OS_ARCH)))
+@@ -68,7 +68,7 @@
+ ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ INSTALLER_DIR   = windows
+ else
+-ifneq (cocoa,$(MOZ_WIDGET_TOOLKIT))
++ifneq (,$(filter-out cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ INSTALLER_DIR   = unix
+ endif
+ endif

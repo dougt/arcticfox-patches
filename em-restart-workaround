@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent 358a3a41a9af7639a9141868f88249edd0483206
+diff --git a/browser/app/nsBrowserApp.cpp b/browser/app/nsBrowserApp.cpp
+--- a/browser/app/nsBrowserApp.cpp
++++ b/browser/app/nsBrowserApp.cpp
+@@ -110,6 +110,9 @@
+ {
+   ScopedLogging log;
+ 
++  //XXX HACK
++  PR_SetEnv("NO_EM_RESTART=1");
++
+   nsCOMPtr<nsILocalFile> appini;
+   nsresult rv = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
+   if (NS_FAILED(rv)) {

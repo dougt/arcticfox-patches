@@ -55,3 +55,5 @@ pixman-arm-darwin
 ycbcr-arm-darwin
 canvas-finite
 nss-arm-darwin
+fix-packaging
+em-restart-workaround
