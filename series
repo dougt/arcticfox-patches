@@ -57,3 +57,4 @@ canvas-finite
 nss-arm-darwin
 fix-packaging
 em-restart-workaround
+xpconnect-assertions
