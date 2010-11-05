@@ -1,0 +1,38 @@
+# HG changeset patch
+# Parent ecb4ff8b05ca63677de9d13fe7efc11875f5c8f1
+diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
+--- a/gfx/thebes/Makefile.in
++++ b/gfx/thebes/Makefile.in
+@@ -348,20 +348,29 @@
+ EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
+ endif
+ 
+-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CPPSRCS	+= \
+ 	gfxQuartzSurface.cpp \
+ 	gfxQuartzImageSurface.cpp \
+ 	gfxQuartzPDFSurface.cpp \
+ 	gfxPlatformMac.cpp \
+-	gfxMacFont.cpp \
+ 	gfxCoreTextShaper.cpp \
+ 	$(NULL)
+ #CPPSRCS +=	gfxPDFSurface.cpp
+ CPPSRCS +=      nsUnicodeRange.cpp
+ CPPSRCS +=      gfxQuartzNativeDrawing.cpp
+ 
+-CMMSRCS = gfxMacPlatformFontList.mm
++ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++CPPSRCS += gfxMacFont.cpp
++CMMSRCS += gfxMacPlatformFontList.mm
++endif
++
++ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
++CMMSRCS += \
++  gfxUIKitPlatformFontList.mm \
++  gfxUIKitFont.mm \
++  $(NULL)
++endif
+ 
+ # Always link with OpenGL/AGL
+ EXTRA_DSO_LDOPTS += -framework OpenGL -framework AGL -framework QuickTime -framework AppKit

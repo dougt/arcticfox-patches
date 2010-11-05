@@ -1,5 +1,9 @@
 # HG changeset patch
-# Parent e7407529ab48591b1176aaa099c20a9d8e5a5949
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1288962718 14400
+# Node ID 08b24f8f7a8db5254367d779a2b1ed430d4a49ce
+# Parent  81b79a8521652f52769b2412def2df5509e5752f
+imported patch mozconfig-fix-compiler
 
 diff --git a/build/iphone-device-mozconfig b/build/iphone-device-mozconfig
 --- a/build/iphone-device-mozconfig

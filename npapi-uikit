@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 7b38c89a8f071c03ff92a42ab3464414c5049623
-# Parent  7d8ea3011972d6d818ece5de9dc8199ba60d1b18
+# Node ID 1bd952e514575deba4f5da871685da8802561b58
+# Parent  170ee3c51a9f1403ea6b48d4f3c9507ceef2f8af
 imported patch npapi-uikit
 
 diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npapi.h
 --- a/modules/plugin/base/public/npapi.h
 +++ b/modules/plugin/base/public/npapi.h
-@@ -57,17 +57,20 @@
+@@ -70,17 +70,20 @@
  #endif
  #endif
  
@@ -18,8 +18,8 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
  #define NP_NO_CARBON
  #endif
  
--#ifdef XP_MACOSX
-+#ifdef MOZ_WIDGET_COCOA
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
  #include <ApplicationServices/ApplicationServices.h>
  #include <OpenGL/OpenGL.h>
  #ifndef NP_NO_CARBON
@@ -30,9 +30,9 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
 +#define NP_NO_OPENGL
  #endif
  
- #if defined(XP_UNIX) 
-@@ -540,7 +543,10 @@
- 
+ #if defined(XP_UNIX)
+@@ -574,7 +577,10 @@
+ #ifndef NP_NO_QUICKDRAW
  typedef struct NP_Port
  {
 +#ifdef MOZ_WIDGET_COCOA
@@ -42,7 +42,7 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
    int32_t portx; /* position inside the topmost window */
    int32_t porty;
  } NP_Port;
-@@ -562,7 +568,9 @@
+@@ -598,7 +604,9 @@
  
  typedef struct NP_GLContext
  {

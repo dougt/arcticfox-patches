@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID 301820284daee7b0cf57274b1fe95782e02d6e71
-# Parent  c4f187ec6e0c731b5c8c2a524c295a3146aaed64
+# Node ID 4dd867c7906d5f03985ae0638826e95c107cbba8
+# Parent  90b811cdce421c11e6c2c96ddd5aa91023ddb40d
 imported patch downloadmanager-uikit
 
 diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/components/downloads/src/nsDownloadManager.cpp
@@ -17,7 +17,7 @@ diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/co
    rv = dirService->Get(NS_OSX_DEFAULT_DOWNLOAD_DIR,
                         NS_GET_IID(nsILocalFile),
                         getter_AddRefs(downloadDir));
-@@ -1927,7 +1927,7 @@
+@@ -1941,7 +1941,7 @@
      nsCOMPtr<nsISupportsPRBool> cancelDownloads =
        do_QueryInterface(aSubject, &rv);
      NS_ENSURE_SUCCESS(rv, rv);
@@ -26,7 +26,7 @@ diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/co
      ConfirmCancelDownloads(currDownloadCount, cancelDownloads,
                             NS_LITERAL_STRING("quitCancelDownloadsAlertTitle").get(),
                             NS_LITERAL_STRING("quitCancelDownloadsAlertMsgMultiple").get(),
-@@ -2239,7 +2239,7 @@
+@@ -2254,7 +2254,7 @@
                 ::SHAddToRecentDocs(SHARD_PATHW, path.get());
              }
  #endif

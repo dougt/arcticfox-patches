@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID be39ae4294a9bcb7c8e82336409a848abb6ffeae
-# Parent  71bba69ad71a047e1d152da173381c0f384048c7
+# Node ID e7f5bcfbe391694ca99f3a8920418dd45d8a7fb5
+# Parent  419fbbd6baf7d16e57edff55e2094ce6de7afa54
 imported patch exthandler-cocoa
 
 diff --git a/uriloader/exthandler/nsLocalHandlerApp.h b/uriloader/exthandler/nsLocalHandlerApp.h

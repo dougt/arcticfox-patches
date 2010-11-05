@@ -1,0 +1,13 @@
+# HG changeset patch
+# Parent fb5ce5ac3068d5e745fe7163235658c75dd8bee6
+diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
+--- a/toolkit/xre/Makefile.in
++++ b/toolkit/xre/Makefile.in
+@@ -125,6 +125,7 @@
+ CPPSRCS += nsCommandLineServiceMac.cpp
+ OS_CXXFLAGS += -fexceptions
+ endif
++endif
+ 
+ ifdef MOZ_X11
+ CPPSRCS += nsX11ErrorHandler.cpp

@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
-# Node ID c503bc0ef58848a00630bd69fd17113bf0413f0e
-# Parent  a73cc81d9d52ab88a607ec15e64753f975fa818c
+# Node ID 4d19f78eaffb3a3c2330eef722d2d5ca0b740f0c
+# Parent  92042df4dac138ec70cfc963fd6c5d77731a1abe
 UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -313,6 +313,9 @@
+@@ -320,6 +320,9 @@
  ifeq (qt,$(MOZ_WIDGET_TOOLKIT))
  COMPONENT_LIBS += widget_qt
  endif
@@ -16,17 +16,17 @@ diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 +COMPONENT_LIBS += widget_uikit
 +endif
  
- ifdef MOZ_ENABLE_PHOTON
- COMPONENT_LIBS += widget_photon
+ ifdef ACCESSIBILITY
+ COMPONENT_LIBS += accessibility
 diff --git a/widget/src/Makefile.in b/widget/src/Makefile.in
 --- a/widget/src/Makefile.in
 +++ b/widget/src/Makefile.in
 @@ -46,7 +46,7 @@
  
- DIRS		= xpwidgets
+ DIRS		= shared xpwidgets
  
--ifneq (,$(filter beos os2 cocoa qt,$(MOZ_WIDGET_TOOLKIT)))
-+ifneq (,$(filter beos os2 cocoa qt uikit,$(MOZ_WIDGET_TOOLKIT)))
+-ifneq (,$(filter beos os2 cocoa qt android,$(MOZ_WIDGET_TOOLKIT)))
++ifneq (,$(filter beos os2 cocoa qt android uikit,$(MOZ_WIDGET_TOOLKIT)))
  DIRS		+= $(MOZ_WIDGET_TOOLKIT)
  endif
  

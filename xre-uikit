@@ -1,35 +1,31 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID d167643b342e6149cca7a12124debfbfddc93268
-# Parent  9aec37f120a44b70750eae8d7f07094a51fd8895
+# Node ID ef8d4a1d5c09c94a597fc583ffaea7370bf9e211
+# Parent  0d489c9ffb730eb11ddc13699ef50f69074150c9
 imported patch xre-uikit
 
 diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
 --- a/toolkit/xre/Makefile.in
 +++ b/toolkit/xre/Makefile.in
-@@ -120,12 +120,14 @@
+@@ -116,8 +116,11 @@
  endif
  
  ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
 -CMMSRCS += MacLaunchHelper.mm
+-CMMSRCS += MacApplicationDelegate.mm
 +CMMSRCS += \
 +  MacLaunchHelper.mm \
 +  MacApplicationDelegate.mm \
 +  $(NULL)
- CPPSRCS += nsCommandLineServiceMac.cpp
- OS_CXXFLAGS += -fexceptions
- endif
--ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
--CMMSRCS += MacApplicationDelegate.mm
 +ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
  CMMSRCS += MacAutoreleasePool.mm
- endif
- 
+ CPPSRCS += nsCommandLineServiceMac.cpp
+ OS_CXXFLAGS += -fexceptions
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -168,7 +168,7 @@
+@@ -169,7 +169,7 @@
  #include "nsThreadUtils.h"
  #endif
  
@@ -38,7 +34,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #include "nsILocalFileMac.h"
  #include "nsCommandLineServiceMac.h"
  #endif
-@@ -191,10 +191,14 @@
+@@ -188,10 +188,14 @@
  #include <malloc.h>
  #endif
  
@@ -54,7 +50,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #ifdef DEBUG
  #include "prlog.h"
  #endif
-@@ -1497,11 +1501,6 @@
+@@ -1491,11 +1495,6 @@
      return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
                                   aResult);
  
@@ -66,7 +62,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    // Works even if we're not bundled.
    CFBundleRef appBundle = CFBundleGetMainBundle();
    if (!appBundle)
-@@ -1511,6 +1510,14 @@
+@@ -1505,6 +1504,14 @@
    if (!bundleURL)
      return NS_ERROR_FAILURE;
  
@@ -81,7 +77,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    FSRef fileRef;
    if (!CFURLGetFSRef(bundleURL, &fileRef)) {
      CFRelease(bundleURL);
-@@ -1518,8 +1525,18 @@
+@@ -1512,8 +1519,18 @@
    }
  
    rv = lfm->InitWithFSRef(&fileRef);
@@ -101,34 +97,34 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (NS_FAILED(rv))
      return rv;
  
-@@ -1732,7 +1749,7 @@
- 
-   SaveToEnv("MOZ_LAUNCHED_CHILD=1");
- 
+@@ -1729,7 +1746,7 @@
+ #if defined(ANDROID)
+   mozilla::AndroidBridge::Bridge()->ScheduleRestart();
+ #else
 -#if defined(XP_MACOSX)
 +#if defined(MOZ_WIDGET_COCOA)
-   SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+   CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
    LaunchChildMac(gRestartArgc, gRestartArgv);
  #else
-@@ -1937,7 +1954,7 @@
-     rv |= xpcom.SetWindowCreator(aNative);
+@@ -1931,7 +1948,7 @@
+     rv = xpcom.SetWindowCreator(aNative);
      NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-     SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+     CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -2027,7 +2044,7 @@
-       xpcom.DoAutoreg();
-       xpcom.RegisterProfileService();
- 
+@@ -2018,7 +2035,7 @@
+     ScopedXPCOMStartup xpcom;
+     rv = xpcom.Initialize();
+     if (NS_SUCCEEDED(rv)) {
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-       SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+       CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -2963,7 +2980,7 @@
+@@ -2959,7 +2976,7 @@
    }
  #endif
  
@@ -137,7 +133,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3027,7 +3044,7 @@
+@@ -3023,7 +3040,7 @@
      gSafeMode = PR_TRUE;
    }
  
@@ -146,7 +142,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (GetCurrentEventKeyModifiers() & optionKey)
      gSafeMode = PR_TRUE;
  #endif
-@@ -3490,7 +3507,7 @@
+@@ -3558,7 +3575,7 @@
              }
  #endif
  
@@ -155,29 +151,19 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
              // we re-initialize the command-line service and do appleevents munging
              // after we are sure that we're not restarting
              cmdLine = do_CreateInstance("@mozilla.org/toolkit/command-line;1");
-@@ -3501,8 +3518,7 @@
-             rv = cmdLine->Init(gArgc, gArgv,
-                                workingDir, nsICommandLine::STATE_INITIAL_LAUNCH);
-             NS_ENSURE_SUCCESS(rv, 1);
--#endif
--#ifdef MOZ_WIDGET_COCOA
-+
-             // Prepare Cocoa's form of Apple Event handling.
-             SetupMacApplicationDelegate();
- #endif
-@@ -3588,7 +3604,7 @@
+@@ -3660,7 +3677,7 @@
            ProcessDDE(nativeApp, PR_TRUE);
  #endif
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-           SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
+           CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
          }
 diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 --- a/toolkit/xre/nsXREDirProvider.cpp
 +++ b/toolkit/xre/nsXREDirProvider.cpp
-@@ -76,7 +76,7 @@
+@@ -78,7 +78,7 @@
  #define CSIDL_LOCAL_APPDATA             0x001C
  #endif
  #endif
@@ -186,7 +172,7 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
  #include "nsILocalFileMac.h"
  #endif
  #ifdef XP_BEOS
-@@ -1086,7 +1086,7 @@
+@@ -1012,7 +1012,7 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
  
@@ -195,7 +181,7 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
    FSRef fsRef;
    OSType folderType;
    if (aLocal) {
-@@ -1206,7 +1206,7 @@
+@@ -1139,7 +1139,7 @@
  {
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;

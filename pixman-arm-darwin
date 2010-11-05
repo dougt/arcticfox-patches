@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent 506f6721c1d658a32647828b16db07659d868123
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1288962718 14400
+# Node ID cea454baa6c305162e5d400ec34460ed1adb2805
+# Parent  dfdc5199e772c44c809cf74ab21585aa1a95c483
+imported patch pixman-arm-darwin
+
 diff --git a/gfx/cairo/libpixman/src/Makefile.in b/gfx/cairo/libpixman/src/Makefile.in
 --- a/gfx/cairo/libpixman/src/Makefile.in
 +++ b/gfx/cairo/libpixman/src/Makefile.in

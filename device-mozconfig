@@ -1,27 +1,22 @@
 # HG changeset patch
-# Parent 8731ad05344daf9aa89015218af8a923c7cbae9f
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1288962718 14400
+# Node ID b3c61008e1098446eed6eb373ce7942a4fdd6b88
+# Parent  6ce829a489b8d740423bc6ae9a9a3ca2f752e968
+imported patch device-mozconfig
 
-diff --git a/build/iphone-simulator-mozconfig b/build/iphone-device-mozconfig
-copy from build/iphone-simulator-mozconfig
-copy to build/iphone-device-mozconfig
---- a/build/iphone-simulator-mozconfig
+diff --git a/build/iphone-device-mozconfig b/build/iphone-device-mozconfig
+new file mode 100644
+--- /dev/null
 +++ b/build/iphone-device-mozconfig
-@@ -1,22 +1,22 @@
--mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../iphone-simulator-debug
+@@ -0,0 +1,32 @@
 +mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../iphone-device-debug
- mk_add_options MOZ_MAKE_FLAGS="-j4"
- ac_add_options --enable-application=browser
- ac_add_options --enable-debug
- ac_add_options --disable-optimize
- 
- export CROSS_COMPILE=1
--export CC="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/gcc-4.2 -arch i386 -miphoneos-version-min=3.2"
--export CXX="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++-4.2 -arch i386 -miphoneos-version-min=3.2"
--export CPP="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/cpp-4.2 -arch i386"
--export LD="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ld -arch i386"
--export AR=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/ar
--export AS="/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/as -arch i386"
--export STRIP=/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/strip
++mk_add_options MOZ_MAKE_FLAGS="-j4"
++ac_add_options --enable-application=browser
++ac_add_options --enable-debug
++ac_add_options --disable-optimize
++
++export CROSS_COMPILE=1
 +export CC="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc-4.2 -arch armv6 -miphoneos-version-min=3.2"
 +export CXX="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/g++-4.2 -arch armv6 -miphoneos-version-min=3.2"
 +export CPP="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/cpp-4.2 -arch armv6"
@@ -29,17 +24,24 @@ copy to build/iphone-device-mozconfig
 +export AR=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/ar
 +export AS="/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/as -arch armv6"
 +export STRIP=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/strip
- 
--export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk/usr/lib/pkgconfig/
++
 +export PKG_CONFIG_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.2.sdk/usr/lib/pkgconfig/
- 
--ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator3.2.sdk
--ac_add_options --target=i386-apple-darwin9
++
 +ac_add_options --with-macos-sdk=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.2.sdk
 +ac_add_options --target=arm-apple-darwin9
- 
- #XXX: should make these defaults
- ac_add_options --disable-printing
++
++#XXX: should make these defaults
++ac_add_options --disable-printing
++ac_add_options --disable-plugins
++ac_add_options --disable-necko-wifi
++ac_add_options --disable-negotiateauth
++ac_add_options --disable-ogg
++ac_add_options --disable-wave
++ac_add_options --disable-ipc
++ac_add_options --disable-updater
++ac_add_options --disable-crashreporter
++#ac_add_options --disable-tests
++export SKIP_LIBREG=1
 diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
 --- a/content/events/src/nsIMEStateManager.cpp
 +++ b/content/events/src/nsIMEStateManager.cpp

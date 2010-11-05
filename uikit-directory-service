@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581971 14400
-# Node ID a73cc81d9d52ab88a607ec15e64753f975fa818c
-# Parent  bb32c47f9eb4f7ad32abc43e2d6543eadb044667
+# Node ID 2b767b833e2ba35b88fee6ecb98c13d6b8f74156
+# Parent  d5f12b8deb14f2bf55ebcaa574afe4e348f6c351
 imported patch uikit-directory-service
 
 diff --git a/xpcom/io/nsUIKitDirectories.h b/xpcom/io/nsUIKitDirectories.h

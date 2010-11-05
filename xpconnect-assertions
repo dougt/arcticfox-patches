@@ -1,9 +1,14 @@
 # HG changeset patch
-# Parent dfe8b2c3b54985870acdf236fbcbc884bdacbcfb
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1288962719 14400
+# Node ID 49fa7f28da254286c4c9e7afb87c6dd76bc5cb4f
+# Parent  41a2694d1aa803d1feb396ebbad678b885761019
+imported patch xpconnect-assertions
+
 diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPConnect.cpp
 --- a/js/src/xpconnect/src/nsXPConnect.cpp
 +++ b/js/src/xpconnect/src/nsXPConnect.cpp
-@@ -1013,11 +1013,8 @@
+@@ -982,11 +982,8 @@
  /***************************************************************************/
  // nsIXPConnect interface methods...
  
@@ -20,7 +25,7 @@ diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPCon
 diff --git a/js/src/xpconnect/src/xpccomponents.cpp b/js/src/xpconnect/src/xpccomponents.cpp
 --- a/js/src/xpconnect/src/xpccomponents.cpp
 +++ b/js/src/xpconnect/src/xpccomponents.cpp
-@@ -4185,25 +4185,26 @@
+@@ -4201,25 +4201,26 @@
  
      AutoMarkingNativeInterfacePtr iface(ccx);
      iface = XPCNativeInterface::GetNewOrUsed(ccx, &NS_GET_IID(nsIXPCComponents));

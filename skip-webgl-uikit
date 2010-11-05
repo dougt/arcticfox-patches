@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID 71bba69ad71a047e1d152da173381c0f384048c7
-# Parent  aaa7171e6e6aaf09c5d1c4ce49b6b5376ac40f15
+# Node ID 419fbbd6baf7d16e57edff55e2094ce6de7afa54
+# Parent  beb953518d0771a5b8d7d208931ef2daa6b1516d
 imported patch skip-webgl-uikit
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5189,7 +5189,10 @@
+@@ -5224,7 +5224,10 @@
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
      MOZ_FS_LAYOUT=bundle
@@ -18,17 +18,5 @@ diff --git a/configure.in b/configure.in
 +      MOZ_WEBGL=1
 +    fi
      ;;
- esac
  
-diff --git a/content/canvas/src/Makefile.in b/content/canvas/src/Makefile.in
---- a/content/canvas/src/Makefile.in
-+++ b/content/canvas/src/Makefile.in
-@@ -79,7 +79,7 @@
- endif
- endif
- 
--ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-+ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
- WEBGL_PLATFORM = CGL
- endif
- 
+ cairo-android)

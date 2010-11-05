@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID a9404a85a947ae8422fe94ec1f78b7edacae0ce4
-# Parent c4dcc703f03aca264ed700d010d2872c2552002c
+# Node ID 649ddb9e13546cce4acc453d80fb3517429ba13f
+# Parent  f70533ba55d1e33c5c320a091b5ffaaa6947805c
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 
 diff --git a/config/config.mk b/config/config.mk
 --- a/config/config.mk
 +++ b/config/config.mk
-@@ -546,6 +546,10 @@
+@@ -557,6 +557,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -22,7 +22,7 @@ diff --git a/config/config.mk b/config/config.mk
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -1947,7 +1947,17 @@
+@@ -2032,7 +2032,17 @@
      # The ExceptionHandling framework is needed for Objective-C exception
      # logging code in nsObjCExceptions.h. Currently we only use that in debug
      # builds.
@@ -41,16 +41,16 @@ diff --git a/configure.in b/configure.in
  
      dnl DTrace and -dead_strip don't interact well. See bug 403132.
      dnl ===================================================================
-@@ -3269,7 +3279,7 @@
+@@ -3299,7 +3309,7 @@
  AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
 -AC_CHECK_HEADERS(sys/quota.h)
 +AC_CHECK_HEADERS(sys/quota.h sys/sysmacros.h)
+ AC_CHECK_HEADERS(linux/quota.h)
  
  dnl Try for MMX support
- dnl NB - later gcc versions require -mmmx for this header to be successfully
-@@ -3368,11 +3378,19 @@
+@@ -3399,11 +3409,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -70,7 +70,7 @@ diff --git a/configure.in b/configure.in
    AC_MSG_RESULT([$ac_cv_have_core_text])
  
    if test "$ac_cv_have_core_text" = "no"; then
-@@ -5156,13 +5174,27 @@
+@@ -5181,13 +5199,27 @@
      ;;
  
  cairo-cocoa)
@@ -102,7 +102,7 @@ diff --git a/configure.in b/configure.in
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -7603,6 +7635,7 @@
+@@ -7800,6 +7832,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -110,7 +110,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -7627,6 +7660,7 @@
+@@ -7824,6 +7857,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -118,7 +118,7 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -8000,7 +8034,7 @@
+@@ -8283,7 +8317,7 @@
      if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
      fi
@@ -130,7 +130,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/js/src/config/config.mk b/js/src/config/config.mk
 --- a/js/src/config/config.mk
 +++ b/js/src/config/config.mk
-@@ -546,6 +546,10 @@
+@@ -557,6 +557,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -144,7 +144,7 @@ diff --git a/js/src/config/config.mk b/js/src/config/config.mk
 diff --git a/xpcom/build/XPCOM.h b/xpcom/build/XPCOM.h
 --- a/xpcom/build/XPCOM.h
 +++ b/xpcom/build/XPCOM.h
-@@ -148,7 +148,7 @@
+@@ -145,7 +145,7 @@
  #include "nsIObjectOutputStream.h"
  #include "nsIPipe.h"
  
@@ -156,7 +156,7 @@ diff --git a/xpcom/build/XPCOM.h b/xpcom/build/XPCOM.h
 diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
 --- a/xpcom/build/nsXPComInit.cpp
 +++ b/xpcom/build/nsXPComInit.cpp
-@@ -134,7 +134,7 @@
+@@ -132,7 +132,7 @@
  #include "nsWindowsRegKey.h"
  #endif
  
@@ -165,7 +165,7 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  #include "nsMacUtilsImpl.h"
  #endif
  
-@@ -246,7 +246,7 @@
+@@ -221,7 +221,7 @@
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
  
@@ -174,19 +174,10 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacUtilsImpl)
  #endif
  
-@@ -420,7 +420,7 @@
-     COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor),
- #endif
- 
--#ifdef XP_MACOSX
-+#ifdef MOZ_WIDGET_COCOA
-     COMPONENT(MACUTILSIMPL, nsMacUtilsImplConstructor),
- #endif
- 
 diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirectory.cpp
 --- a/xpcom/io/SpecialSystemDirectory.cpp
 +++ b/xpcom/io/SpecialSystemDirectory.cpp
-@@ -630,7 +630,7 @@
+@@ -633,7 +633,7 @@
              }
              return NS_NewNativeLocalFile(tString, PR_TRUE, aFile);
          }
@@ -195,7 +186,7 @@ diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirecto
          {
              return GetOSXFolderType(kUserDomain, kTemporaryFolderType, aFile);
          }
-@@ -1010,7 +1010,7 @@
+@@ -1013,7 +1013,7 @@
      return NS_ERROR_NOT_AVAILABLE;
  }
  
@@ -312,7 +303,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
  #include <CoreServices/CoreServices.h>
  #include <Carbon/Carbon.h>
  #endif
-@@ -90,7 +90,7 @@
+@@ -87,7 +87,7 @@
  // For Windows platform, We are choosing Appdata folder as HOME
  #if defined (XP_WIN)
  #define HOME_DIR NS_WIN_APPDATA_DIR
@@ -321,7 +312,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
  #define HOME_DIR NS_OSX_HOME_DIR
  #elif defined (XP_UNIX)
  #define HOME_DIR NS_UNIX_HOME_DIR
-@@ -153,7 +153,7 @@
+@@ -150,7 +150,7 @@
          return NS_OK;
      }
  
@@ -330,7 +321,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
      // Works even if we're not bundled.
      CFBundleRef appBundle = CFBundleGetMainBundle();
      if (appBundle != nsnull)
-@@ -689,7 +689,7 @@
+@@ -645,7 +645,7 @@
          rv = GetSpecialSystemDirectory(OS_CurrentWorkingDirectory, getter_AddRefs(localFile)); 
      }
         
@@ -342,7 +333,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
 diff --git a/xpcom/io/nsDirectoryServiceAtomList.h b/xpcom/io/nsDirectoryServiceAtomList.h
 --- a/xpcom/io/nsDirectoryServiceAtomList.h
 +++ b/xpcom/io/nsDirectoryServiceAtomList.h
-@@ -49,7 +49,7 @@
+@@ -45,7 +45,7 @@
  DIR_ATOM(sOS_HomeDirectory, NS_OS_HOME_DIR)
  DIR_ATOM(sOS_DesktopDirectory, NS_OS_DESKTOP_DIR)
  DIR_ATOM(sInitCurrentProcess_dummy, NS_XPCOM_INIT_CURRENT_PROCESS_DIR)
@@ -354,7 +345,7 @@ diff --git a/xpcom/io/nsDirectoryServiceAtomList.h b/xpcom/io/nsDirectoryService
 diff --git a/xpcom/io/nsDirectoryServiceDefs.h b/xpcom/io/nsDirectoryServiceDefs.h
 --- a/xpcom/io/nsDirectoryServiceDefs.h
 +++ b/xpcom/io/nsDirectoryServiceDefs.h
-@@ -114,11 +114,11 @@
+@@ -86,11 +86,11 @@
  
  /* Platform Specific Locations */
  
@@ -392,24 +383,3 @@ diff --git a/xpcom/io/nsLocalFileCommon.cpp b/xpcom/io/nsLocalFileCommon.cpp
  NS_IMETHODIMP
  nsLocalFile::InitWithFile(nsILocalFile *aFile)
  {
-diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
---- a/xpcom/io/nsLocalFileUnix.cpp
-+++ b/xpcom/io/nsLocalFileUnix.cpp
-@@ -67,7 +67,7 @@
-     #include <fabdef.h>
- #endif
- 
--#if defined(HAVE_SYS_QUOTA_H)
-+#if defined(HAVE_SYS_QUOTA_H) && defined(HAVE_SYS_SYSMACROS_H)
- #include <sys/sysmacros.h>
- #include <sys/quota.h>
- #endif
-@@ -1220,7 +1220,7 @@
-      */
-     *aDiskSpaceAvailable = (PRInt64)fs_buf.f_bsize * (fs_buf.f_bavail - 1);
- 
--#if defined(HAVE_SYS_STAT_H) || defined(HAVE_SYS_QUOTA_H)
-+#if defined(HAVE_SYS_STAT_H) || (defined(HAVE_SYS_QUOTA_H) && defined(HAVE_SYS_SYSMACROS_H))
- 
-     if(!FillStatCache()) {
-         // Return available size from statfs

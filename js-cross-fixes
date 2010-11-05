@@ -1,16 +1,16 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867166 14400
-# Node ID a88cc0f3711864e777733281300b9671a2d057f7
-# Parent  a788e3cf5f60303cd63c94e8ccc37f73c0f3f080
+# Node ID 8f72deafb392fab9cce927cd1e463f88dd54b110
+# Parent  fb1ebbe4162fb0fdf1451416b37cb8e35aef18b8
 fixes for compiling js for iphone simulator
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -1733,11 +1733,29 @@
+@@ -1720,11 +1720,29 @@
+     STRIP="$STRIP -x -S"
      _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
-     MOZ_ENABLE_POSTSCRIPT=
      TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
 +    # Check if we have the Cocoa framework, or if we're targeting Cocoa Touch
 +    _SAVE_LDFLAGS=$LDFLAGS

@@ -1,3 +1,10 @@
+# HG changeset patch
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1288962717 14400
+# Node ID 3d2ed0833bbfb77dbbbf292220d3423645ca6342
+# Parent  557110e418b81b2f91dda315f1f79caa2a1aa8c0
+imported patch mozconfig-disable-optimize
+
 diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig
 --- a/build/iphone-simulator-mozconfig
 +++ b/build/iphone-simulator-mozconfig

@@ -58,3 +58,9 @@ nss-arm-darwin
 fix-packaging
 em-restart-workaround
 xpconnect-assertions
+mozconfig-extra
+chrome-registry-extra
+media-oops
+thebes-extra
+xre-oops
+xpcom-extra

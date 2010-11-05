@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273524100 14400
-# Node ID bb32c47f9eb4f7ad32abc43e2d6543eadb044667
-# Parent  0b311407d10ed7948247bc23b43b945e63f7d55a
+# Node ID d5f12b8deb14f2bf55ebcaa574afe4e348f6c351
+# Parent  abdbe36f8a278c6c2740079f1afcdc50e0406ed8
 [mq]: nsnetmodule-cocoa
 
 diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp
 --- a/netwerk/build/nsNetModule.cpp
 +++ b/netwerk/build/nsNetModule.cpp
-@@ -639,7 +639,7 @@
+@@ -591,7 +591,7 @@
  
      // Release global state used by the URL helper module.
      net_ShutdownURLHelper();

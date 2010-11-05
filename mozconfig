@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272324269 14400
-# Node ID acb1510ebac615d27bc09790a51b72c18da822a3
-# Parent  b7640c945899d0a7ff7668df26cd8fff617c5ae9
+# Node ID f70533ba55d1e33c5c320a091b5ffaaa6947805c
+# Parent  8b2df9cdc793788513da1d3e260c0b12e4764b0a
 [mq]: mozconfig
 
 diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig

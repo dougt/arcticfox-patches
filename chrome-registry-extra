@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent 7967a12fe0f4a8961378b84b802961d4eba031dc
+
+diff --git a/chrome/src/nsChromeRegistryChrome.cpp b/chrome/src/nsChromeRegistryChrome.cpp
+--- a/chrome/src/nsChromeRegistryChrome.cpp
++++ b/chrome/src/nsChromeRegistryChrome.cpp
+@@ -46,7 +46,7 @@
+ 
+ #if defined(XP_WIN)
+ #include <windows.h>
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #include <CoreServices/CoreServices.h>
+ #elif defined(MOZ_WIDGET_GTK2)
+ #include <gtk/gtk.h>

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 7d8ea3011972d6d818ece5de9dc8199ba60d1b18
-# Parent 65889f86eda863124c23572e3932c09a3f7ce7b9
+# Node ID 170ee3c51a9f1403ea6b48d4f3c9507ceef2f8af
+# Parent  ea6292e3cf155e582833b5474ca8865fa08cc3a6
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -12,8 +12,8 @@ fix font metrics
 diff --git a/gfx/src/thebes/Makefile.in b/gfx/src/thebes/Makefile.in
 --- a/gfx/src/thebes/Makefile.in
 +++ b/gfx/src/thebes/Makefile.in
-@@ -99,6 +99,10 @@
- CMMSRCS		= nsSystemFontsMac.mm
+@@ -103,6 +103,10 @@
+ CPPSRCS		+= nsSystemFontsAndroid.cpp
  endif
  
 +ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
@@ -258,7 +258,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
  #elif defined(MOZ_WIDGET_QT)
  #include "nsSystemFontsQt.h"
  static nsSystemFontsQt *gSystemFonts = nsnull;
-@@ -825,8 +830,10 @@
+@@ -828,8 +833,10 @@
          gSystemFonts = new nsSystemFontsOS2();
  #elif defined(XP_BEOS)
          gSystemFonts = new nsSystemFontsBeOS();
@@ -269,105 +269,10 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 +        gSystemFonts = new nsSystemFontsUIKit();
  #elif defined(MOZ_WIDGET_QT)
          gSystemFonts = new nsSystemFontsQt();
- #else
-diff --git a/gfx/thebes/public/Makefile.in b/gfx/thebes/public/Makefile.in
---- a/gfx/thebes/public/Makefile.in
-+++ b/gfx/thebes/public/Makefile.in
-@@ -108,7 +108,7 @@
- EXPORTS +=	gfxPDFSurface.h
- endif
- 
--ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-+ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
- EXPORTS +=	gfxPlatformMac.h \
- 		gfxQuartzSurface.h \
- 		gfxQuartzImageSurface.h \
-diff --git a/gfx/thebes/public/gfxFont.h b/gfx/thebes/public/gfxFont.h
---- a/gfx/thebes/public/gfxFont.h
-+++ b/gfx/thebes/public/gfxFont.h
-@@ -251,6 +251,7 @@
- protected:
-     friend class gfxPlatformFontList;
-     friend class gfxMacPlatformFontList;
-+    friend class gfxUIKitPlatformFontList;
-     friend class gfxFcFontEntry;
-     friend class gfxFontFamily;
-     friend class gfxSingleFaceMacFontFamily;
-diff --git a/gfx/thebes/public/gfxQuartzPDFSurface.h b/gfx/thebes/public/gfxQuartzPDFSurface.h
---- a/gfx/thebes/public/gfxQuartzPDFSurface.h
-+++ b/gfx/thebes/public/gfxQuartzPDFSurface.h
-@@ -41,7 +41,11 @@
- #include "gfxASurface.h"
- #include "gfxContext.h"
- 
-+#ifdef MOZ_WIDGET_COCOA
- #include <Carbon/Carbon.h>
-+#else
-+#include <CoreGraphics/CoreGraphics.h>
-+#endif
- 
- class THEBES_API gfxQuartzPDFSurface : public gfxASurface {
- public:
-diff --git a/gfx/thebes/public/gfxQuartzSurface.h b/gfx/thebes/public/gfxQuartzSurface.h
---- a/gfx/thebes/public/gfxQuartzSurface.h
-+++ b/gfx/thebes/public/gfxQuartzSurface.h
-@@ -42,7 +42,11 @@
- #include "gfxASurface.h"
- #include "gfxImageSurface.h"
- 
-+#ifdef MOZ_WIDGET_COCOA
- #include <Carbon/Carbon.h>
-+#else
-+#include <CoreGraphics/CoreGraphics.h>
-+#endif
- 
- class gfxContext;
- 
-diff --git a/gfx/thebes/src/Makefile.in b/gfx/thebes/src/Makefile.in
---- a/gfx/thebes/src/Makefile.in
-+++ b/gfx/thebes/src/Makefile.in
-@@ -175,21 +175,34 @@
- EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
- endif
- 
--ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
-+ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
- CPPSRCS	+= \
- 	gfxQuartzSurface.cpp \
- 	gfxQuartzImageSurface.cpp \
- 	gfxQuartzPDFSurface.cpp \
- 	gfxPlatformMac.cpp \
--	gfxMacFont.cpp \
- 	gfxCoreTextShaper.cpp \
- 	$(NULL)
-+
-+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-+CPPSRCS += \
-+	gfxMacFont.cpp \
-+	$(NULL)
-+
-+CMMSRCS = gfxMacPlatformFontList.mm
-+endif
-+
-+ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
-+CMMSRCS = \
-+  gfxUIKitPlatformFontList.mm \
-+  gfxUIKitFont.mm \
-+  $(NULL)
-+endif
-+
- #CPPSRCS +=	gfxPDFSurface.cpp
- CPPSRCS +=      nsUnicodeRange.cpp
- CPPSRCS +=      gfxQuartzNativeDrawing.cpp
- 
--CMMSRCS = gfxMacPlatformFontList.mm
--
- # Always link with OpenGL/AGL
- EXTRA_DSO_LDOPTS += -framework OpenGL -framework AGL -framework QuickTime -framework AppKit
- endif
-diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextShaper.cpp
---- a/gfx/thebes/src/gfxCoreTextShaper.cpp
-+++ b/gfx/thebes/src/gfxCoreTextShaper.cpp
+ #elif defined(ANDROID)
+diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
+--- a/gfx/thebes/gfxCoreTextShaper.cpp
++++ b/gfx/thebes/gfxCoreTextShaper.cpp
 @@ -51,13 +51,21 @@
  #include "gfxPlatform.h"
  #include "gfxPlatformMac.h"
@@ -412,7 +317,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
  
      // Set up the default attribute dictionary that we will need each time we create a CFAttributedString
      mAttributesDict = ::CFDictionaryCreate(kCFAllocatorDefault,
-@@ -164,10 +178,11 @@
+@@ -165,10 +179,11 @@
      }
  
      CFDictionaryRef attrObj;
@@ -425,7 +330,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
          CTFontRef ctFont =
              CreateCTFontWithDisabledLigatures(font->GetATSFontRef(),
                                                ::CTFontGetSize(mCTFont));
-@@ -182,9 +197,12 @@
+@@ -183,9 +198,12 @@
          // Having created the dict, we're finished with our ligature-disabled CTFontRef
          ::CFRelease(ctFont);
      } else {
@@ -438,7 +343,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
  
      // Now we can create an attributed string
      CFAttributedStringRef attrStringObj =
-@@ -532,6 +550,7 @@
+@@ -533,6 +551,7 @@
  void
  gfxCoreTextShaper::CreateDefaultFeaturesDescriptor()
  {
@@ -446,7 +351,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
      if (sDefaultFeaturesDescriptor != NULL) {
          return;
      }
-@@ -599,8 +618,10 @@
+@@ -600,8 +619,10 @@
      sDefaultFeaturesDescriptor =
          ::CTFontDescriptorCreateWithAttributes(attributesDict);
      ::CFRelease(attributesDict);
@@ -457,7 +362,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
  // Create a CTFontRef, with the Common Ligatures feature disabled [static]
  CTFontRef
  gfxCoreTextShaper::CreateCTFontWithDisabledLigatures(ATSFontRef aFontRef, CGFloat aSize)
-@@ -655,6 +676,7 @@
+@@ -656,6 +677,7 @@
      
      return ::CTFontCreateWithPlatformFont(aFontRef, aSize, NULL, sDisableLigaturesDescriptor);
  }
@@ -465,9 +370,9 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.cpp b/gfx/thebes/src/gfxCoreTextSh
  
  void
  gfxCoreTextShaper::Shutdown() // [static]
-diff --git a/gfx/thebes/src/gfxCoreTextShaper.h b/gfx/thebes/src/gfxCoreTextShaper.h
---- a/gfx/thebes/src/gfxCoreTextShaper.h
-+++ b/gfx/thebes/src/gfxCoreTextShaper.h
+diff --git a/gfx/thebes/gfxCoreTextShaper.h b/gfx/thebes/gfxCoreTextShaper.h
+--- a/gfx/thebes/gfxCoreTextShaper.h
++++ b/gfx/thebes/gfxCoreTextShaper.h
 @@ -45,15 +45,24 @@
  #include "gfxFont.h"
  #include "gfxFontUtils.h"
@@ -495,7 +400,7 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.h b/gfx/thebes/src/gfxCoreTextShap
  
      virtual ~gfxCoreTextShaper();
  
-@@ -85,7 +94,9 @@
+@@ -86,7 +95,9 @@
          return sDefaultFeaturesDescriptor;
      }
  
@@ -505,9 +410,35 @@ diff --git a/gfx/thebes/src/gfxCoreTextShaper.h b/gfx/thebes/src/gfxCoreTextShap
  
      // cached font descriptor, created the first time it's needed
      static CTFontDescriptorRef    sDefaultFeaturesDescriptor;
-diff --git a/gfx/thebes/src/gfxPlatformMac.cpp b/gfx/thebes/src/gfxPlatformMac.cpp
---- a/gfx/thebes/src/gfxPlatformMac.cpp
-+++ b/gfx/thebes/src/gfxPlatformMac.cpp
+diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
+--- a/gfx/thebes/gfxFont.h
++++ b/gfx/thebes/gfxFont.h
+@@ -268,6 +268,7 @@
+ protected:
+     friend class gfxPlatformFontList;
+     friend class gfxMacPlatformFontList;
++    friend class gfxUIKitPlatformFontList;
+     friend class gfxFcFontEntry;
+     friend class gfxFontFamily;
+     friend class gfxSingleFaceMacFontFamily;
+@@ -1117,6 +1118,14 @@
+     // InitMetricsFromSfntTables or equivalent platform code
+     void CalculateDerivedMetrics(Metrics& aMetrics);
+ 
++    // Helper for subclasses that want to initialize standard metrics from the
++    // tables of sfnt (TrueType/OpenType) fonts.
++    PRBool InitMetricsFromSfntTables(Metrics& aMetrics, gfxFloat aSize);
++
++    // Helper to calculate various derived metrics from the results of
++    // InitMetricsFromSfntTables or equivalent platform code
++    void CalculateDerivedMetrics(Metrics& aMetrics);
++
+     // some fonts have bad metrics, this method sanitize them.
+     // if this font has bad underline offset, aIsBadUnderlineFont should be true.
+     void SanitizeMetrics(gfxFont::Metrics *aMetrics, PRBool aIsBadUnderlineFont);
+diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
+--- a/gfx/thebes/gfxPlatformMac.cpp
++++ b/gfx/thebes/gfxPlatformMac.cpp
 @@ -42,8 +42,14 @@
  #include "gfxQuartzSurface.h"
  #include "gfxQuartzImageSurface.h"
@@ -587,6 +518,36 @@ diff --git a/gfx/thebes/src/gfxPlatformMac.cpp b/gfx/thebes/src/gfxPlatformMac.c
 +    return nsnull;
 +#endif // MOZ_WIDGET_COCOA
  }
+diff --git a/gfx/thebes/gfxQuartzPDFSurface.h b/gfx/thebes/gfxQuartzPDFSurface.h
+--- a/gfx/thebes/gfxQuartzPDFSurface.h
++++ b/gfx/thebes/gfxQuartzPDFSurface.h
+@@ -41,7 +41,11 @@
+ #include "gfxASurface.h"
+ #include "gfxContext.h"
+ 
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ class THEBES_API gfxQuartzPDFSurface : public gfxASurface {
+ public:
+diff --git a/gfx/thebes/gfxQuartzSurface.h b/gfx/thebes/gfxQuartzSurface.h
+--- a/gfx/thebes/gfxQuartzSurface.h
++++ b/gfx/thebes/gfxQuartzSurface.h
+@@ -42,7 +42,11 @@
+ #include "gfxASurface.h"
+ #include "gfxImageSurface.h"
+ 
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
++#else
++#include <CoreGraphics/CoreGraphics.h>
++#endif
+ 
+ class gfxContext;
+ 
 diff --git a/gfx/thebes/src/gfxUIKitFont.h b/gfx/thebes/src/gfxUIKitFont.h
 new file mode 100644
 --- /dev/null

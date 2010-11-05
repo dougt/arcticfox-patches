@@ -1,28 +1,7 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID 07e4d3a5d9df615ae31cf0aa0cf134e7cd672dba
-# Parent  f7bdb4dc170100e0165709ee0d7a87bcbe34e38f
+# Node ID 4ca5b4d720ca01676da01f529e107aa331ac0427
+# Parent  22b5096f18246541f8067e653a887721914b0b43
 imported patch chrome-registry-cocoa
 
-diff --git a/chrome/src/nsChromeRegistry.cpp b/chrome/src/nsChromeRegistry.cpp
---- a/chrome/src/nsChromeRegistry.cpp
-+++ b/chrome/src/nsChromeRegistry.cpp
-@@ -47,7 +47,7 @@
- #include "prprf.h"
- #if defined(XP_WIN)
- #include <windows.h>
--#elif defined(XP_MACOSX)
-+#elif defined(MOZ_WIDGET_COCOA)
- #include <CoreServices/CoreServices.h>
- #elif defined(MOZ_WIDGET_GTK2)
- #include <gtk/gtk.h>
-@@ -1669,7 +1669,7 @@
-                                          info.dwMajorVersion,
-                                          info.dwMinorVersion);
-   }
--#elif defined(XP_MACOSX)
-+#elif defined(MOZ_WIDGET_COCOA)
-   SInt32 majorVersion, minorVersion;
-   if ((Gestalt(gestaltSystemVersionMajor, &majorVersion) == noErr) &&
-       (Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
