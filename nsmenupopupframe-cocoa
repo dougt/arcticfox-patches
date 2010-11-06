@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 2264357567547bb80480ec6062c55a7151008ad5
-# Parent  3d2ed0833bbfb77dbbbf292220d3423645ca6342
+# Node ID 2bd7f5fe5ec0295ded8d265babf0029c42239bba
+# Parent  c7eec4a6b61848194dce152809ffca8d4473ca52
 imported patch nsmenupopupframe-cocoa
 
 diff --git a/layout/xul/base/src/nsMenuPopupFrame.cpp b/layout/xul/base/src/nsMenuPopupFrame.cpp

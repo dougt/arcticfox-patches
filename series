@@ -10,12 +10,10 @@ uikit-http-user-agent
 uikit-skip-applefiledecoder
 exthandler-uikit-skip-plugins
 script-security-manager-plugins
-bug-532533-font-metrics.patch
 thebes-uikit
 npapi-uikit
 event-state-manager-uikit
 plugin-utils
-chrome-registry-cocoa
 webbrowserfind-cocoa
 nsprofilelock-uikit
 downloadmanager-uikit
@@ -28,7 +26,6 @@ exthandler-cocoa
 cairo-quartz-uikit
 libxul-makefile
 nsobjectframe-ifdefs
-domclassinfo-media
 exthandler-uikit
 static-xul-components
 nsnetmodule-cocoa
@@ -58,9 +55,7 @@ nss-arm-darwin
 fix-packaging
 em-restart-workaround
 xpconnect-assertions
-mozconfig-extra
 chrome-registry-extra
-media-oops
-thebes-extra
-xre-oops
-xpcom-extra
+contentutils-extra
+canvaslayerogl
+layout-extra

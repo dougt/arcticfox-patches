@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID 705995cfc81b44ad0af58e9f8db4f08bb438a881
-# Parent  b9cd7371c29b55766574c341b20f4700db27ce64
+# Node ID 654515b5336d3b87a6d2b653bb828fca5f433441
+# Parent cc2f5f05e302887abb151e8cc9fbedf50434d5c7
 imported patch browser-uikit
 
 diff --git a/browser/app/Info.plist b/browser/app/Info.plist
@@ -270,6 +270,34 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsSafariProfileMigrator)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsOmniWebProfileMigrator)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacIEProfileMigrator)
+@@ -128,11 +127,11 @@
+ #endif
+ NS_DEFINE_NAMED_CID(NS_FEEDSNIFFER_CID);
+ NS_DEFINE_NAMED_CID(NS_BROWSER_ABOUT_REDIRECTOR_CID);
+-#ifndef WINCE
++#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
+ NS_DEFINE_NAMED_CID(NS_FIREFOX_PROFILEMIGRATOR_CID);
+ #if defined(XP_WIN) && !defined(__MINGW32__)
+ NS_DEFINE_NAMED_CID(NS_WINIEPROFILEMIGRATOR_CID);
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ NS_DEFINE_NAMED_CID(NS_SHELLSERVICE_CID);
+ NS_DEFINE_NAMED_CID(NS_SAFARIPROFILEMIGRATOR_CID);
+ NS_DEFINE_NAMED_CID(NS_MACIEPROFILEMIGRATOR_CID);
+@@ -160,11 +159,11 @@
+ #endif
+     { &kNS_FEEDSNIFFER_CID, false, NULL, nsFeedSnifferConstructor },
+     { &kNS_BROWSER_ABOUT_REDIRECTOR_CID, false, NULL, AboutRedirector::Create },
+-#ifndef WINCE
++#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
+     { &kNS_FIREFOX_PROFILEMIGRATOR_CID, false, NULL, nsProfileMigratorConstructor },
+ #if defined(XP_WIN) && !defined(__MINGW32__)
+     { &kNS_WINIEPROFILEMIGRATOR_CID, false, NULL, nsIEProfileMigratorConstructor },
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+     { &kNS_SHELLSERVICE_CID, false, NULL, nsMacShellServiceConstructor },
+     { &kNS_SAFARIPROFILEMIGRATOR_CID, false, NULL, nsSafariProfileMigratorConstructor },
+     { &kNS_MACIEPROFILEMIGRATOR_CID, false, NULL, nsMacIEProfileMigratorConstructor },
 @@ -202,11 +201,11 @@
      { NS_ABOUT_MODULE_CONTRACTID_PREFIX "rights", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },
      { NS_ABOUT_MODULE_CONTRACTID_PREFIX "robots", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },

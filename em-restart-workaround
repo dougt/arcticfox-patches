@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962719 14400
-# Node ID 41a2694d1aa803d1feb396ebbad678b885761019
-# Parent  5ad8482c1a89e1e0d85fc4788be1e9a4ac6e637e
+# Node ID 851c47af2040ea541ffd46667aaa66409718310c
+# Parent  4d9a2a19dbbade4e5a1ccb2dcd87ab31c9300832
 imported patch em-restart-workaround
 
 diff --git a/browser/app/nsBrowserApp.cpp b/browser/app/nsBrowserApp.cpp

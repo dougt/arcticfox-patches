@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID bde777ea67f9db87c537c61f3e03cc63dd814e06
-# Parent  f47db0ad4ba3ff66b184eb1d898ee439aff99d2c
+# Node ID a3c88b07ef992bc42fbd010d793ac50f289e0481
+# Parent  fbfa5f859041e24f50652b3373a4f1b182ad25df
 imported patch browser-xul-hax
 
 diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/baseMenuOverlay.xul
@@ -375,7 +375,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    let editMenuPopupState = document.getElementById("menu_EditPopup").state;
    let contextMenuPopupState = document.getElementById("contentAreaContextMenu").state;
    let placesContextMenuPopupState = document.getElementById("placesContext").state;
-@@ -5114,7 +5114,7 @@
+@@ -5103,7 +5103,7 @@
  
    switch (event.button) {
      case 0:    // if left button clicked
@@ -384,7 +384,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
        if (event.metaKey) { // Cmd
  #else
        if (event.ctrlKey) {
-@@ -5831,7 +5831,7 @@
+@@ -5820,7 +5820,7 @@
  
    os.notifyObservers(null, "browser-lastwindow-close-granted", null);
  
@@ -393,7 +393,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // OS X doesn't quit the application when the last window is closed, but keeps
    // the session alive. Hence don't prompt users to save tabs, but warn about
    // closing multiple tabs.
-@@ -7356,7 +7356,7 @@
+@@ -7345,7 +7345,7 @@
  
      var appName = brandBundle.GetStringFromName("brandShortName");
  # On Mac, use the header as the title.

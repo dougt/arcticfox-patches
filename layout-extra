@@ -1,0 +1,108 @@
+# HG changeset patch
+# Parent 71e0c7e2482c2246cbb6e683c3f32fc9d87fa41c
+diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
+--- a/layout/build/nsLayoutModule.cpp
++++ b/layout/build/nsLayoutModule.cpp
+@@ -282,12 +282,15 @@
+ #endif
+ 
+ #include "nsGeolocation.h"
++//XXX: bug 575206
++#ifndef MOZ_WIDGET_UIKIT
+ #if defined(XP_UNIX)    || \
+     defined(_WINDOWS)   || \
+     defined(machintosh) || \
+     defined(android)
+ #include "nsAccelerometerSystem.h"
+ #endif
++#endif
+ #include "nsCSPService.h"
+ 
+ // Transformiix
+@@ -320,12 +323,15 @@
+ NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(nsDOMStorageManager,
+                                          nsDOMStorageManager::GetInstance)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsChannelPolicy)
++//XXX bug 575206
++#ifndef MOZ_WIDGET_UIKIT
+ #if defined(XP_UNIX)    || \
+     defined(_WINDOWS)   || \
+     defined(machintosh) || \
+     defined(android)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAccelerometerSystem)
+ #endif
++#endif
+ 
+ //-----------------------------------------------------------------------------
+ 
+@@ -875,12 +881,15 @@
+ NS_DEFINE_NAMED_CID(NS_NULLPRINCIPAL_CID);
+ NS_DEFINE_NAMED_CID(NS_SECURITYNAMESET_CID);
+ 
++//XXX bug 575206
++#ifndef MOZ_WIDGET_UIKIT
+ #if defined(XP_UNIX)    || \
+     defined(_WINDOWS)   || \
+     defined(machintosh) || \
+     defined(android)
+ NS_DEFINE_NAMED_CID(NS_ACCELEROMETER_CID);
+ #endif
++#endif
+ 
+ static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
+   XPCONNECT_CIDENTRIES
+@@ -1024,12 +1033,15 @@
+   { &kNS_SYSTEMPRINCIPAL_CID, false, NULL, nsSystemPrincipalConstructor },
+   { &kNS_NULLPRINCIPAL_CID, false, NULL, nsNullPrincipalConstructor },
+   { &kNS_SECURITYNAMESET_CID, false, NULL, nsSecurityNameSetConstructor },
++//XXX bug 575206
++#ifndef MOZ_WIDGET_UIKIT
+ #if defined(XP_UNIX)    || \
+     defined(_WINDOWS)   || \
+     defined(machintosh) || \
+     defined(android)
+   { &kNS_ACCELEROMETER_CID, false, NULL, nsAccelerometerSystemConstructor },
+ #endif
++#endif
+   { NULL }
+ };
+ 
+@@ -1169,12 +1181,15 @@
+   { NS_SYSTEMPRINCIPAL_CONTRACTID, &kNS_SYSTEMPRINCIPAL_CID },
+   { NS_NULLPRINCIPAL_CONTRACTID, &kNS_NULLPRINCIPAL_CID },
+   { NS_SECURITYNAMESET_CONTRACTID, &kNS_SECURITYNAMESET_CID },
++//XXX bug 575206
++#ifndef MOZ_WIDGET_UIKIT
+ #if defined(XP_UNIX)    || \
+     defined(_WINDOWS)   || \
+     defined(machintosh) || \
+     defined(android)
+   { NS_ACCELEROMETER_CONTRACTID, &kNS_ACCELEROMETER_CID },
+ #endif
++#endif
+   { NULL }
+ };
+ 
+diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
+--- a/layout/generic/nsObjectFrame.cpp
++++ b/layout/generic/nsObjectFrame.cpp
+@@ -463,8 +463,8 @@
+   NP_Port                                   mQDPluginPortCopy;
+ #endif
+   PRInt32                                   mInCGPaintLevel;
++#ifdef MOZ_WIDGET_COCOA
+   nsIOSurface                              *mIOSurface;
+-#ifdef MOZ_WIDGET_COCOA
+   nsCARenderer                              mCARenderer;
+ #endif
+   static nsCOMPtr<nsITimer>                *sCATimer;
+@@ -2507,7 +2507,9 @@
+ #endif
+   mInCGPaintLevel = 0;
+   mSentInitialTopLevelWindowEvent = PR_FALSE;
++#ifdef MOZ_WIDGET_COCOA
+   mIOSurface = nsnull;
++#endif
+   mPluginPortChanged = PR_FALSE;
+ #endif
+   mContentFocused = PR_FALSE;

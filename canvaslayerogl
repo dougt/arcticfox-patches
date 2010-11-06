@@ -1,0 +1,23 @@
+# HG changeset patch
+# Parent 2f910291a82438065951e9a53b987135ab6ccb38
+diff --git a/gfx/layers/opengl/CanvasLayerOGL.cpp b/gfx/layers/opengl/CanvasLayerOGL.cpp
+--- a/gfx/layers/opengl/CanvasLayerOGL.cpp
++++ b/gfx/layers/opengl/CanvasLayerOGL.cpp
+@@ -46,7 +46,7 @@
+ #include "WGLLibrary.h"
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <OpenGL/OpenGL.h>
+ #endif
+ 
+@@ -216,7 +216,7 @@
+       mUpdatedRect = mBounds;
+     }
+ 
+-#if defined(XP_MACOSX)
++#if defined(MOZ_WIDGET_COCOA)
+     // We only need to do this for the first time we set up the texture
+     if (newTexture) {
+       CGLError err;

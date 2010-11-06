@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 0d489c9ffb730eb11ddc13699ef50f69074150c9
-# Parent  4dd867c7906d5f03985ae0638826e95c107cbba8
+# Node ID fa39c8580292cab00e2cb85a15c67bc24c2213f9
+# Parent  607c11f8b7d9e2e934dd491ec7d3fb5a3f841593
 imported patch commandline-uikit
 
 diff --git a/toolkit/components/commandlines/src/nsCommandLine.cpp b/toolkit/components/commandlines/src/nsCommandLine.cpp

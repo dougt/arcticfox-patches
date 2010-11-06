@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 5ad8482c1a89e1e0d85fc4788be1e9a4ac6e637e
-# Parent  b1f98d4cac0478aa88cce5ab5b408f8aa2862e18
+# Node ID 4d9a2a19dbbade4e5a1ccb2dcd87ab31c9300832
+# Parent  2e86e79cdd1fc042e6653d8e4ad06be1f7414faf
 imported patch fix-packaging
 
 diff --git a/toolkit/mozapps/installer/packager.mk b/toolkit/mozapps/installer/packager.mk

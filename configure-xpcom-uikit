@@ -1,9 +1,11 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID 649ddb9e13546cce4acc453d80fb3517429ba13f
-# Parent  f70533ba55d1e33c5c320a091b5ffaaa6947805c
+# Node ID 1a87e954e46d265abbeb16c0357356fab81fa5d7
+# Parent 12cd10934d2d3aa8eaf4b7ac2c0ccfd1310aedea
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
+* * *
+imported patch xpcom-extra
 
 diff --git a/config/config.mk b/config/config.mk
 --- a/config/config.mk
@@ -153,6 +155,18 @@ diff --git a/xpcom/build/XPCOM.h b/xpcom/build/XPCOM.h
  #include "nsILocalFileMac.h"
  #include "nsIMacUtils.h"
  #endif
+diff --git a/xpcom/build/XPCOMModule.inc b/xpcom/build/XPCOMModule.inc
+--- a/xpcom/build/XPCOMModule.inc
++++ b/xpcom/build/XPCOMModule.inc
+@@ -80,7 +80,7 @@
+     COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor)
+ #endif
+ 
+-#ifdef XP_MACOSX
++#if defined(MOZ_WIDGET_COCOA)
+     COMPONENT(MACUTILSIMPL, nsMacUtilsImplConstructor)
+ #endif
+ 
 diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
 --- a/xpcom/build/nsXPComInit.cpp
 +++ b/xpcom/build/nsXPComInit.cpp
@@ -174,6 +188,27 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacUtilsImpl)
  #endif
  
+diff --git a/xpcom/components/ManifestParser.cpp b/xpcom/components/ManifestParser.cpp
+--- a/xpcom/components/ManifestParser.cpp
++++ b/xpcom/components/ManifestParser.cpp
+@@ -43,7 +43,7 @@
+ #include "prprf.h"
+ #if defined(XP_WIN)
+ #include <windows.h>
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+ #include <CoreServices/CoreServices.h>
+ #elif defined(MOZ_WIDGET_GTK2)
+ #include <gtk/gtk.h>
+@@ -471,7 +471,7 @@
+                                          info.dwMajorVersion,
+                                          info.dwMinorVersion);
+   }
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+   SInt32 majorVersion, minorVersion;
+   if ((Gestalt(gestaltSystemVersionMajor, &majorVersion) == noErr) &&
+       (Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
 diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirectory.cpp
 --- a/xpcom/io/SpecialSystemDirectory.cpp
 +++ b/xpcom/io/SpecialSystemDirectory.cpp

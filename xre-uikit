@@ -1,14 +1,16 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID ef8d4a1d5c09c94a597fc583ffaea7370bf9e211
-# Parent  0d489c9ffb730eb11ddc13699ef50f69074150c9
+# Node ID 44ad310283e49794b6b53f8f8b534abc906e4ee7
+# Parent d5a03ebdb158da908cab5dcfa257a5c9932b1cd5
 imported patch xre-uikit
+* * *
+imported patch xre-oops
 
 diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
 --- a/toolkit/xre/Makefile.in
 +++ b/toolkit/xre/Makefile.in
-@@ -116,8 +116,11 @@
+@@ -116,12 +116,16 @@
  endif
  
  ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
@@ -22,9 +24,23 @@ diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
  CMMSRCS += MacAutoreleasePool.mm
  CPPSRCS += nsCommandLineServiceMac.cpp
  OS_CXXFLAGS += -fexceptions
+ endif
++endif
+ 
+ ifdef MOZ_X11
+ CPPSRCS += nsX11ErrorHandler.cpp
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
+@@ -56,7 +56,7 @@
+ #include "nsAppRunner.h"
+ #include "nsUpdateDriver.h"
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "MacLaunchHelper.h"
+ #include "MacApplicationDelegate.h"
+ #include "MacAutoreleasePool.h"
 @@ -169,7 +169,7 @@
  #include "nsThreadUtils.h"
  #endif
@@ -50,6 +66,15 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #ifdef DEBUG
  #include "prlog.h"
  #endif
+@@ -1065,7 +1069,7 @@
+   NS_IF_RELEASE(gNativeAppSupport);
+ 
+   if (mServiceManager) {
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     // On OS X, we need a pool to catch cocoa objects that are autoreleased
+     // during teardown.
+     mozilla::MacAutoreleasePool pool;
 @@ -1491,11 +1495,6 @@
      return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
                                   aResult);

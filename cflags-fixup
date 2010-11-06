@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID e1326266df06c6a0ce5d678620fe44972997e3c6
-# Parent  4d19f78eaffb3a3c2330eef722d2d5ca0b740f0c
+# Node ID 83d183d32880cf8b376a26262602c00e423c1ede
+# Parent  8a05f8b28742ed83938488ab9d646e58c652971e
 imported patch cflags-fixup
 
 diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig

@@ -1,13 +1,15 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 170ee3c51a9f1403ea6b48d4f3c9507ceef2f8af
-# Parent  ea6292e3cf155e582833b5474ca8865fa08cc3a6
+# Node ID 37caae1e58336d97ffe999a9bdaa5c559858bcad
+# Parent 843fc111bc1311a1940544c47c3d3f3303089d95
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
 * * *
 fix font metrics
+* * *
+imported patch thebes-extra
 
 diff --git a/gfx/src/thebes/Makefile.in b/gfx/src/thebes/Makefile.in
 --- a/gfx/src/thebes/Makefile.in
@@ -270,6 +272,51 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
  #elif defined(MOZ_WIDGET_QT)
          gSystemFonts = new nsSystemFontsQt();
  #elif defined(ANDROID)
+diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
+--- a/gfx/thebes/Makefile.in
++++ b/gfx/thebes/Makefile.in
+@@ -72,7 +72,7 @@
+ 	$(NULL)
+ endif
+ 
+-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ EXPORTS += \
+ 	gfxPlatformMac.h \
+ 	gfxQuartzSurface.h \
+@@ -348,20 +348,29 @@
+ EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
+ endif
+ 
+-ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
+ CPPSRCS	+= \
+ 	gfxQuartzSurface.cpp \
+ 	gfxQuartzImageSurface.cpp \
+ 	gfxQuartzPDFSurface.cpp \
+ 	gfxPlatformMac.cpp \
+-	gfxMacFont.cpp \
+ 	gfxCoreTextShaper.cpp \
+ 	$(NULL)
+ #CPPSRCS +=	gfxPDFSurface.cpp
+ CPPSRCS +=      nsUnicodeRange.cpp
+ CPPSRCS +=      gfxQuartzNativeDrawing.cpp
+ 
+-CMMSRCS = gfxMacPlatformFontList.mm
++ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
++CPPSRCS += gfxMacFont.cpp
++CMMSRCS += gfxMacPlatformFontList.mm
++endif
++
++ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
++CMMSRCS += \
++  gfxUIKitPlatformFontList.mm \
++  gfxUIKitFont.mm \
++  $(NULL)
++endif
+ 
+ # Always link with OpenGL/AGL
+ EXTRA_DSO_LDOPTS += -framework OpenGL -framework AGL -framework QuickTime -framework AppKit
 diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
 --- a/gfx/thebes/gfxCoreTextShaper.cpp
 +++ b/gfx/thebes/gfxCoreTextShaper.cpp
@@ -421,21 +468,6 @@ diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
      friend class gfxFcFontEntry;
      friend class gfxFontFamily;
      friend class gfxSingleFaceMacFontFamily;
-@@ -1117,6 +1118,14 @@
-     // InitMetricsFromSfntTables or equivalent platform code
-     void CalculateDerivedMetrics(Metrics& aMetrics);
- 
-+    // Helper for subclasses that want to initialize standard metrics from the
-+    // tables of sfnt (TrueType/OpenType) fonts.
-+    PRBool InitMetricsFromSfntTables(Metrics& aMetrics, gfxFloat aSize);
-+
-+    // Helper to calculate various derived metrics from the results of
-+    // InitMetricsFromSfntTables or equivalent platform code
-+    void CalculateDerivedMetrics(Metrics& aMetrics);
-+
-     // some fonts have bad metrics, this method sanitize them.
-     // if this font has bad underline offset, aIsBadUnderlineFont should be true.
-     void SanitizeMetrics(gfxFont::Metrics *aMetrics, PRBool aIsBadUnderlineFont);
 diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
 --- a/gfx/thebes/gfxPlatformMac.cpp
 +++ b/gfx/thebes/gfxPlatformMac.cpp
@@ -548,11 +580,11 @@ diff --git a/gfx/thebes/gfxQuartzSurface.h b/gfx/thebes/gfxQuartzSurface.h
  
  class gfxContext;
  
-diff --git a/gfx/thebes/src/gfxUIKitFont.h b/gfx/thebes/src/gfxUIKitFont.h
+diff --git a/gfx/thebes/gfxUIKitFont.h b/gfx/thebes/gfxUIKitFont.h
 new file mode 100644
 --- /dev/null
-+++ b/gfx/thebes/src/gfxUIKitFont.h
-@@ -0,0 +1,91 @@
++++ b/gfx/thebes/gfxUIKitFont.h
+@@ -0,0 +1,93 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -627,6 +659,8 @@ new file mode 100644
 +    virtual PRBool SetupCairoFont(gfxContext *aContext);
 +
 +protected:
++    virtual void CreatePlatformShaper();
++
 +    void InitMetrics(CTFontRef aCTFont, gfxFloat size);
 +
 +    float GetCharWidth(CTFontRef aCTFont, PRUnichar aUniChar,
@@ -644,11 +678,11 @@ new file mode 100644
 +};
 +
 +#endif /* GFX_MACFONT_H */
-diff --git a/gfx/thebes/src/gfxUIKitFont.mm b/gfx/thebes/src/gfxUIKitFont.mm
+diff --git a/gfx/thebes/gfxUIKitFont.mm b/gfx/thebes/gfxUIKitFont.mm
 new file mode 100644
 --- /dev/null
-+++ b/gfx/thebes/src/gfxUIKitFont.mm
-@@ -0,0 +1,246 @@
++++ b/gfx/thebes/gfxUIKitFont.mm
+@@ -0,0 +1,250 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -760,8 +794,6 @@ new file mode 100644
 +        NS_WARNING(warnBuf);
 +#endif
 +    }
-+
-+    mShaper = new gfxCoreTextShaper(this);
 +}
 +
 +gfxUIKitFont::~gfxUIKitFont()
@@ -773,6 +805,12 @@ new file mode 100644
 +    if (mFontFace) {
 +        cairo_font_face_destroy(mFontFace);
 +    }
++}
++
++void
++gfxUIKitFont::CreatePlatformShaper()
++{
++    mPlatformShaper = new gfxCoreTextShaper(this);
 +}
 +
 +PRBool
@@ -794,7 +832,7 @@ new file mode 100644
 +    ::memset(&mMetrics, 0, sizeof(mMetrics));
 +
 +    mAdjustedSize = PR_MAX(mStyle.size, 1.0f);
-+    if (!InitMetricsFromSfntTables(mMetrics, mAdjustedSize)) {
++    if (!InitMetricsFromSfntTables(mMetrics)) {
 +        return;
 +    }
 +
@@ -812,7 +850,7 @@ new file mode 100644
 +        mAdjustedSize = mStyle.GetAdjustedSize(aspect);
 +        mMetrics.xHeight = 0.0;
 +
-+        if (!InitMetricsFromSfntTables(mMetrics, mAdjustedSize)) {
++        if (!InitMetricsFromSfntTables(mMetrics)) {
 +            return;
 +        }
 +        if (mMetrics.xHeight == 0.0) {
@@ -895,10 +933,10 @@ new file mode 100644
 +
 +    return 0;
 +}
-diff --git a/gfx/thebes/src/gfxUIKitPlatformFontList.h b/gfx/thebes/src/gfxUIKitPlatformFontList.h
+diff --git a/gfx/thebes/gfxUIKitPlatformFontList.h b/gfx/thebes/gfxUIKitPlatformFontList.h
 new file mode 100644
 --- /dev/null
-+++ b/gfx/thebes/src/gfxUIKitPlatformFontList.h
++++ b/gfx/thebes/gfxUIKitPlatformFontList.h
 @@ -0,0 +1,118 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
@@ -1018,11 +1056,11 @@ new file mode 100644
 +};
 +
 +#endif /* gfxUIKitPlatformFontList_H_ */
-diff --git a/gfx/thebes/src/gfxUIKitPlatformFontList.mm b/gfx/thebes/src/gfxUIKitPlatformFontList.mm
+diff --git a/gfx/thebes/gfxUIKitPlatformFontList.mm b/gfx/thebes/gfxUIKitPlatformFontList.mm
 new file mode 100644
 --- /dev/null
-+++ b/gfx/thebes/src/gfxUIKitPlatformFontList.mm
-@@ -0,0 +1,495 @@
++++ b/gfx/thebes/gfxUIKitPlatformFontList.mm
+@@ -0,0 +1,496 @@
 +/* -*- Mode: ObjC; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: BSD
@@ -1192,7 +1230,8 @@ new file mode 100644
 +
 +    PRPackedBool  unicodeFont, symbolFont; // currently ignored
 +    nsresult rv = gfxFontUtils::ReadCMAP(cmap.Elements(), cmap.Length(),
-+                                         mCharacterMap, unicodeFont, symbolFont);
++                                         mCharacterMap, mUVSOffset,
++                                         unicodeFont, symbolFont);
 +
 +    if (NS_FAILED(rv)) {
 +        mCharacterMap.reset();
