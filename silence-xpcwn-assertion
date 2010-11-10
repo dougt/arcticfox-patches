@@ -1,0 +1,16 @@
+# HG changeset patch
+# Parent 2014505a0235d450753591f184a026d1ae199046
+diff --git a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
+--- a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
++++ b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
+@@ -261,7 +261,9 @@
+     NS_ENSURE_TRUE(info, nsnull);
+ 
+     iface = NewInstance(ccx, info);
+-    NS_ENSURE_TRUE(iface, nsnull);
++    //NS_ENSURE_TRUE(iface, nsnull);
++    if (!iface)
++        return nsnull;
+ 
+     {   // scoped lock
+         XPCAutoLock lock(rt->GetMapLock());

@@ -2,7 +2,7 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
 # Node ID 8a05f8b28742ed83938488ab9d646e58c652971e
-# Parent 2398073b2fd365653cec732974ba3d547df514f5
+# Parent 607eeb87c4462df98976d59abc13fce2888c6191
 UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
@@ -119,7 +119,7 @@ diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.h
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,88 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -170,6 +170,7 @@ new file mode 100644
 +
 +#include <Foundation/NSAutoreleasePool.h>
 +#include <CoreFoundation/CFRunLoop.h>
++#include <UIKit/UIWindow.h>
 +
 +@class AppShellDelegate;
 +
@@ -188,6 +189,7 @@ new file mode 100644
 +  void WillTerminate(void);
 +
 +  static nsAppShell* gAppShell;
++  static UIWindow* gWindow;
 +
 +protected:
 +  virtual ~nsAppShell();
@@ -210,7 +212,7 @@ diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsAppShell.mm
-@@ -0,0 +1,252 @@
+@@ -0,0 +1,273 @@
 +/* -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -233,6 +235,7 @@ new file mode 100644
 + *
 + * Contributor(s):
 + *  Mark Mentovai <mark@moxienet.com> (Original Author)
++ *  Ted Mielczarek <ted.mielczarek@gmail.com>
 + *
 + * Alternatively, the contents of this file may be used under the terms of
 + * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -249,6 +252,8 @@ new file mode 100644
 + * ***** END LICENSE BLOCK ***** */
 +
 +#import <UIKit/UIApplication.h>
++#import <UIKit/UIScreen.h>
++#import <UIKit/UIWindow.h>
 +
 +#include "nsAppShell.h"
 +#include "nsCOMPtr.h"
@@ -264,6 +269,9 @@ new file mode 100644
 +#include "nsIWebBrowserChrome.h"
 +
 +nsAppShell *nsAppShell::gAppShell = NULL;
++UIWindow *nsAppShell::gWindow = nil; 
++
++#define ALOG(args...) printf(args); printf("\n")
 +
 +// AppShellDelegate
 +//
@@ -274,26 +282,40 @@ new file mode 100644
 +@end
 +
 +@implementation AppShellDelegate
++
 +- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 +{
++  ALOG("[AppShellDelegate application:didFinishLaunchingWithOptions:]");
++  // We only create one window, since we can only display one window at
++  // a time anyway. Also, iOS 4 fails to display UIWindows if you
++  // create them before calling UIApplicationMain, so this makes more sense.
++  nsAppShell::gWindow = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] retain];
++  // just to make things more visible for now
++  nsAppShell::gWindow.backgroundColor = [UIColor blueColor];
++  [nsAppShell::gWindow makeKeyAndVisible];
++
 +  return YES;
 +}
 +
 +- (void)applicationWillTerminate:(UIApplication *)application
 +{
++  ALOG("[AppShellDelegate applicationWillTerminate:]");
 +  nsAppShell::gAppShell->WillTerminate();
 +}
 +
 +- (void)applicationDidBecomeActive:(UIApplication *)application
 +{
++  ALOG("[AppShellDelegate applicationDidBecomeActive:]");
 +}
 +
 +- (void)applicationWillResignActive:(UIApplication *)application
 +{
++  ALOG("[AppShellDelegate applicationWillResignActive:]");
 +}
 +
 +- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 +{
++  ALOG("[AppShellDelegate applicationDidReceiveMemoryWarning:]");
 +}
 +@end
 +
@@ -448,6 +470,7 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsAppShell::Run(void)
 +{
++  ALOG("nsAppShell::Run");
 +  char *argv[1] = {"app"};
 +  UIApplicationMain(1, argv, nil, @"AppShellDelegate");
 +  // UIApplicationMain doesn't exit. :-(
@@ -1102,7 +1125,7 @@ diff --git a/widget/src/uikit/nsScreenManager.mm b/widget/src/uikit/nsScreenMana
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsScreenManager.mm
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,141 @@
 +/* -*- Mode: C++; tab-width: 40; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 +/* ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1208,12 +1231,6 @@ new file mode 100644
 +    gScreenBounds.y = rect.origin.y;
 +    gScreenBounds.width = rect.size.width;
 +    gScreenBounds.height = rect.size.height;
-+    if (rect.size.height == [[UIScreen mainScreen] bounds].size.height) {
-+        // try to subtract out the status bar frame
-+        // screw you UIKit
-+        gScreenBounds.y += 20;
-+        gScreenBounds.height -= 20;
-+    }
 +    printf("nsScreenManager::GetBounds: %d %d %d %d\n",
 +           gScreenBounds.x, gScreenBounds.y, gScreenBounds.width, gScreenBounds.height);
 +    return gScreenBounds;
@@ -1520,7 +1537,7 @@ diff --git a/widget/src/uikit/nsWindow.h b/widget/src/uikit/nsWindow.h
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.h
-@@ -0,0 +1,175 @@
+@@ -0,0 +1,180 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1574,6 +1591,8 @@ new file mode 100644
 +class nsWindow :
 +    public nsBaseWidget
 +{
++    typedef nsBaseWidget Inherited;
++
 +public:
 +    nsWindow();
 +    virtual ~nsWindow();
@@ -1661,8 +1680,14 @@ new file mode 100644
 +    NS_IMETHOD GetAttention(PRInt32 aCycleCount) { return NS_ERROR_NOT_IMPLEMENTED; }
 +    NS_IMETHOD BeginResizeDrag(nsGUIEvent* aEvent, PRInt32 aHorizontal, PRInt32 aVertical) { return NS_ERROR_NOT_IMPLEMENTED; }
 +
-+    NS_IMETHOD SetIMEEnabled(PRUint32 aState) { return NS_ERROR_NOT_IMPLEMENTED; };
-+    NS_IMETHOD GetIMEEnabled(PRUint32* aState) { return NS_ERROR_NOT_IMPLEMENTED; };
++    NS_IMETHOD SetIMEEnabled(PRUint32 aState) {
++        printf("SetIMEEnabled[%p](%d)\n", this, aState);
++        return NS_ERROR_NOT_IMPLEMENTED;
++    };
++    NS_IMETHOD GetIMEEnabled(PRUint32* aState) {
++        printf("GetIMEEnabled[%p]\n", this);
++        return NS_ERROR_NOT_IMPLEMENTED;
++    };
 +
 +    gfxASurface* GetThebesSurface();
 +
@@ -1679,9 +1704,6 @@ new file mode 100644
 +
 +    void TearDownView();
 +
-+    // This will be NULL for non-top-level windows
-+    UIWindow* mNativeWindow;
-+    // UIWindow subclasses UIView, so this is always valid
 +    ChildView*   mNativeView;
 +    PRPackedBool mVisible;
 +    nsTArray<nsWindow*> mChildren;
@@ -1700,7 +1722,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,780 @@
+@@ -0,0 +1,785 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1816,6 +1838,8 @@ new file mode 100644
 +      mGeckoChild = inChild;
 +    }
 +    ALOG("[ChildView[%p] initWithFrame:] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
++    self.opaque = YES;
++    self.alpha = 1.0;
 +    return self;
 +}
 +
@@ -1839,6 +1863,7 @@ new file mode 100644
 +
 +- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 +{
++    ALOG("[ChildView[%p] touchesBegan", self);
 +    if (!mGeckoChild)
 +        return;
 +
@@ -1917,11 +1942,11 @@ new file mode 100644
 +// gecko to paint it
 +- (void)drawRect:(CGRect)aRect
 +{
-+  ALOG("[ChildView[%p] drawRect:] (mGeckoChild = %p)", (void*)self, (void*)mGeckoChild);
++    ALOG("[ChildView[%p] drawRect:[%f %f %f %f]] (mGeckoChild = %p)", (void*)self, aRect.origin.x, aRect.origin.y, aRect.size.width, aRect.size.height, (void*)mGeckoChild);
++
 +  if (!mGeckoChild)
 +      return;
 +  CGContextRef cgContext = UIGraphicsGetCurrentContext();
-+  CGAffineTransform xform = CGContextGetCTM(cgContext);
 +
 +  nsPaintEvent paintEvent(PR_TRUE, NS_PAINT, mGeckoChild);
 +  paintEvent.region =
@@ -1937,6 +1962,8 @@ new file mode 100644
 +    paintEvent.region.Sub(paintEvent.region,
 +      nsIntRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height));
 +  }
++
++  //TODO: OpenGL layers
 +
 +  // Create Cairo objects.
 +  CGSize bufferSize = [self bounds].size;
@@ -1959,8 +1986,8 @@ new file mode 100644
 +  nsAutoRetainUIKitObject kungFuDeathGrip(self);
 +  PRBool painted;
 +  {
-+    nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext);
-+    painted = mGeckoChild->DispatchWindowEvent(paintEvent);
++      nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext);
++      painted = mGeckoChild->DispatchWindowEvent(paintEvent);
 +  }
 +
 +  if (!painted && [self isOpaque]) {
@@ -1969,15 +1996,14 @@ new file mode 100644
 +    CGContextSetRGBFillColor(cgContext, 1, 1, 1, 1);
 +    CGContextFillRect(cgContext, CGRectMake(aRect.origin.x, aRect.origin.y,
 +                                            aRect.size.width, aRect.size.height));
-+  }
++    }
 +}
 +@end
 +
 +NS_IMPL_ISUPPORTS_INHERITED0(nsWindow, nsBaseWidget)
 +
 +nsWindow::nsWindow()
-+: mNativeWindow(NULL),
-+  mNativeView(NULL),
++: mNativeView(NULL),
 +  mVisible(PR_FALSE),
 +  mParent(NULL),
 +  mTempThebesSurface(NULL)
@@ -2009,7 +2035,6 @@ new file mode 100644
 +
 +void nsWindow::Redraw()
 +{
-+  ALOG("nsWindow[%p]::Redraw");
 +    [mNativeView setNeedsDisplay];
 +}
 +
@@ -2042,7 +2067,16 @@ new file mode 100644
 +
 +    // for toplevel windows, bounds are fixed to full screen size
 +    if (parent == NULL) {
-+        mBounds = nsScreenManager::GetBounds();
++        if (nsAppShell::gWindow == nil) {
++            mBounds = nsScreenManager::GetBounds();
++        }
++        else {
++            CGRect cgRect = [nsAppShell::gWindow bounds];
++            mBounds.x = cgRect.origin.x;
++            mBounds.y = cgRect.origin.y;
++            mBounds.width = cgRect.size.width;
++            mBounds.height = cgRect.size.height;
++        }
 +    }
 +    else {
 +        mBounds = aRect;
@@ -2051,32 +2085,25 @@ new file mode 100644
 +    ALOG("nsWindow[%p]::Create bounds: %d %d %d %d", (void*)this,
 +         mBounds.x, mBounds.y, mBounds.width, mBounds.height);
 +
-+    BaseCreate(nsnull, mBounds, aHandleEventFunction, aContext,
-+               aAppShell, aToolkit, aInitData);
++    // Set defaults which can be overriden from aInitData in BaseCreate
++    mWindowType = eWindowType_toplevel;
++    mBorderStyle = eBorderStyle_default;
++
++    Inherited::BaseCreate(nsnull, mBounds, aHandleEventFunction, aContext,
++                          aAppShell, aToolkit, aInitData);
 +
 +    NS_ASSERTION(IsTopLevel() || parent, "non top level window doesn't have a parent!");
 +
 +    CGRect cgRect;
-+    cgRect.origin.x = mBounds.x;
-+    cgRect.origin.y = mBounds.y;
-+    cgRect.size.width = mBounds.width;
-+    cgRect.size.height = mBounds.height;
-+
-+    if (IsTopLevel()) {
-+        mNativeWindow = [[UIWindow alloc] initWithFrame:cgRect];
-+        ALOG("nsWindow[%p]::Create: mNativeWindow: %p", (void*)this, (void*)mNativeWindow);
-+    }
-+
-+    mNativeView = [[ChildView alloc] initWithFrame:cgRect geckoChild:this];
++    GeckoRectToCGRect(mBounds, cgRect);
++    mNativeView = [[[ChildView alloc] initWithFrame:cgRect geckoChild:this] retain];
++    //XXX: for easier debugging right now
++    mNativeView.backgroundColor = [UIColor greenColor];
 +    ALOG("nsWindow[%p]::Create: mNativeView: %p", (void*)this, (void*)mNativeView);
-+    if (mNativeWindow)
-+        [mNativeWindow addSubview:mNativeView];
-+
 +    if (parent) {
 +        parent->mChildren.AppendElement(this);
 +        mParent = parent;
 +
-+        ALOG("nsWindow[%p]::Create [aNativeParent(%p) addSubview:%p]", (void*)this, (void*)nativeParent, (void*)mNativeView);
 +        [nativeParent addSubview:mNativeView];
 +    }
 +
@@ -2089,7 +2116,6 @@ new file mode 100644
 +    ALOG("nsWindow[%p]::Destroy (mNativeView = %p)", (void*)this, (void*)mNativeView);
 +    for (PRUint32 i = 0; i < mChildren.Length(); ++i) {
 +        // why do we still have children?
-+        ALOG("### Warning: Destroying window %p and reparenting child %p to null!", (void*)this, (void*)mChildren[i]);
 +        mChildren[i]->SetParent(nsnull);
 +    }
 +
@@ -2105,11 +2131,6 @@ new file mode 100644
 +    TearDownView();
 +
 +    nsBaseWidget::OnDestroy();
-+
-+    if (mNativeWindow) {
-+        [mNativeWindow release];
-+        mNativeWindow = nil;
-+    }
 +
 +    return NS_OK;
 +}
@@ -2145,7 +2166,6 @@ new file mode 100644
 +
 +  if (mParent) {
 +    mParent->mChildren.AppendElement(this);
-+    ALOG("nsWindow[%p]::Create [mParent(%p)->mNativeView(%p) addSubview:%p]", (void*)this, (void*)mParent, (void*)mParent->mNativeView, (void*)mNativeView);
 +    [mParent->mNativeView addSubview:mNativeView];
 +  }
 +  //nsAppShell::ScheduleRedraw(); ?
@@ -2160,10 +2180,19 @@ new file mode 100644
 +NS_IMETHODIMP
 +nsWindow::Show(PRBool aState)
 +{
-+  ALOG("nsWindow[%p]::Show(%d) (toplevel: %d)", (void*)this, aState, mNativeWindow != NULL);
++  ALOG("nsWindow[%p]::Show(%d) (toplevel: %d)", (void*)this, aState, mParent == NULL);
 +  if (aState != mVisible) {
-+    if (mNativeWindow && aState)
-+      [mNativeWindow makeKeyAndVisible];
++      if (aState) {
++          // reparent to the global window
++          if ([nsAppShell::gWindow.subviews count] == 0) {
++              [nsAppShell::gWindow addSubview:mNativeView];
++          }
++          else {
++              [[nsAppShell::gWindow.subviews objectAtIndex:0] removeFromSuperview];
++              [nsAppShell::gWindow addSubview:mNativeView];
++          }
++      }
++
 +    [mNativeView setHidden:!aState];
 +    mVisible = aState;
 +  }
@@ -2309,13 +2338,13 @@ new file mode 100644
 +nsWindow::Invalidate(const nsIntRect &aRect,
 +                     PRBool aIsSynchronous)
 +{
-+  ALOG("nsWindow[%p]::Invalidate");
 +  if (!mNativeView || !mVisible)
 +    return NS_OK;
 +
 +  CGRect r;
 +  GeckoRectToCGRect(aRect, r);
 +  //XXX: handle aIsSynchronous?
++  [mNativeView setNeedsLayout];
 +  [mNativeView setNeedsDisplayInRect:r];
 +
 +  return NS_OK;
@@ -2339,6 +2368,7 @@ new file mode 100644
 +{
 +  ALOG("nsWindow[%p]::SetFocus(%d)", (void*)this, aRaise);
 +  [[mNativeView window] makeKeyWindow];
++  [mNativeView becomeFirstResponder];
 +  return NS_OK;
 +}
 +
@@ -2377,9 +2407,6 @@ new file mode 100644
 +  aRect.y = p.y;
 +  aRect.width = mBounds.width;
 +  aRect.height = mBounds.height;
-+  ALOG("nsWindow[%p]::GetScreenBounds: [%d %d %d %d]", (void*)this,
-+       aRect.x, aRect.y, aRect.width, aRect.height);
-+
 +  return NS_OK;
 +}
 +
@@ -2389,20 +2416,20 @@ new file mode 100644
 +  temp.x = 0;
 +  temp.y = 0;
 +  
-+
-+  if (mNativeWindow) {
++  if (!mParent && nsAppShell::gWindow) {
 +      // convert to screen coords
-+      temp = [mNativeWindow convertPoint:temp toWindow:nil];
++      temp = [nsAppShell::gWindow convertPoint:temp toWindow:nil];
 +      return nsIntPoint(NSToIntRound(temp.x), NSToIntRound(temp.y));
 +  }
 +
-+  nsIntPoint offset;
++  nsIntPoint offset(0, 0);
 +  if (mParent) {
 +      offset = mParent->WidgetToScreenOffset();
-+      temp = [mNativeView convertPoint:temp toView:nil];
-+      offset.x += temp.x;
-+      offset.y += temp.y;
 +  }
++
++  temp = [mNativeView convertPoint:temp toView:nil];
++  offset.x += temp.x;
++  offset.y += temp.y;
 +
 +  return offset;
 +}

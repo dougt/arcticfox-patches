@@ -1,0 +1,25 @@
+# HG changeset patch
+# Parent 7dc06f175290061bc8922d93fc76dcc0616c523e
+
+diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
+--- a/content/events/src/nsIMEStateManager.cpp
++++ b/content/events/src/nsIMEStateManager.cpp
+@@ -122,6 +122,7 @@
+                                  nsIContent* aContent)
+ {
+   NS_ENSURE_ARG_POINTER(aPresContext);
++  printf("nsIMEStateManager::OnChangeFocus\n");
+ 
+   nsCOMPtr<nsIWidget> widget = GetWidget(aPresContext);
+   if (!widget) {
+diff --git a/dom/base/nsFocusManager.cpp b/dom/base/nsFocusManager.cpp
+--- a/dom/base/nsFocusManager.cpp
++++ b/dom/base/nsFocusManager.cpp
+@@ -1543,6 +1543,7 @@
+                       PRBool aFocusChanged,
+                       PRBool aWindowRaised)
+ {
++  printf("nsFocusManager::Focus\n");
+   if (!aWindow)
+     return;
+ 

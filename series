@@ -33,19 +33,15 @@ uikit-directory-service
 xpcshell-link
 uikit-branding-icons
 browser-uikit
-mozconfig-debug
 browser-xul-hax
 nsappshell-hidden-window
-mozconfig-disable-optimize
 nsmenupopupframe-cocoa
 hardcode-dtd-content-type
 widget-uikit
-cflags-fixup
 struct-stat64
 darwin-dlopen-glue
-device-mozconfig
+ime-logging
 iphone_xptcall
-mozconfig-fix-compiler
 contentutils-finite
 exceptions-wtf
 pixman-arm-darwin
@@ -59,3 +55,4 @@ chrome-registry-extra
 contentutils-extra
 canvaslayerogl
 layout-extra
+silence-xpcwn-assertion

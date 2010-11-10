@@ -49,9 +49,9 @@ new file mode 100644
 +#endif
 +	<key>DTSDKName</key>
 +#ifdef SIMULATOR
-+	<string>iphonesimulator3.2</string>
++	<string>iphonesimulator4.0</string>
 +#else
-+	<string>iphoneos3.2</string>
++	<string>iphoneos4.0</string>
 +#endif
 +	<key>LSRequiresIPhoneOS</key>
 +	<true/>
@@ -102,7 +102,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  AB_CD = $(MOZ_UI_LOCALE)
  
  AB := $(firstword $(subst -, ,$(AB_CD)))
-@@ -356,6 +355,25 @@
+@@ -356,6 +355,27 @@
  endif
  endif
  
@@ -122,7 +122,9 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 +	cp -RL $(DIST)/branding/default57.png $(DIST)/$(MOZ_APP_DISPLAYNAME).app/Icon.png
 +	printf APPLMOZB > $(DIST)/$(MOZ_APP_DISPLAYNAME).app/PkgInfo
 +#XXX: hackaround till we get a static build
++ifeq (arm,$(TARGET_CPU))
 +	$(PYTHON) $(srcdir)/change-install-names.py $(DIST)/$(MOZ_APP_DISPLAYNAME).app/$(PROGRAM)
++endif
 +endif
 +
  ifdef LIBXUL_SDK
