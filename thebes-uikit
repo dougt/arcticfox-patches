@@ -2,7 +2,7 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
 # Node ID 37caae1e58336d97ffe999a9bdaa5c559858bcad
-# Parent 843fc111bc1311a1940544c47c3d3f3303089d95
+# Parent 4c700885dccb4208df6d1547ae05a647301e45d1
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -10,6 +10,8 @@ imported patch thebes-extra
 fix font metrics
 * * *
 imported patch thebes-extra
+* * *
+fix uikit fonts
 
 diff --git a/gfx/src/thebes/Makefile.in b/gfx/src/thebes/Makefile.in
 --- a/gfx/src/thebes/Makefile.in
@@ -584,7 +586,7 @@ diff --git a/gfx/thebes/gfxUIKitFont.h b/gfx/thebes/gfxUIKitFont.h
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/gfxUIKitFont.h
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,92 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -643,10 +645,6 @@ new file mode 100644
 +
 +    CFStringRef GetPostscriptName() { return mPostscriptName; }
 +
-+    // TODO: probably should move this up to gfxFont
-+    // and ensure it is handled uniformly across all platforms
-+    float GetAdjustedSize() const { return mAdjustedSize; }
-+
 +    /* overrides for the pure virtual methods in gfxFont */
 +    virtual const gfxFont::Metrics& GetMetrics() {
 +        return mMetrics;
@@ -658,23 +656,26 @@ new file mode 100644
 +
 +    virtual PRBool SetupCairoFont(gfxContext *aContext);
 +
++    // override gfxFont table access function to bypass gfxFontEntry cache,
++    // use CGFontRef API to get direct access to system font data
++    //TODO: should we take this?
++    //virtual hb_blob_t *GetFontTable(PRUint32 aTag);
 +protected:
 +    virtual void CreatePlatformShaper();
 +
-+    void InitMetrics(CTFontRef aCTFont, gfxFloat size);
++    void InitMetrics();
 +
-+    float GetCharWidth(CTFontRef aCTFont, PRUnichar aUniChar,
-+                       PRUint32 *aGlyphID);
-+    float GetCharHeight(CTFontRef aCTFont, PRUnichar aUniChar);
++    gfxFloat GetCharWidth(CFDataRef aCmap, PRUnichar aUniChar,
++                          PRUint32 *aGlyphID);
 +
 +    CFStringRef          mPostscriptName;
 +
++    CGFontRef             mCGFont;
 +    cairo_font_face_t    *mFontFace;
 +    cairo_scaled_font_t  *mScaledFont;
 +
 +    Metrics               mMetrics;
 +    PRUint32              mSpaceGlyph;
-+    float                 mAdjustedSize;
 +};
 +
 +#endif /* GFX_MACFONT_H */
@@ -682,7 +683,7 @@ diff --git a/gfx/thebes/gfxUIKitFont.mm b/gfx/thebes/gfxUIKitFont.mm
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/gfxUIKitFont.mm
-@@ -0,0 +1,250 @@
+@@ -0,0 +1,262 @@
 +/* -*- Mode: C++; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -725,6 +726,7 @@ new file mode 100644
 +
 +#include "gfxUIKitFont.h"
 +#include "gfxCoreTextShaper.h"
++#include "gfxHarfBuzzShaper.h"
 +#include "gfxPlatformMac.h"
 +#include "gfxContext.h"
 +
@@ -734,9 +736,9 @@ new file mode 100644
 +                       PRBool aNeedsBold)
 +    : gfxFont(aFontEntry, aFontStyle),
 +      mPostscriptName(aFontEntry->GetPostscriptName()),
++      mCGFont(nsnull),
 +      mFontFace(nsnull),
-+      mScaledFont(nsnull),
-+      mAdjustedSize(0.0)
++      mScaledFont(nsnull)
 +{
 +    ::CFRetain(mPostscriptName);
 +    if (aNeedsBold) {
@@ -745,17 +747,16 @@ new file mode 100644
 +
 +    // InitMetrics will handle the sizeAdjust factor and set mAdjustedSize
 +    gfxFloat size =
-+        PR_MAX(((mAdjustedSize != 0.0f) ? mAdjustedSize : mStyle.size), 1.0f);
++        PR_MAX(mStyle.size, 1.0f);
 +    CTFontRef ctFont = ::CTFontCreateWithName(mPostscriptName, size, NULL);
-+    InitMetrics(ctFont, size);
++    mCGFont = ::CTFontCopyGraphicsFont(ctFont, NULL);
++    InitMetrics();
 +    if (!mIsValid) {
 +        ::CFRelease(ctFont);
 +        return;
 +    }
 +
-+    CGFontRef cgFont = ::CTFontCopyGraphicsFont(ctFont, NULL);
-+    mFontFace = cairo_quartz_font_face_create_for_cgfont(cgFont);
-+    ::CGFontRelease(cgFont);
++    mFontFace = cairo_quartz_font_face_create_for_cgfont(mCGFont);
 +    ::CFRelease(ctFont);
 +
 +    cairo_status_t cairoerr = cairo_font_face_status(mFontFace);
@@ -794,6 +795,10 @@ new file mode 100644
 +        NS_WARNING(warnBuf);
 +#endif
 +    }
++
++    if (FontCanSupportHarfBuzz()) {
++        mHarfBuzzShaper = new gfxHarfBuzzShaper(this);
++    }
 +}
 +
 +gfxUIKitFont::~gfxUIKitFont()
@@ -805,6 +810,9 @@ new file mode 100644
 +    if (mFontFace) {
 +        cairo_font_face_destroy(mFontFace);
 +    }
++
++    // this is documented to be safe if mCGFont is null
++    ::CGFontRelease(mCGFont);
 +}
 +
 +void
@@ -826,21 +834,33 @@ new file mode 100644
 +}
 +
 +void
-+gfxUIKitFont::InitMetrics(CTFontRef aCTFont, gfxFloat size)
++gfxUIKitFont::InitMetrics()
 +{
 +    mIsValid = PR_FALSE;
 +    ::memset(&mMetrics, 0, sizeof(mMetrics));
 +
++    PRUint32 upem = ::CGFontGetUnitsPerEm(mCGFont);
++    if (!upem) {
++#ifdef DEBUG
++        char warnBuf[1024];
++        sprintf(warnBuf, "Bad font metrics for: %s (no unitsPerEm value)",
++                NS_ConvertUTF16toUTF8(mFontEntry->Name()).get());
++        NS_WARNING(warnBuf);
++#endif
++        return;
++    }
++
 +    mAdjustedSize = PR_MAX(mStyle.size, 1.0f);
++    mFUnitsConvFactor = mAdjustedSize / upem;
 +    if (!InitMetricsFromSfntTables(mMetrics)) {
++        return;
++    }
++    if (!mIsValid) {
 +        return;
 +    }
 +
 +    if (mMetrics.xHeight == 0.0) {
-+        mMetrics.xHeight = ::CTFontGetXHeight(aCTFont);
-+        if (mMetrics.xHeight <= 0.0) {
-+            mMetrics.xHeight = mMetrics.maxAscent * DEFAULT_XHEIGHT_FACTOR;
-+        }
++        mMetrics.xHeight = ::CGFontGetXHeight(mCGFont) * mFUnitsConvFactor;
 +    }
 +
 +    if (mStyle.sizeAdjust != 0.0 && mStyle.size > 0.0 &&
@@ -853,82 +873,75 @@ new file mode 100644
 +        if (!InitMetricsFromSfntTables(mMetrics)) {
 +            return;
 +        }
++        if (!mIsValid) {
++            // this shouldn't happen, as we succeeded earlier before applying
++            // the size-adjust factor! But check anyway, for paranoia's sake.
++            return;
++        }
 +        if (mMetrics.xHeight == 0.0) {
-+            mMetrics.xHeight = ::CTFontGetXHeight(aCTFont);
++            mMetrics.xHeight = ::CGFontGetXHeight(mCGFont) * mFUnitsConvFactor;
 +        }
 +    }
 +
 +    mMetrics.emHeight = mAdjustedSize;
 +
 +    // Measure/calculate additional metrics.
++    CFDataRef cmap =
++        ::CGFontCopyTableForTag(mCGFont, TRUETYPE_TAG('c','m','a','p'));
++
 +    PRUint32 glyphID;
 +    if (mMetrics.aveCharWidth <= 0) {
-+        mMetrics.aveCharWidth = GetCharWidth(aCTFont, 'x', &glyphID);
++        mMetrics.aveCharWidth = GetCharWidth(cmap, 'x', &glyphID);
 +        if (glyphID == 0) {
 +            // we didn't find 'x', so use maxAdvance rather than zero
 +            mMetrics.aveCharWidth = mMetrics.maxAdvance;
 +        }
 +    }
-+
 +    mMetrics.aveCharWidth += mSyntheticBoldOffset;
 +    mMetrics.maxAdvance += mSyntheticBoldOffset;
 +
-+    mMetrics.spaceWidth = GetCharWidth(aCTFont, ' ', &glyphID);
++    mMetrics.spaceWidth = GetCharWidth(cmap, ' ', &glyphID);
 +    if (glyphID == 0) {
 +        // no space glyph?!
 +        mMetrics.spaceWidth = mMetrics.aveCharWidth;
 +    }
 +    mSpaceGlyph = glyphID;
 +
-+    mMetrics.zeroOrAveCharWidth = GetCharWidth(aCTFont, '0', &glyphID);
++    mMetrics.zeroOrAveCharWidth = GetCharWidth(cmap, '0', &glyphID);
 +    if (glyphID == 0) {
 +        mMetrics.zeroOrAveCharWidth = mMetrics.aveCharWidth;
++    }
++
++    if (cmap) {
++        ::CFRelease(cmap);
 +    }
 +
 +    CalculateDerivedMetrics(mMetrics);
 +
 +    SanitizeMetrics(&mMetrics, mFontEntry->mIsBadUnderlineFont);
-+
-+    mIsValid = PR_TRUE;
 +}
 +
-+float
-+gfxUIKitFont::GetCharWidth(CTFontRef aCTFont, PRUnichar aUniChar,
++gfxFloat
++gfxUIKitFont::GetCharWidth(CFDataRef aCmap, PRUnichar aUniChar,
 +                         PRUint32 *aGlyphID)
 +{
-+    UniChar c = aUniChar;
-+    CGGlyph glyph;
-+    if (::CTFontGetGlyphsForCharacters(aCTFont, &c, &glyph, 1)) {
-+        CGSize advance;
-+        ::CTFontGetAdvancesForGlyphs(aCTFont,
-+                                     kCTFontHorizontalOrientation,
-+                                     &glyph,
-+                                     &advance,
-+                                     1);
-+        if (aGlyphID != nsnull)
-+            *aGlyphID = glyph;
-+        return advance.width;
++    CGGlyph glyph = 0;
++    
++    if (aCmap) {
++        glyph = gfxFontUtils::MapCharToGlyph(::CFDataGetBytePtr(aCmap),
++                                             ::CFDataGetLength(aCmap),
++                                             aUniChar);
 +    }
 +
-+    // couldn't get glyph for the char
-+    if (aGlyphID != nsnull)
-+        *aGlyphID = 0;
-+    return 0;
-+}
++    if (aGlyphID) {
++        *aGlyphID = glyph;
++    }
 +
-+float
-+gfxUIKitFont::GetCharHeight(CTFontRef aCTFont, PRUnichar aUniChar)
-+{
-+    UniChar c = aUniChar;
-+    CGGlyph glyph;
-+    if (::CTFontGetGlyphsForCharacters(aCTFont, &c, &glyph, 1)) {
-+        CGRect boundingRect;
-+        ::CTFontGetBoundingRectsForGlyphs(aCTFont,
-+                                          kCTFontHorizontalOrientation,
-+                                          &glyph,
-+                                          &boundingRect,
-+                                          1);
-+        return boundingRect.size.height;
++    if (glyph) {
++        int advance;
++        if (::CGFontGetGlyphAdvances(mCGFont, &glyph, 1, &advance)) {
++            return advance * mFUnitsConvFactor;
++        }
 +    }
 +
 +    return 0;
