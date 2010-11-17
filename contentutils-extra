@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent 466a01d0fb9966581adba54938fe259ca50160bc
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1289971661 18000
+# Node ID d87f50a25d034df7478239f1def35d355f996722
+# Parent  5d3a999d6d3c4b5022bca5bea63a3f8bf52dcb10
+imported patch contentutils-extra
+
 diff --git a/content/base/src/nsContentUtils.cpp b/content/base/src/nsContentUtils.cpp
 --- a/content/base/src/nsContentUtils.cpp
 +++ b/content/base/src/nsContentUtils.cpp
@@ -12,4 +17,4 @@ diff --git a/content/base/src/nsContentUtils.cpp b/content/base/src/nsContentUti
 +#endif
  
  using namespace mozilla::dom;
- 
+ using namespace mozilla::layers;

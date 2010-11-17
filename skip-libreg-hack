@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID 704fc65776a9fe38eb80d71f94c0e4f2cedb45b1
-# Parent  7f358de13aed870bd35f6fec3c6715642139c023
+# Node ID adbd198ac22fe4146057f2efca99be7b37e25f86
+# Parent  8b70b3d5540a5efa5ea3b9e82f7a2c5beb7da4b5
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
@@ -42,7 +42,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -127,7 +127,7 @@
+@@ -126,7 +126,7 @@
  STATIC_LIBS += chromium_s
  endif
  

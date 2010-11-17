@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 44ad310283e49794b6b53f8f8b534abc906e4ee7
-# Parent d5a03ebdb158da908cab5dcfa257a5c9932b1cd5
+# Node ID 4da8ef0c7a88f0438cad5af500530c0f42d388a4
+# Parent  452295e42f9074c478bb525881c277c8453e7335
 imported patch xre-uikit
 * * *
 imported patch xre-oops
@@ -75,7 +75,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
      // On OS X, we need a pool to catch cocoa objects that are autoreleased
      // during teardown.
      mozilla::MacAutoreleasePool pool;
-@@ -1491,11 +1495,6 @@
+@@ -1497,11 +1501,6 @@
      return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
                                   aResult);
  
@@ -87,7 +87,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    // Works even if we're not bundled.
    CFBundleRef appBundle = CFBundleGetMainBundle();
    if (!appBundle)
-@@ -1505,6 +1504,14 @@
+@@ -1511,6 +1510,14 @@
    if (!bundleURL)
      return NS_ERROR_FAILURE;
  
@@ -102,7 +102,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    FSRef fileRef;
    if (!CFURLGetFSRef(bundleURL, &fileRef)) {
      CFRelease(bundleURL);
-@@ -1512,8 +1519,18 @@
+@@ -1518,8 +1525,18 @@
    }
  
    rv = lfm->InitWithFSRef(&fileRef);
@@ -122,7 +122,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (NS_FAILED(rv))
      return rv;
  
-@@ -1729,7 +1746,7 @@
+@@ -1735,7 +1752,7 @@
  #if defined(ANDROID)
    mozilla::AndroidBridge::Bridge()->ScheduleRestart();
  #else
@@ -131,7 +131,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
    LaunchChildMac(gRestartArgc, gRestartArgv);
  #else
-@@ -1931,7 +1948,7 @@
+@@ -1937,7 +1954,7 @@
      rv = xpcom.SetWindowCreator(aNative);
      NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
  
@@ -140,7 +140,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
      CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -2018,7 +2035,7 @@
+@@ -2024,7 +2041,7 @@
      ScopedXPCOMStartup xpcom;
      rv = xpcom.Initialize();
      if (NS_SUCCEEDED(rv)) {
@@ -149,7 +149,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
        CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -2959,7 +2976,7 @@
+@@ -2965,7 +2982,7 @@
    }
  #endif
  
@@ -158,7 +158,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3023,7 +3040,7 @@
+@@ -3029,7 +3046,7 @@
      gSafeMode = PR_TRUE;
    }
  
@@ -167,24 +167,15 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (GetCurrentEventKeyModifiers() & optionKey)
      gSafeMode = PR_TRUE;
  #endif
-@@ -3558,7 +3575,7 @@
-             }
+@@ -3542,7 +3559,7 @@
+           }
  #endif
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-             // we re-initialize the command-line service and do appleevents munging
-             // after we are sure that we're not restarting
-             cmdLine = do_CreateInstance("@mozilla.org/toolkit/command-line;1");
-@@ -3660,7 +3677,7 @@
-           ProcessDDE(nativeApp, PR_TRUE);
- #endif
- 
--#ifdef XP_MACOSX
-+#ifdef MOZ_WIDGET_COCOA
-           CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
- #endif
-         }
+           // we re-initialize the command-line service and do appleevents munging
+           // after we are sure that we're not restarting
+           cmdLine = do_CreateInstance("@mozilla.org/toolkit/command-line;1");
 diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 --- a/toolkit/xre/nsXREDirProvider.cpp
 +++ b/toolkit/xre/nsXREDirProvider.cpp

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 6521532d1b71a62c5467dfac83e041cf36bd93b7
-# Parent  37caae1e58336d97ffe999a9bdaa5c559858bcad
+# Node ID 7a80ab8d6939a9c69ed37e8a8d2ff00610a3b50e
+# Parent  bf026d052849961878da8902385a6d0b1fef04bf
 imported patch npapi-uikit
 
 diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npapi.h

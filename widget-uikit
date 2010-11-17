@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
-# Node ID 8a05f8b28742ed83938488ab9d646e58c652971e
-# Parent 607eeb87c4462df98976d59abc13fce2888c6191
+# Node ID 6d6ce79ee84e33a25e4c38ac52f4499c69ff257a
+# Parent d60e14f00adbbd2652ea2e037017a70d795d56bb
 UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -320,6 +320,9 @@
+@@ -324,6 +324,9 @@
  ifeq (qt,$(MOZ_WIDGET_TOOLKIT))
  COMPONENT_LIBS += widget_qt
  endif
@@ -1722,7 +1722,7 @@ diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 new file mode 100644
 --- /dev/null
 +++ b/widget/src/uikit/nsWindow.mm
-@@ -0,0 +1,785 @@
+@@ -0,0 +1,787 @@
 +/* -*- Mode: c++; c-basic-offset: 4; tab-width: 20; indent-tabs-mode: nil; -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1786,6 +1786,8 @@ new file mode 100644
 +#include "Layers.h"
 +
 +#include "nsTArray.h"
++
++using namespace mozilla::layers;
 +
 +#define ALOG(args...) printf(args); printf("\n")
 +
@@ -1986,7 +1988,7 @@ new file mode 100644
 +  nsAutoRetainUIKitObject kungFuDeathGrip(self);
 +  PRBool painted;
 +  {
-+      nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext);
++      nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext, BasicLayerManager::BUFFER_NONE);
 +      painted = mGeckoChild->DispatchWindowEvent(paintEvent);
 +  }
 +

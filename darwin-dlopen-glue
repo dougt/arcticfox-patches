@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 9443ff3cd5ac69c0ef8ce8dba888eaa89c521ccd
-# Parent  c7911533626b3ef5c619f87f9fec8b0a904bc796
+# Node ID 1062e154f2c112bb9c9b148ed8522e983888b745
+# Parent  60db9ed2eeed8f7e9704441f0f847423b79c588b
 imported patch darwin-dlopen-glue
 
 diff --git a/xpcom/glue/standalone/Makefile.in b/xpcom/glue/standalone/Makefile.in

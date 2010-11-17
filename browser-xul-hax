@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID a3c88b07ef992bc42fbd010d793ac50f289e0481
-# Parent  fbfa5f859041e24f50652b3373a4f1b182ad25df
+# Node ID d39486a35d157dc66c15fc2638e3cdd0cc2b5934
+# Parent  289db874d80dbe8adee475e112631684b41d7615
 imported patch browser-xul-hax
 
 diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/baseMenuOverlay.xul
@@ -74,7 +74,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                  <menuseparator/>
                  <menuitem id="menu_preferences"
                            label="&preferencesCmdUnix.label;"
-@@ -254,7 +254,7 @@
+@@ -255,7 +255,7 @@
                            label="&stopCmd.label;"
                            accesskey="&stopCmd.accesskey;"
                            command="Browser:Stop"
@@ -83,7 +83,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="key_stop_mac"/>
  #else
                            key="key_stop"/>
-@@ -458,7 +458,7 @@
+@@ -459,7 +459,7 @@
                    label="&historyMenu.label;"
                    accesskey="&historyMenu.accesskey;">
                <menupopup id="goPopup"
@@ -92,7 +92,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                           placespopup="true"
  #endif
                           oncommand="this.parentNode._placesView._onCommand(event);"
-@@ -469,7 +469,7 @@
+@@ -470,7 +470,7 @@
                           popupsinherittooltip="true">
                  <menuitem id="historyMenuBack"
                            label="&backCmd.label;"
@@ -101,7 +101,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="goBackKb2"
  #else
                            key="goBackKb"
-@@ -478,7 +478,7 @@
+@@ -479,7 +479,7 @@
                            onclick="checkForMiddleClick(this, event);"/>
                  <menuitem id="historyMenuForward"
                            label="&forwardCmd.label;"
@@ -110,7 +110,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="goForwardKb2"
  #else
                            key="goForwardKb"
-@@ -492,7 +492,7 @@
+@@ -493,7 +493,7 @@
                            key="goHome"/>
                  <menuitem id="menu_showAllHistory"
                            label="&showAllHistoryCmd2.label;"
@@ -119,7 +119,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="showAllHistoryKb"
  #endif
                            command="Browser:ShowAllHistory"/>
-@@ -504,7 +504,7 @@
+@@ -505,7 +505,7 @@
                        label="&historyUndoMenu.label;"
                        disabled="true">
                    <menupopup id="historyUndoPopup"
@@ -128,7 +128,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                               placespopup="true"
  #endif
                               onpopupshowing="document.getElementById('history-menu')._placesView.populateUndoSubmenu();"/>
-@@ -513,7 +513,7 @@
+@@ -514,7 +514,7 @@
                        label="&historyUndoWindowMenu.label;"
                        disabled="true">
                    <menupopup id="historyUndoWindowPopup"
@@ -137,7 +137,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                               placespopup="true"
  #endif
                               onpopupshowing="document.getElementById('history-menu')._placesView.populateUndoWindowSubmenu();"/>
-@@ -528,7 +528,7 @@
+@@ -529,7 +529,7 @@
          ondragover="PlacesMenuDNDHandler.onDragOver(event);"
          ondrop="PlacesMenuDNDHandler.onDrop(event);">
      <menupopup id="bookmarksMenuPopup"
@@ -146,7 +146,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                 placespopup="true"
  #endif
                 context="placesContext"
-@@ -569,7 +569,7 @@
+@@ -570,7 +570,7 @@
              label="&personalbarCmd.label;"
              container="true">
          <menupopup id="bookmarksToolbarFolderPopup"  
@@ -155,7 +155,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                     placespopup="true"
  #endif
                     context="placesContext"
-@@ -648,7 +648,7 @@
+@@ -649,7 +649,7 @@
                </menupopup>
              </menu>
  
@@ -339,7 +339,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                       .getService(Components.interfaces.nsIWindowMediator);
    var win = wm.getMostRecentWindow("Browser:MigrationWizard");
-@@ -3182,7 +3182,7 @@
+@@ -3176,7 +3176,7 @@
     * or focuses an existing window, if necessary.
     */
    webSearch: function BrowserSearch_webSearch() {
@@ -348,7 +348,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      if (window.location.href != getBrowserURL()) {
        var win = getTopWin();
        if (win) {
-@@ -3484,7 +3484,7 @@
+@@ -3479,7 +3479,7 @@
          document.getElementById('Browser:Back').hasAttribute('disabled') &&
          document.getElementById('Browser:Forward').hasAttribute('disabled');
  
@@ -357,7 +357,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      updateEditUIVisibility();
  #endif
    }
-@@ -3510,7 +3510,7 @@
+@@ -3505,7 +3505,7 @@
    var cmd = document.getElementById("cmd_CustomizeToolbars");
    cmd.removeAttribute("disabled");
  
@@ -366,7 +366,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // make sure to re-enable click-and-hold
    if (!getBoolPref("ui.click_hold_context_menus", false))
      SetClickAndHoldHandlers();
-@@ -3549,7 +3549,7 @@
+@@ -3544,7 +3544,7 @@
   */
  function updateEditUIVisibility()
  {
@@ -375,7 +375,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    let editMenuPopupState = document.getElementById("menu_EditPopup").state;
    let contextMenuPopupState = document.getElementById("contentAreaContextMenu").state;
    let placesContextMenuPopupState = document.getElementById("placesContext").state;
-@@ -5103,7 +5103,7 @@
+@@ -5100,7 +5100,7 @@
  
    switch (event.button) {
      case 0:    // if left button clicked
@@ -384,7 +384,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
        if (event.metaKey) { // Cmd
  #else
        if (event.ctrlKey) {
-@@ -5820,7 +5820,7 @@
+@@ -5817,7 +5817,7 @@
  
    os.notifyObservers(null, "browser-lastwindow-close-granted", null);
  
@@ -393,7 +393,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // OS X doesn't quit the application when the last window is closed, but keeps
    // the session alive. Hence don't prompt users to save tabs, but warn about
    // closing multiple tabs.
-@@ -7345,7 +7345,7 @@
+@@ -7342,7 +7342,7 @@
  
      var appName = brandBundle.GetStringFromName("brandShortName");
  # On Mac, use the header as the title.

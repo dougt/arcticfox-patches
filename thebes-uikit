@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 37caae1e58336d97ffe999a9bdaa5c559858bcad
-# Parent 4c700885dccb4208df6d1547ae05a647301e45d1
+# Node ID bf026d052849961878da8902385a6d0b1fef04bf
+# Parent  fec9f00e460d1e668a149c190a4379f3445f86aa
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -16,7 +16,7 @@ fix uikit fonts
 diff --git a/gfx/src/thebes/Makefile.in b/gfx/src/thebes/Makefile.in
 --- a/gfx/src/thebes/Makefile.in
 +++ b/gfx/src/thebes/Makefile.in
-@@ -103,6 +103,10 @@
+@@ -101,6 +101,10 @@
  CPPSRCS		+= nsSystemFontsAndroid.cpp
  endif
  
@@ -277,7 +277,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
 --- a/gfx/thebes/Makefile.in
 +++ b/gfx/thebes/Makefile.in
-@@ -72,7 +72,7 @@
+@@ -67,7 +67,7 @@
  	$(NULL)
  endif
  
@@ -286,7 +286,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  EXPORTS += \
  	gfxPlatformMac.h \
  	gfxQuartzSurface.h \
-@@ -348,20 +348,29 @@
+@@ -346,23 +346,32 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  
@@ -304,10 +304,16 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  CPPSRCS +=      nsUnicodeRange.cpp
  CPPSRCS +=      gfxQuartzNativeDrawing.cpp
  
--CMMSRCS = gfxMacPlatformFontList.mm
+-CMMSRCS = \
+-	gfxMacPlatformFontList.mm \
+-	nsCoreAnimationSupport.mm \
+-	$(NULL)
 +ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
 +CPPSRCS += gfxMacFont.cpp
-+CMMSRCS += gfxMacPlatformFontList.mm
++CMMSRCS += \
++  gfxMacPlatformFontList.mm \
++  nsCoreAnimationSupport.mm \
++  $(NULL)
 +endif
 +
 +ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
@@ -318,7 +324,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
 +endif
  
  # Always link with OpenGL/AGL
- EXTRA_DSO_LDOPTS += -framework OpenGL -framework AGL -framework QuickTime -framework AppKit
+ EXTRA_DSO_LDOPTS += -framework OpenGL -framework AGL -framework QuickTime -framework AppKit -framework QuartzCore
 diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
 --- a/gfx/thebes/gfxCoreTextShaper.cpp
 +++ b/gfx/thebes/gfxCoreTextShaper.cpp
@@ -462,7 +468,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.h b/gfx/thebes/gfxCoreTextShaper.h
 diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
 --- a/gfx/thebes/gfxFont.h
 +++ b/gfx/thebes/gfxFont.h
-@@ -268,6 +268,7 @@
+@@ -327,6 +327,7 @@
  protected:
      friend class gfxPlatformFontList;
      friend class gfxMacPlatformFontList;

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 940a841e0392872992e5774b8ff6b68915163b15
-# Parent  cc1d792bedcc368499511fe8787a0f3f70cd60a5
+# Node ID a465945c558a35c524580127142295c2914ca75d
+# Parent  1825c1765393c0e9344bed839b68b4be244a6ee1
 imported patch exceptions-wtf
 
 diff --git a/config/gcc-stl-wrapper.template.h b/config/gcc-stl-wrapper.template.h

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID 7f358de13aed870bd35f6fec3c6715642139c023
-# Parent  1a87e954e46d265abbeb16c0357356fab81fa5d7
+# Node ID 8b70b3d5540a5efa5ea3b9e82f7a2c5beb7da4b5
+# Parent  f86218f69ea26054e76bcbdea0e2bfebbf3e8e67
 imported patch uikit-locale
 
 diff --git a/intl/locale/src/nsLocaleConstructors.h b/intl/locale/src/nsLocaleConstructors.h

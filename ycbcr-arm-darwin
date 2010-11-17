@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 51f393860d8c92daadaf37b2bdad616b2c577c39
-# Parent  3e6c07915fa9a8192ed44d1242e852c54f89b8f7
+# Node ID fac315ccc12bb4dbdacf209b06237a0cd23de027
+# Parent  7ada6f3446d6c317edbf8982bd2970d60e136918
 imported patch ycbcr-arm-darwin
 
 diff --git a/gfx/ycbcr/yuv_row_mac.cpp b/gfx/ycbcr/yuv_row_mac.cpp

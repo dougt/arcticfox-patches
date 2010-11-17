@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 4e60b4c7cb3a85d70752460b18b9ce27bd07cd49
-# Parent  44ad310283e49794b6b53f8f8b534abc906e4ee7
+# Node ID 347bb5845bc5ace986f45887aa9512dcbbac0c4a
+# Parent  4da8ef0c7a88f0438cad5af500530c0f42d388a4
 imported patch toolkit-profile-service-uikit
 
 diff --git a/toolkit/profile/src/nsToolkitProfileService.cpp b/toolkit/profile/src/nsToolkitProfileService.cpp

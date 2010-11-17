@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent 2f910291a82438065951e9a53b987135ab6ccb38
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1289971661 18000
+# Node ID 28b468d730b74cce3ca70d13c76a81c6a7a157cf
+# Parent  d87f50a25d034df7478239f1def35d355f996722
+imported patch canvaslayerogl
+
 diff --git a/gfx/layers/opengl/CanvasLayerOGL.cpp b/gfx/layers/opengl/CanvasLayerOGL.cpp
 --- a/gfx/layers/opengl/CanvasLayerOGL.cpp
 +++ b/gfx/layers/opengl/CanvasLayerOGL.cpp

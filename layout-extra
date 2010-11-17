@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent 71e0c7e2482c2246cbb6e683c3f32fc9d87fa41c
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1289971661 18000
+# Node ID 5f61c25044225eebbff48322c1f296622812612d
+# Parent  28b468d730b74cce3ca70d13c76a81c6a7a157cf
+imported patch layout-extra
+
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp

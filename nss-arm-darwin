@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 2e86e79cdd1fc042e6653d8e4ad06be1f7414faf
-# Parent  36e9ffe69e0902ebf89df56f79dda06fd93bb6c8
+# Node ID fc4ae3bcf81d0531b7a8a99d40b094f9d890e669
+# Parent  c0784ae4fff905c388000a4841a1557f7fa22f50
 imported patch nss-arm-darwin
 
 diff --git a/security/coreconf/Darwin.mk b/security/coreconf/Darwin.mk

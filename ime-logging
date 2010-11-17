@@ -1,5 +1,9 @@
 # HG changeset patch
-# Parent 7dc06f175290061bc8922d93fc76dcc0616c523e
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1289971660 18000
+# Node ID 0a9e2227d81f8f7b64ff9521d221f7799fa96887
+# Parent  1062e154f2c112bb9c9b148ed8522e983888b745
+imported patch ime-logging
 
 diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
 --- a/content/events/src/nsIMEStateManager.cpp

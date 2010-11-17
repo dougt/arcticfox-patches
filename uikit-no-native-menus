@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 9b6c92c28383d11f180b8729f7198cc71191b694
-# Parent  4e60b4c7cb3a85d70752460b18b9ce27bd07cd49
+# Node ID 6c82a69e2c68f89fc6a90c26d031c61342a8fc12
+# Parent  347bb5845bc5ace986f45887aa9512dcbbac0c4a
 imported patch uikit-no-native-menus
 
 diff --git a/xpfe/appshell/src/nsWebShellWindow.cpp b/xpfe/appshell/src/nsWebShellWindow.cpp
