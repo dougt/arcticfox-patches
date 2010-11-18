@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID f86218f69ea26054e76bcbdea0e2bfebbf3e8e67
-# Parent  06e6ec186207392d7f15943c85002c15ee57ed5d
+# Node ID 99143aedbb05fc2ab7b148f2e4253d2d466b263a
+# Parent  45e88fb88c0384fddf57f82cedb471cd9cbafece
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 * * *
 imported patch xpcom-extra
@@ -10,7 +10,7 @@ imported patch xpcom-extra
 diff --git a/config/config.mk b/config/config.mk
 --- a/config/config.mk
 +++ b/config/config.mk
-@@ -557,6 +557,10 @@
+@@ -578,6 +578,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -24,7 +24,7 @@ diff --git a/config/config.mk b/config/config.mk
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -2032,7 +2032,17 @@
+@@ -2037,7 +2037,17 @@
      # The ExceptionHandling framework is needed for Objective-C exception
      # logging code in nsObjCExceptions.h. Currently we only use that in debug
      # builds.
@@ -43,7 +43,7 @@ diff --git a/configure.in b/configure.in
  
      dnl DTrace and -dead_strip don't interact well. See bug 403132.
      dnl ===================================================================
-@@ -3299,7 +3309,7 @@
+@@ -3298,7 +3308,7 @@
  AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
@@ -52,7 +52,7 @@ diff --git a/configure.in b/configure.in
  AC_CHECK_HEADERS(linux/quota.h)
  
  dnl Try for MMX support
-@@ -3399,11 +3409,19 @@
+@@ -3398,11 +3408,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -104,7 +104,7 @@ diff --git a/configure.in b/configure.in
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -7800,6 +7832,7 @@
+@@ -7820,6 +7852,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -112,7 +112,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -7824,6 +7857,7 @@
+@@ -7844,6 +7877,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -120,7 +120,7 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -8283,7 +8317,7 @@
+@@ -8311,7 +8345,7 @@
      if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
      fi
@@ -132,7 +132,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/js/src/config/config.mk b/js/src/config/config.mk
 --- a/js/src/config/config.mk
 +++ b/js/src/config/config.mk
-@@ -557,6 +557,10 @@
+@@ -578,6 +578,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -200,7 +200,7 @@ diff --git a/xpcom/components/ManifestParser.cpp b/xpcom/components/ManifestPars
  #include <CoreServices/CoreServices.h>
  #elif defined(MOZ_WIDGET_GTK2)
  #include <gtk/gtk.h>
-@@ -471,7 +471,7 @@
+@@ -473,7 +473,7 @@
                                           info.dwMajorVersion,
                                           info.dwMinorVersion);
    }
@@ -394,18 +394,6 @@ diff --git a/xpcom/io/nsDirectoryServiceDefs.h b/xpcom/io/nsDirectoryServiceDefs
      #define NS_MAC_DESKTOP_DIR                  NS_OS_DESKTOP_DIR
      #define NS_MAC_TRASH_DIR                    "Trsh"
      #define NS_MAC_STARTUP_DIR                  "Strt"
-diff --git a/xpcom/io/nsLocalFile.h b/xpcom/io/nsLocalFile.h
---- a/xpcom/io/nsLocalFile.h
-+++ b/xpcom/io/nsLocalFile.h
-@@ -72,7 +72,7 @@
- 
- #ifdef XP_WIN
- #include "nsLocalFileWin.h"
--#elif defined(XP_MACOSX)
-+#elif defined(MOZ_WIDGET_COCOA)
- #include "nsLocalFileOSX.h"
- #elif defined(XP_UNIX) || defined(XP_BEOS)
- #include "nsLocalFileUnix.h"
 diff --git a/xpcom/io/nsLocalFileCommon.cpp b/xpcom/io/nsLocalFileCommon.cpp
 --- a/xpcom/io/nsLocalFileCommon.cpp
 +++ b/xpcom/io/nsLocalFileCommon.cpp

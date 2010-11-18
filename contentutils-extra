@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID d87f50a25d034df7478239f1def35d355f996722
-# Parent  5d3a999d6d3c4b5022bca5bea63a3f8bf52dcb10
+# Node ID 5108b65852b6cd2690e43f7cd79f42878cb3eefe
+# Parent  1631c7954ca8e5ad0911d8b6747f00f7b92f5515
 imported patch contentutils-extra
 
 diff --git a/content/base/src/nsContentUtils.cpp b/content/base/src/nsContentUtils.cpp

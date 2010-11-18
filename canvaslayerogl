@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID 28b468d730b74cce3ca70d13c76a81c6a7a157cf
-# Parent  d87f50a25d034df7478239f1def35d355f996722
+# Node ID db96c5705f55b74a165a4e4ff341313739bdecc4
+# Parent  5108b65852b6cd2690e43f7cd79f42878cb3eefe
 imported patch canvaslayerogl
 
 diff --git a/gfx/layers/opengl/CanvasLayerOGL.cpp b/gfx/layers/opengl/CanvasLayerOGL.cpp
@@ -17,12 +17,3 @@ diff --git a/gfx/layers/opengl/CanvasLayerOGL.cpp b/gfx/layers/opengl/CanvasLaye
  #include <OpenGL/OpenGL.h>
  #endif
  
-@@ -216,7 +216,7 @@
-       mUpdatedRect = mBounds;
-     }
- 
--#if defined(XP_MACOSX)
-+#if defined(MOZ_WIDGET_COCOA)
-     // We only need to do this for the first time we set up the texture
-     if (newTexture) {
-       CGLError err;

@@ -1,0 +1,89 @@
+# HG changeset patch
+# Parent 82553e1f83ceb1d0c07edf400de91626f1d6763d
+diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
+--- a/xpcom/io/nsLocalFileUnix.cpp
++++ b/xpcom/io/nsLocalFileUnix.cpp
+@@ -98,7 +98,7 @@
+ #include "nsIGnomeVFSService.h"
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include <Carbon/Carbon.h>
+ #include "CocoaFileUtils.h"
+ #include "prmem.h"
+@@ -275,7 +275,7 @@
+ {
+ }
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ NS_IMPL_THREADSAFE_ISUPPORTS4(nsLocalFile,
+                               nsILocalFileMac,
+                               nsILocalFile,
+@@ -1737,7 +1737,7 @@
+ NS_IMETHODIMP
+ nsLocalFile::SetPersistentDescriptor(const nsACString &aPersistentDescriptor)
+ {
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     if (aPersistentDescriptor.IsEmpty())
+         return NS_ERROR_INVALID_ARG;
+ 
+@@ -1851,7 +1851,7 @@
+         else 
+             return gnomevfs->ShowURIForInput(dirPath);        
+     }
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+     CFURLRef url;
+     if (NS_SUCCEEDED(GetCFURL(&url))) {
+       nsresult rv = CocoaFileUtils::RevealFileInFinder(url);
+@@ -1920,7 +1920,7 @@
+     fileUri.Append(mPath);
+     mozilla::AndroidBridge* bridge = mozilla::AndroidBridge::Bridge();
+     return bridge->OpenUriExternal(fileUri, type) ? NS_OK : NS_ERROR_FAILURE;
+-#elif defined(XP_MACOSX)
++#elif defined(MOZ_WIDGET_COCOA)
+     CFURLRef url;
+     if (NS_SUCCEEDED(GetCFURL(&url))) {
+         nsresult rv = CocoaFileUtils::OpenURL(url);
+@@ -2084,7 +2084,7 @@
+ 
+ // nsILocalFileMac
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ 
+ static nsresult MacErrorMapper(OSErr inErr)
+ {
+diff --git a/xpcom/io/nsLocalFileUnix.h b/xpcom/io/nsLocalFileUnix.h
+--- a/xpcom/io/nsLocalFileUnix.h
++++ b/xpcom/io/nsLocalFileUnix.h
+@@ -53,7 +53,7 @@
+ #include "nsReadableUtils.h"
+ #include "nsIHashable.h"
+ #include "nsIClassInfoImpl.h"
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #include "nsILocalFileMac.h"
+ #endif
+ 
+@@ -105,7 +105,7 @@
+ 
+ 
+ class NS_COM nsLocalFile :
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+                            public nsILocalFileMac,
+ #else
+                            public nsILocalFile,
+@@ -122,7 +122,7 @@
+     NS_DECL_ISUPPORTS
+     NS_DECL_NSIFILE
+     NS_DECL_NSILOCALFILE
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+     NS_DECL_NSILOCALFILEMAC
+ #endif
+     NS_DECL_NSIHASHABLE

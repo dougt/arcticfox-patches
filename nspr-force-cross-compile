@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271780571 14400
-# Node ID 845467702b9c78d9d5f5f20fd445aa443bcf53c0
-# Parent  e1d7fd5255fdb9fe6fc6371c06f27b072ab23c15
+# Node ID fa2671629b309ed4d417d557217c1250c61af848
+# Parent  66e79b756b39be20232af47dcf382b2426b14e76
 allow forcing cross-compile with CROSS_COMPILE=1, to make targeting the simulator a cross-compile
 
 diff --git a/nsprpub/configure b/nsprpub/configure
@@ -16,15 +16,6 @@ diff --git a/nsprpub/configure b/nsprpub/configure
 +if test "$target" != "$host" -o -n "$CROSS_COMPILE"; then
      echo "cross compiling from $host to $target"
      cross_compiling=yes
- 
-@@ -6396,7 +6396,7 @@
- s%\]%\\&%g
- s%\$%$$%g
- EOF
--DEFS=`sed -f conftest.defs confdefs.h | tr '\012' ' ' | tr '\015' ' '` # Manually modified for MKS support.
-+DEFS=`sed -f conftest.defs confdefs.h | tr '\012' ' '`
- rm -f conftest.defs
- 
  
 diff --git a/nsprpub/configure.in b/nsprpub/configure.in
 --- a/nsprpub/configure.in

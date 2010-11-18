@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 1bf6d89b974c25f9eddaf115a5eeae9dcad3bb64
-# Parent  a7180374c16f14e07d0ef2a5a7a93f7eb1e0f7d4
+# Node ID 86640b961ff3252e38d7b29e71c1082edb622d71
+# Parent  2db3c3777ce672a252b57cc29881222b8544b823
 imported patch exthandler-uikit-skip-plugins
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5749,6 +5749,10 @@
+@@ -5767,6 +5767,10 @@
      MOZ_PLUGINS=,
      MOZ_PLUGINS=1)
  
@@ -50,7 +50,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    // On OS X, we first try to get the users download location, if it's set.
    nsCOMPtr<nsIPrefBranch> prefs =
      do_GetService(NS_PREFSERVICE_CONTRACTID);
-@@ -1404,7 +1406,7 @@
+@@ -1405,7 +1407,7 @@
  
    mOutStream = NS_BufferOutputStream(outputStream, BUFFERED_OUTPUT_SIZE);
  
@@ -59,7 +59,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
      nsCAutoString contentType;
      mMimeInfo->GetMIMEType(contentType);
      if (contentType.LowerCaseEqualsLiteral(APPLICATION_APPLEFILE) ||
-@@ -2617,6 +2619,7 @@
+@@ -2618,6 +2620,7 @@
    if (found)
      return NS_OK;
  
@@ -67,7 +67,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    const nsCString& flatExt = PromiseFlatCString(aFileExt);
    // Try the plugins
    const char* mimeType;
-@@ -2627,6 +2630,7 @@
+@@ -2628,6 +2631,7 @@
        return NS_OK;
      }
    }

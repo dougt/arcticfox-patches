@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 452295e42f9074c478bb525881c277c8453e7335
-# Parent  74c0284ef62056fe83a5b47239eca4a8f8dbb382
+# Node ID e2846f669bb0ff3b2e62774112bded999cf3e994
+# Parent  f63a352b5183840f3a3199d4a5bb3702c4ddeb01
 imported patch commandline-uikit
 
 diff --git a/toolkit/components/commandlines/src/nsCommandLine.cpp b/toolkit/components/commandlines/src/nsCommandLine.cpp
 --- a/toolkit/components/commandlines/src/nsCommandLine.cpp
 +++ b/toolkit/components/commandlines/src/nsCommandLine.cpp
-@@ -56,7 +56,7 @@
+@@ -58,7 +58,7 @@
  #include "nsXPCOMCID.h"
  #include "plstr.h"
  
@@ -17,7 +17,7 @@ diff --git a/toolkit/components/commandlines/src/nsCommandLine.cpp b/toolkit/com
  #include <CoreFoundation/CoreFoundation.h>
  #include "nsILocalFileMac.h"
  #elif defined(XP_WIN)
-@@ -285,7 +285,7 @@
+@@ -287,7 +287,7 @@
  
    nsresult rv;
  

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID bf026d052849961878da8902385a6d0b1fef04bf
-# Parent  fec9f00e460d1e668a149c190a4379f3445f86aa
+# Node ID 4a2ffc193d74e500232a90f48c91d9d9b871e483
+# Parent  4a036f634a6c4f53538eef7b8daa0dae5d879eee
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -277,7 +277,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
 --- a/gfx/thebes/Makefile.in
 +++ b/gfx/thebes/Makefile.in
-@@ -67,7 +67,7 @@
+@@ -68,7 +68,7 @@
  	$(NULL)
  endif
  
@@ -286,7 +286,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  EXPORTS += \
  	gfxPlatformMac.h \
  	gfxQuartzSurface.h \
-@@ -346,23 +346,32 @@
+@@ -348,23 +348,32 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  

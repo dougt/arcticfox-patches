@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
-# Node ID 6d6ce79ee84e33a25e4c38ac52f4499c69ff257a
-# Parent d60e14f00adbbd2652ea2e037017a70d795d56bb
+# Node ID b6cb952cabc1e9d7a9b28c10bc3a020febdaf15d
+# Parent  71410b84028444e42e651910f9eacae1433a31e3
 UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -324,6 +324,9 @@
+@@ -326,6 +326,9 @@
  ifeq (qt,$(MOZ_WIDGET_TOOLKIT))
  COMPONENT_LIBS += widget_qt
  endif

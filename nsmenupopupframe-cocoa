@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 9e2def507095f0c8c72fab00c89c3f0fe38b6e35
-# Parent  d34ea41f41829007e7ee945692e77c8a9e1466c1
+# Node ID 7f32d76cf9dcf9a6b7974c65d08cfa3acecce0ed
+# Parent  1023c2c9fadc9a000e718d43ef092eb668c0a291
 imported patch nsmenupopupframe-cocoa
 
 diff --git a/layout/xul/base/src/nsMenuPopupFrame.cpp b/layout/xul/base/src/nsMenuPopupFrame.cpp
 --- a/layout/xul/base/src/nsMenuPopupFrame.cpp
 +++ b/layout/xul/base/src/nsMenuPopupFrame.cpp
-@@ -285,7 +285,7 @@
+@@ -319,7 +319,7 @@
        baseWindow->GetMainWidget(getter_AddRefs(parentWidget));
    }
  

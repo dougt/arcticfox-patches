@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID fec9f00e460d1e668a149c190a4379f3445f86aa
-# Parent  1bf6d89b974c25f9eddaf115a5eeae9dcad3bb64
+# Node ID 4a036f634a6c4f53538eef7b8daa0dae5d879eee
+# Parent  86640b961ff3252e38d7b29e71c1082edb622d71
 imported patch script-security-manager-plugins
 
 diff --git a/caps/src/nsScriptSecurityManager.cpp b/caps/src/nsScriptSecurityManager.cpp
@@ -18,7 +18,7 @@ diff --git a/caps/src/nsScriptSecurityManager.cpp b/caps/src/nsScriptSecurityMan
  #include "nsIXPConnect.h"
  #include "nsIScriptGlobalObject.h"
  #include "nsPIDOMWindow.h"
-@@ -3217,6 +3219,7 @@
+@@ -3229,6 +3231,7 @@
          }
      }
  
@@ -26,7 +26,7 @@ diff --git a/caps/src/nsScriptSecurityManager.cpp b/caps/src/nsScriptSecurityMan
      //-- If user allows scripting of plugins by untrusted scripts,
      //   and the target object is a plugin, allow the access.
      if(aObj)
-@@ -3237,6 +3240,7 @@
+@@ -3249,6 +3252,7 @@
                  return NS_OK;
          }
      }

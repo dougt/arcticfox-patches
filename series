@@ -55,3 +55,6 @@ contentutils-extra
 canvaslayerogl
 layout-extra
 silence-xpcwn-assertion
+media-fixes
+gfx-gl-uikit
+localfileunix

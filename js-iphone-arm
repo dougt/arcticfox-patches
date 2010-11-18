@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867183 14400
-# Node ID ce1a2a82ccaf1d51a863cade9efb7b1fe713bc6a
-# Parent  7e37d7cae2e7a05e6a03a533b7b5ca483848c2e6
+# Node ID 1c100613335d5595a5dd1bdd495fcd45d335d92c
+# Parent  33da1f6e0f5237f469d69140de7b886a6ba44b77
 fixes for compiling js on arm-apple-darwin
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -861,6 +861,7 @@
+@@ -864,6 +864,7 @@
                            Set the minimum MacOS version needed at runtime],
                        [_MACOSX_DEPLOYMENT_TARGET=$enableval])
  
@@ -16,7 +16,7 @@ diff --git a/js/src/configure.in b/js/src/configure.in
  case "$target" in
  *-darwin*)
      if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
-@@ -875,6 +876,7 @@
+@@ -878,6 +879,7 @@
      fi
      ;;
  esac
@@ -27,7 +27,7 @@ diff --git a/js/src/configure.in b/js/src/configure.in
 diff --git a/js/src/jsnum.h b/js/src/jsnum.h
 --- a/js/src/jsnum.h
 +++ b/js/src/jsnum.h
-@@ -100,7 +100,7 @@
+@@ -101,7 +101,7 @@
  #ifdef WIN32
      return _finite(d);
  #else
@@ -39,7 +39,7 @@ diff --git a/js/src/jsnum.h b/js/src/jsnum.h
 diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
 --- a/js/src/jstracer.cpp
 +++ b/js/src/jstracer.cpp
-@@ -7425,6 +7425,12 @@
+@@ -7684,6 +7684,12 @@
      return arm_has_vfp;
  }
  

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273524100 14400
-# Node ID 9dd16fafc1c00eb51d8fbf063f51555f8361b9cd
-# Parent  d77a82093ff208a1047bbe0f74d9d2bbd100d334
+# Node ID c0e1c5afe95bd58c0b92361cb53994a757f24319
+# Parent  a44a9291eda84ff4e1a15238b49c3e89e0df97b0
 [mq]: nsnetmodule-cocoa
 
 diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp

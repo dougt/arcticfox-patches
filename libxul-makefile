@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID b451493519b245e086ba3d1340d0592047af2f0c
-# Parent  c8ae95e3d4672825309ec31b391ff440cbe43a35
+# Node ID a80a242b484c3cfdf3b8f4b1b90d7851885fd6ef
+# Parent  96a6795567e012bff5dfa6c074326761c0ad73e7
 imported patch libxul-makefile
 
 diff --git a/toolkit/library/Makefile.in b/toolkit/library/Makefile.in
@@ -17,7 +17,7 @@ diff --git a/toolkit/library/Makefile.in b/toolkit/library/Makefile.in
  # This is going to be a framework named "XUL", not an ordinary library named
  # "libxul.dylib"
  LIBRARY_NAME=XUL
-@@ -186,6 +186,13 @@
+@@ -187,6 +187,13 @@
  	$(NULL)
  endif
  

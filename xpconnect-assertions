@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962719 14400
-# Node ID bdadf34bf25e695ebc61e5144528ea24cffbd8b6
-# Parent  ca5fac5c0a82ac2640e0bddbf77c5402de57bc19
+# Node ID 498226ad0ff6e0c79be394fca80031a3c61fb0aa
+# Parent  2f4d4f0213477bbae5db1c1d15731d6b3cf3419a
 imported patch xpconnect-assertions
 
 diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPConnect.cpp
 --- a/js/src/xpconnect/src/nsXPConnect.cpp
 +++ b/js/src/xpconnect/src/nsXPConnect.cpp
-@@ -1002,11 +1002,8 @@
+@@ -926,11 +926,8 @@
  /***************************************************************************/
  // nsIXPConnect interface methods...
  
@@ -25,7 +25,7 @@ diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPCon
 diff --git a/js/src/xpconnect/src/xpccomponents.cpp b/js/src/xpconnect/src/xpccomponents.cpp
 --- a/js/src/xpconnect/src/xpccomponents.cpp
 +++ b/js/src/xpconnect/src/xpccomponents.cpp
-@@ -4219,25 +4219,26 @@
+@@ -4191,25 +4191,26 @@
  
      AutoMarkingNativeInterfacePtr iface(ccx);
      iface = XPCNativeInterface::GetNewOrUsed(ccx, &NS_GET_IID(nsIXPCComponents));
@@ -65,7 +65,7 @@ diff --git a/js/src/xpconnect/src/xpccomponents.cpp b/js/src/xpconnect/src/xpcco
 diff --git a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
 --- a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
 +++ b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
-@@ -246,8 +246,7 @@
+@@ -241,8 +241,7 @@
      XPCJSRuntime* rt = ccx.GetRuntime();
  
      IID2NativeInterfaceMap* map = rt->GetIID2NativeInterfaceMap();
@@ -75,7 +75,7 @@ diff --git a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp b/js/src/xpconnect/sr
  
      {   // scoped lock
          XPCAutoLock lock(rt->GetMapLock());
-@@ -259,12 +258,10 @@
+@@ -254,12 +253,10 @@
  
      nsCOMPtr<nsIInterfaceInfo> info;
      ccx.GetXPConnect()->GetInfoForIID(iid, getter_AddRefs(info));

@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID 61b8e9c36a28237e7a034c87733d1f832847f1fd
-# Parent  5f61c25044225eebbff48322c1f296622812612d
+# Node ID 6d97dba30bb8d5870ccbd82cf1a7e268a90fcced
+# Parent  72cd09d2c5a0e1436b91ce9f911ccc2dd7143842
 imported patch silence-xpcwn-assertion
 
 diff --git a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
 --- a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
 +++ b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp
-@@ -261,7 +261,9 @@
+@@ -256,7 +256,9 @@
      NS_ENSURE_TRUE(info, nsnull);
  
      iface = NewInstance(ccx, info);

@@ -1,0 +1,14 @@
+# HG changeset patch
+# Parent 7fe353d700df443af7758231a9ab13320640a73f
+diff --git a/gfx/thebes/GLContextProvider.h b/gfx/thebes/GLContextProvider.h
+--- a/gfx/thebes/GLContextProvider.h
++++ b/gfx/thebes/GLContextProvider.h
+@@ -67,7 +67,7 @@
+ #define DEFAULT_IMPL WGL
+ #endif
+ 
+-#ifdef XP_MACOSX
++#ifdef MOZ_WIDGET_COCOA
+ #define GL_CONTEXT_PROVIDER_NAME GLContextProviderCGL
+ #include "GLContextProviderImpl.h"
+ #undef GL_CONTEXT_PROVIDER_NAME
