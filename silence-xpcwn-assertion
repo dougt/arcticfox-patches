@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID 6d97dba30bb8d5870ccbd82cf1a7e268a90fcced
-# Parent  72cd09d2c5a0e1436b91ce9f911ccc2dd7143842
+# Node ID f0607f43771697b6057e4c0fa1e99caa8f3970d7
+# Parent  41d8fb42ed458752d13d3aa5858d6aef92c41499
 imported patch silence-xpcwn-assertion
 
 diff --git a/js/src/xpconnect/src/xpcwrappednativeinfo.cpp b/js/src/xpconnect/src/xpcwrappednativeinfo.cpp

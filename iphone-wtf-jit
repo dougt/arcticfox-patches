@@ -1,0 +1,14 @@
+# HG changeset patch
+# Parent 0608dada658089705afb936a7e7e875acff0ef97
+diff --git a/js/src/assembler/jit/ExecutableAllocatorPosix.cpp b/js/src/assembler/jit/ExecutableAllocatorPosix.cpp
+--- a/js/src/assembler/jit/ExecutableAllocatorPosix.cpp
++++ b/js/src/assembler/jit/ExecutableAllocatorPosix.cpp
+@@ -53,7 +53,7 @@
+     ASSERT_UNUSED(result, !result);
+ }
+ 
+-#if WTF_ENABLE_ASSEMBLER_WX_EXCLUSIVE
++#if ENABLE_ASSEMBLER_WX_EXCLUSIVE
+ void ExecutableAllocator::reprotectRegion(void* start, size_t size, ProtectionSeting setting)
+ {
+     if (!pageSize)

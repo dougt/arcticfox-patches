@@ -1,0 +1,10 @@
+# HG changeset patch
+# Parent c872dc2130bbda901ec198cd33b4c061ac61d35a
+diff --git a/content/canvas/src/WebGLContextNotSupported.cpp b/content/canvas/src/WebGLContextNotSupported.cpp
+--- a/content/canvas/src/WebGLContextNotSupported.cpp
++++ b/content/canvas/src/WebGLContextNotSupported.cpp
+@@ -51,3 +51,4 @@
+ DOMCI_DATA(WebGLFramebuffer, void)
+ DOMCI_DATA(WebGLRenderbuffer, void)
+ DOMCI_DATA(WebGLUniformLocation, void)
++DOMCI_DATA(WebGLActiveInfo, void)

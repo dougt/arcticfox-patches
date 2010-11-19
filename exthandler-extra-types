@@ -1,0 +1,15 @@
+# HG changeset patch
+# Parent d6cd21ea9903629df00afd8aae377b9e6c13c45a
+diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
+--- a/uriloader/exthandler/nsExternalHelperAppService.cpp
++++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
+@@ -492,7 +492,8 @@
+   { APPLICATION_XPINSTALL, "xpi" },
+   { "application/xhtml+xml", "xhtml" },
+   { "application/xhtml+xml", "xht" },
+-  { TEXT_PLAIN, "txt" }
++  { TEXT_PLAIN, "txt" },
++  { TEXT_PLAIN, "js" }
+ };
+ 
+ /**

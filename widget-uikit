@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
-# Node ID b6cb952cabc1e9d7a9b28c10bc3a020febdaf15d
-# Parent  71410b84028444e42e651910f9eacae1433a31e3
+# Node ID 32e0bfc00af9dd105171bdc95293dea7c17834f9
+# Parent  ce07543c72b14672b472f3b45535af067f7c9df4
 UIKit widget implementation
 
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk

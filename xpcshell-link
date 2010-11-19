@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID a0f949ab497527ea562e0f5670f91bc0f96e267a
-# Parent  cb28aae370fd70de790855228ed3ef4267c788b3
+# Node ID d98c805dc9a615c3cb805ef02ebd7dd1cf250550
+# Parent  8c1d2eee9bf6366af0dc553f512ef2c2b1ece319
 imported patch xpcshell-link
 
 diff --git a/js/src/xpconnect/shell/Makefile.in b/js/src/xpconnect/shell/Makefile.in
@@ -17,14 +17,14 @@ diff --git a/js/src/xpconnect/shell/Makefile.in b/js/src/xpconnect/shell/Makefil
  CMMSRCS += xpcshellMacUtils.mm
  endif
  
-@@ -60,6 +60,10 @@
- 		$(NSPR_LIBS) \
+@@ -59,6 +59,10 @@
+ 		$(XPCOM_LIBS) \
  		$(NULL)
  
 +ifneq (,$(filter cocoa uikit,$(MOZ_WIDGET_TOOLKIT)))
 +LIBS += $(TK_LIBS)
 +endif
 +
- NSDISTMODE = copy
- 
- ifdef _MSC_VER
+ ifdef JS_SHARED_LIBRARY
+ LIBS +=	$(MOZ_JS_LIBS)
+ endif

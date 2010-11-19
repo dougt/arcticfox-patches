@@ -1,24 +1,10 @@
 # HG changeset patch
-# Parent 6d97dba30bb8d5870ccbd82cf1a7e268a90fcced
-diff --git a/content/html/content/src/Makefile.in b/content/html/content/src/Makefile.in
---- a/content/html/content/src/Makefile.in
-+++ b/content/html/content/src/Makefile.in
-@@ -110,7 +110,6 @@
- 		nsHTMLTableRowElement.cpp \
- 		nsHTMLTableSectionElement.cpp \
- 		nsHTMLTextAreaElement.cpp \
--		nsHTMLTimeRanges.cpp \
- 		nsHTMLTitleElement.cpp \
- 		$(NULL)
- 
-@@ -120,6 +119,7 @@
- 		nsHTMLMediaElement.cpp \
- 		nsHTMLMediaError.cpp \
- 		nsHTMLSourceElement.cpp \
-+		nsHTMLTimeRanges.cpp \
- 		nsHTMLVideoElement.cpp \
- 		$(NULL)
- endif
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1290110462 18000
+# Node ID e2c2c160f15dead612d38692e7dcbd8348272006
+# Parent  f0607f43771697b6057e4c0fa1e99caa8f3970d7
+[mq]: media-fixes
+
 diff --git a/layout/build/Makefile.in b/layout/build/Makefile.in
 --- a/layout/build/Makefile.in
 +++ b/layout/build/Makefile.in

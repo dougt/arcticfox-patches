@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID 72cd09d2c5a0e1436b91ce9f911ccc2dd7143842
-# Parent  db96c5705f55b74a165a4e4ff341313739bdecc4
+# Node ID 41d8fb42ed458752d13d3aa5858d6aef92c41499
+# Parent  59ae3da9f47c92fcb1da9c75c532ae3984be479f
 imported patch layout-extra
 
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp
-@@ -285,12 +285,15 @@
+@@ -283,12 +283,15 @@
  #endif
  
  #include "nsGeolocation.h"
@@ -24,7 +24,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #include "nsCSPService.h"
  
  // Transformiix
-@@ -323,12 +326,15 @@
+@@ -321,12 +324,15 @@
  NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(nsDOMStorageManager,
                                           nsDOMStorageManager::GetInstance)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsChannelPolicy)
@@ -40,7 +40,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  
  //-----------------------------------------------------------------------------
  
-@@ -881,12 +887,15 @@
+@@ -875,12 +881,15 @@
  NS_DEFINE_NAMED_CID(NS_NULLPRINCIPAL_CID);
  NS_DEFINE_NAMED_CID(NS_SECURITYNAMESET_CID);
  
@@ -56,7 +56,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  
  static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
    XPCONNECT_CIDENTRIES
-@@ -1030,12 +1039,15 @@
+@@ -1022,12 +1031,15 @@
    { &kNS_SYSTEMPRINCIPAL_CID, false, NULL, nsSystemPrincipalConstructor },
    { &kNS_NULLPRINCIPAL_CID, false, NULL, nsNullPrincipalConstructor },
    { &kNS_SECURITYNAMESET_CID, false, NULL, nsSecurityNameSetConstructor },
@@ -72,7 +72,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
    { NULL }
  };
  
-@@ -1175,12 +1187,15 @@
+@@ -1165,12 +1177,15 @@
    { NS_SYSTEMPRINCIPAL_CONTRACTID, &kNS_SYSTEMPRINCIPAL_CID },
    { NS_NULLPRINCIPAL_CONTRACTID, &kNS_NULLPRINCIPAL_CID },
    { NS_SECURITYNAMESET_CONTRACTID, &kNS_SECURITYNAMESET_CID },
@@ -91,7 +91,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -464,8 +464,8 @@
+@@ -467,8 +467,8 @@
    NP_Port                                   mQDPluginPortCopy;
  #endif
    PRInt32                                   mInCGPaintLevel;

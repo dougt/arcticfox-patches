@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962719 14400
-# Node ID 498226ad0ff6e0c79be394fca80031a3c61fb0aa
-# Parent  2f4d4f0213477bbae5db1c1d15731d6b3cf3419a
+# Node ID bafeab30d639e0b28a107492c75d4e824f28d281
+# Parent  a48a21bef7094d5c1a4cee4c6100338fc056cf85
 imported patch xpconnect-assertions
 
 diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPConnect.cpp
@@ -25,7 +25,7 @@ diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPCon
 diff --git a/js/src/xpconnect/src/xpccomponents.cpp b/js/src/xpconnect/src/xpccomponents.cpp
 --- a/js/src/xpconnect/src/xpccomponents.cpp
 +++ b/js/src/xpconnect/src/xpccomponents.cpp
-@@ -4191,25 +4191,26 @@
+@@ -4191,26 +4191,27 @@
  
      AutoMarkingNativeInterfacePtr iface(ccx);
      iface = XPCNativeInterface::GetNewOrUsed(ccx, &NS_GET_IID(nsIXPCComponents));
@@ -35,7 +35,8 @@ diff --git a/js/src/xpconnect/src/xpccomponents.cpp b/js/src/xpconnect/src/xpcco
 +    NS_ENSURE_TRUE(iface, JS_FALSE);
  
      nsCOMPtr<XPCWrappedNative> wrapper;
-     XPCWrappedNative::GetNewOrUsed(ccx, cholder, aScope, iface, nsnull,
+     xpcObjectHelper helper(cholder);
+     XPCWrappedNative::GetNewOrUsed(ccx, helper, aScope, iface,
                                     OBJ_IS_NOT_GLOBAL, getter_AddRefs(wrapper));
 -    if(!wrapper)
 -        return JS_FALSE;

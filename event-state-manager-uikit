@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 9b9c2692089825513f1bc987f104cbccc58294cd
-# Parent  a02024ab22d3afb408eec9eae8b1797d5ace575d
+# Node ID 4771baa53f6f16e53f175b00fd115c5ea8f6e1cb
+# Parent  d63dae0ba27a21d09a37acc5993d6a2ccbb051fd
 imported patch event-state-manager-uikit
 
 diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsEventStateManager.cpp
 --- a/content/events/src/nsEventStateManager.cpp
 +++ b/content/events/src/nsEventStateManager.cpp
-@@ -156,7 +156,11 @@
+@@ -162,7 +162,11 @@
  #include "mozilla/Services.h"
  
  #ifdef XP_MACOSX
@@ -19,8 +19,8 @@ diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsE
 +#endif
  #endif
  
- //#define DEBUG_DOCSHELL_FOCUS
-@@ -1688,7 +1692,7 @@
+ #ifdef MOZ_IPC
+@@ -1734,7 +1738,7 @@
    if (!mGestureDownContent)
      return;
  

@@ -1,19 +1,7 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 7f32d76cf9dcf9a6b7974c65d08cfa3acecce0ed
-# Parent  1023c2c9fadc9a000e718d43ef092eb668c0a291
+# Node ID 583bdda8cd39fad668253a38e076b74bcb112af3
+# Parent  744d9723453680802c0de2bae5df795cd6251c29
 imported patch nsmenupopupframe-cocoa
 
-diff --git a/layout/xul/base/src/nsMenuPopupFrame.cpp b/layout/xul/base/src/nsMenuPopupFrame.cpp
---- a/layout/xul/base/src/nsMenuPopupFrame.cpp
-+++ b/layout/xul/base/src/nsMenuPopupFrame.cpp
-@@ -319,7 +319,7 @@
-       baseWindow->GetMainWidget(getter_AddRefs(parentWidget));
-   }
- 
--#if defined(XP_MACOSX) || defined(XP_BEOS)
-+#if defined(MOZ_WIDGET_COCOA) || defined(XP_BEOS)
-   static NS_DEFINE_IID(kCPopupCID,  NS_POPUP_CID);
-   aView->CreateWidget(kCPopupCID, &widgetData, nsnull, PR_TRUE, PR_TRUE, 
-                       eContentTypeUI, parentWidget);

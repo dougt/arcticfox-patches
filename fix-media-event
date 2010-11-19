@@ -1,0 +1,20 @@
+# HG changeset patch
+# Parent 94450868266d74493b5dc23460f3a46340b543ce
+diff --git a/content/events/src/nsEventListenerManager.cpp b/content/events/src/nsEventListenerManager.cpp
+--- a/content/events/src/nsEventListenerManager.cpp
++++ b/content/events/src/nsEventListenerManager.cpp
+@@ -474,12 +474,14 @@
+     if (window) {
+       window->SetHasPaintEventListeners();
+     }
++#ifdef MOZ_MEDIA
+   } else if (aType == NS_MOZAUDIOAVAILABLE) {
+     mMayHaveAudioAvailableEventListener = PR_TRUE;
+     nsPIDOMWindow* window = GetInnerWindowForTarget();
+     if (window) {
+       window->SetHasAudioAvailableEventListeners();
+     }
++#endif
+   } else if (aType >= NS_MUTATION_START && aType <= NS_MUTATION_END) {
+     // For mutation listeners, we need to update the global bit on the DOM window.
+     // Otherwise we won't actually fire the mutation event.

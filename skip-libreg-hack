@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID ec6cf2ae5e3751a6caabd85e8dab7997fc6b7d57
-# Parent  a2fce46c00868c686b77cb5b732dc3243cffca58
+# Node ID b346130deaea612de1e461149c907eb3235a227b
+# Parent  e17325470b3c31e8e800cc0bbaef486e22489365
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
@@ -19,7 +19,7 @@ diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -6797,6 +6797,10 @@
+@@ -6781,6 +6781,10 @@
       AC_DEFINE(MOZ_HELP_VIEWER)
  fi
  
@@ -30,7 +30,7 @@ diff --git a/configure.in b/configure.in
  dnl ========================================================
  dnl = Enable safe browsing (anti-phishing)
  dnl ========================================================
-@@ -8736,7 +8740,7 @@
+@@ -8751,7 +8755,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)

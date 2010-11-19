@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 86640b961ff3252e38d7b29e71c1082edb622d71
-# Parent  2db3c3777ce672a252b57cc29881222b8544b823
+# Node ID 5c5e6091b256c09c1241305234ede06b7e0fa535
+# Parent  a8c83374481a2595cdce6142ff1dbf0913b4a909
 imported patch exthandler-uikit-skip-plugins
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5767,6 +5767,10 @@
+@@ -5786,6 +5786,10 @@
      MOZ_PLUGINS=,
      MOZ_PLUGINS=1)
  
@@ -22,7 +22,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
-@@ -90,7 +90,7 @@
+@@ -100,7 +100,7 @@
  #include "nsIObserverService.h" // so we can be a profile change observer
  #include "nsIPropertyBag2.h" // for the 64-bit content length
  
@@ -31,7 +31,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
  #include "nsILocalFileMac.h"
  #ifndef __LP64__
  #include "nsIAppleFileDecoder.h"
-@@ -99,7 +99,9 @@
+@@ -109,7 +109,9 @@
  #include "nsILocalFileOS2.h"
  #endif
  
@@ -41,7 +41,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
  #include "nsEscape.h"
  
  #include "nsIStringBundle.h" // XXX needed to localize error msgs
-@@ -394,7 +396,7 @@
+@@ -389,7 +391,7 @@
  static nsresult GetDownloadDirectory(nsIFile **_directory)
  {
    nsCOMPtr<nsIFile> dir;
@@ -50,7 +50,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    // On OS X, we first try to get the users download location, if it's set.
    nsCOMPtr<nsIPrefBranch> prefs =
      do_GetService(NS_PREFSERVICE_CONTRACTID);
-@@ -1405,7 +1407,7 @@
+@@ -1480,7 +1482,7 @@
  
    mOutStream = NS_BufferOutputStream(outputStream, BUFFERED_OUTPUT_SIZE);
  
@@ -59,7 +59,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
      nsCAutoString contentType;
      mMimeInfo->GetMIMEType(contentType);
      if (contentType.LowerCaseEqualsLiteral(APPLICATION_APPLEFILE) ||
-@@ -2618,6 +2620,7 @@
+@@ -2683,6 +2685,7 @@
    if (found)
      return NS_OK;
  
@@ -67,7 +67,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    const nsCString& flatExt = PromiseFlatCString(aFileExt);
    // Try the plugins
    const char* mimeType;
-@@ -2628,6 +2631,7 @@
+@@ -2693,6 +2696,7 @@
        return NS_OK;
      }
    }

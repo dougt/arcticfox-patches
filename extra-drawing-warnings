@@ -1,0 +1,46 @@
+# HG changeset patch
+# Parent 8241781b1bf9f761fd9152330e9a9f43609dd91c
+diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
+--- a/widget/src/uikit/nsWindow.mm
++++ b/widget/src/uikit/nsWindow.mm
+@@ -221,8 +221,11 @@
+ {
+     ALOG("[ChildView[%p] drawRect:[%f %f %f %f]] (mGeckoChild = %p)", (void*)self, aRect.origin.x, aRect.origin.y, aRect.size.width, aRect.size.height, (void*)mGeckoChild);
+ 
+-  if (!mGeckoChild)
+-      return;
++  PRBool isVisible;
++  if (!mGeckoChild || NS_FAILED(mGeckoChild->IsVisible(isVisible)) ||
++      !isVisible)
++    return;
++
+   CGContextRef cgContext = UIGraphicsGetCurrentContext();
+ 
+   nsPaintEvent paintEvent(PR_TRUE, NS_PAINT, mGeckoChild);
+@@ -241,6 +244,9 @@
+   }
+ 
+   //TODO: OpenGL layers
++  if (mGeckoChild->GetLayerManager()->GetBackendType() == LayerManager::LAYERS_OPENGL) {
++      NS_WARNING("TRYING TO USE OPENGL LAYERS!");
++  }
+ 
+   // Create Cairo objects.
+   CGSize bufferSize = [self bounds].size;
+@@ -263,13 +269,15 @@
+   nsAutoRetainUIKitObject kungFuDeathGrip(self);
+   PRBool painted;
+   {
+-      nsBaseWidget::AutoLayerManagerSetup setupLayerManager(mGeckoChild, targetContext, BasicLayerManager::BUFFER_NONE);
++      nsBaseWidget::AutoLayerManagerSetup
++          setupLayerManager(mGeckoChild, targetContext, BasicLayerManager::BUFFER_NONE);
+       painted = mGeckoChild->DispatchWindowEvent(paintEvent);
+   }
+ 
+   if (!painted && [self isOpaque]) {
+     // Gecko refused to draw, but we've claimed to be opaque, so we have to
+     // draw something--fill with white.
++      NS_WARNING("Drawing fallback content!");
+     CGContextSetRGBFillColor(cgContext, 1, 1, 1, 1);
+     CGContextFillRect(cgContext, CGRectMake(aRect.origin.x, aRect.origin.y,
+                                             aRect.size.width, aRect.size.height));

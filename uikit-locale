@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID a2fce46c00868c686b77cb5b732dc3243cffca58
-# Parent  99143aedbb05fc2ab7b148f2e4253d2d466b263a
+# Node ID e17325470b3c31e8e800cc0bbaef486e22489365
+# Parent  24b2c3b3e12edf13b6e77ce96e7ef3b57f9420a7
 imported patch uikit-locale
 
 diff --git a/intl/locale/src/nsLocaleConstructors.h b/intl/locale/src/nsLocaleConstructors.h
@@ -34,7 +34,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  #  include <Carbon/Carbon.h>
  #  include "nsIMacLocale.h"
  #elif defined(XP_UNIX) || defined(XP_BEOS)
-@@ -78,7 +78,7 @@
+@@ -81,7 +81,7 @@
  #define NSILOCALE_MAX_ACCEPT_LANGUAGE	16
  #define NSILOCALE_MAX_ACCEPT_LENGTH		18
  
@@ -43,7 +43,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  static int posix_locale_category[LocaleListLength] =
  {
    LC_COLLATE,
-@@ -161,7 +161,7 @@
+@@ -164,7 +164,7 @@
          if (NS_FAILED(result)) { return;}
      }
  #endif
@@ -52,7 +52,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
      nsCOMPtr<nsIPosixLocale> posixConverter = do_GetService(NS_POSIXLOCALE_CONTRACTID);
  
      nsAutoString xpLocale, platformLocale;
-@@ -258,7 +258,7 @@
+@@ -280,7 +280,7 @@
      }  // if ( NS_SUCCEEDED )...
  #endif  // XP_OS2
  
@@ -61,7 +61,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
      // Get string representation of user's current locale
      CFLocaleRef userLocaleRef = ::CFLocaleCopyCurrent();
      CFStringRef userLocaleStr = ::CFLocaleGetIdentifier(userLocaleRef);
-@@ -286,7 +286,7 @@
+@@ -308,7 +308,7 @@
      ::CFRelease(userLocaleRef);
  
      NS_ASSERTION(mApplicationLocale, "Failed to create locale objects");
@@ -70,7 +70,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  }
  
  nsLocaleService::~nsLocaleService(void)
-@@ -309,7 +309,7 @@
+@@ -331,7 +331,7 @@
        nsString category; category.AssignWithConversion(LocaleList[i]);
        result = resultLocale->AddCategory(category, aLocale);
        if (NS_FAILED(result)) { delete resultLocale; return result;}

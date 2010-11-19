@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID 23e4d1bf905e9197190ad294e7b79ba3a2435e0f
-# Parent  527d4d693865fe631836852f43cef9d8fd828eab
+# Node ID f3ce9ae1d65e87619bc5f8e5d6b28bb1ade10894
+# Parent  079f229a228d796a6369ed1c7cefc62b6faaf73a
 imported patch browser-uikit
 
 diff --git a/browser/app/Info.plist b/browser/app/Info.plist
@@ -65,7 +65,7 @@ new file mode 100644
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 --- a/browser/app/Makefile.in
 +++ b/browser/app/Makefile.in
-@@ -104,14 +104,14 @@
+@@ -102,14 +102,14 @@
  endif
  LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
  else
@@ -82,7 +82,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  TK_LIBS := $(TK_LIBS)
  endif
  
-@@ -308,16 +308,15 @@
+@@ -306,16 +306,15 @@
  libs:: $(srcdir)/blocklist.xml
  	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
  
@@ -102,7 +102,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  AB_CD = $(MOZ_UI_LOCALE)
  
  AB := $(firstword $(subst -, ,$(AB_CD)))
-@@ -360,6 +359,27 @@
+@@ -358,6 +357,27 @@
  endif
  endif
  
@@ -300,10 +300,10 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
      { &kNS_SHELLSERVICE_CID, false, NULL, nsMacShellServiceConstructor },
      { &kNS_SAFARIPROFILEMIGRATOR_CID, false, NULL, nsSafariProfileMigratorConstructor },
      { &kNS_MACIEPROFILEMIGRATOR_CID, false, NULL, nsMacIEProfileMigratorConstructor },
-@@ -205,11 +204,11 @@
- #ifdef MOZ_SERVICES_SYNC
+@@ -206,11 +205,11 @@
      { NS_ABOUT_MODULE_CONTRACTID_PREFIX "sync-tabs", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },
  #endif
+     { NS_ABOUT_MODULE_CONTRACTID_PREFIX "home", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },
 -#ifndef WINCE
 +#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
      { NS_PROFILEMIGRATOR_CONTRACTID, &kNS_FIREFOX_PROFILEMIGRATOR_CID },
@@ -314,7 +314,7 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
      { NS_SHELLSERVICE_CONTRACTID, &kNS_SHELLSERVICE_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "safari", &kNS_SAFARIPROFILEMIGRATOR_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "macie", &kNS_MACIEPROFILEMIGRATOR_CID },
-@@ -225,7 +224,7 @@
+@@ -226,7 +225,7 @@
  #endif
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "phoenix", &kNS_PHOENIXPROFILEMIGRATOR_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "seamonkey", &kNS_SEAMONKEYPROFILEMIGRATOR_CID },

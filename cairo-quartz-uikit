@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID 96a6795567e012bff5dfa6c074326761c0ad73e7
-# Parent  53455451f6cf4d9ef7d4e4ad2d9faecd97b50ab4
+# Node ID 00e1a4bc3b83faa1577986677a5dc6c2c423bf91
+# Parent  3a1fa55d14533ae7b6cb72c510e61eb025ca459b
 imported patch cairo-quartz-uikit
 
 diff --git a/gfx/cairo/cairo/src/Makefile.in b/gfx/cairo/cairo/src/Makefile.in
@@ -49,7 +49,7 @@ diff --git a/gfx/cairo/cairo/src/cairo-quartz-image.h b/gfx/cairo/cairo/src/cair
 diff --git a/gfx/cairo/cairo/src/cairo-quartz-surface.c b/gfx/cairo/cairo/src/cairo-quartz-surface.c
 --- a/gfx/cairo/cairo/src/cairo-quartz-surface.c
 +++ b/gfx/cairo/cairo/src/cairo-quartz-surface.c
-@@ -165,10 +165,15 @@
+@@ -163,10 +163,15 @@
      CGContextGetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextGetAllowsFontSmoothing");
      CGContextSetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextSetAllowsFontSmoothing");
  

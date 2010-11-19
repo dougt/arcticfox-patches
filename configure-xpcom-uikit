@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID 99143aedbb05fc2ab7b148f2e4253d2d466b263a
-# Parent  45e88fb88c0384fddf57f82cedb471cd9cbafece
+# Node ID 24b2c3b3e12edf13b6e77ce96e7ef3b57f9420a7
+# Parent  dd0bcbb601dd0631c90881c11c6fd780a60e24f1
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 * * *
 imported patch xpcom-extra
@@ -10,7 +10,7 @@ imported patch xpcom-extra
 diff --git a/config/config.mk b/config/config.mk
 --- a/config/config.mk
 +++ b/config/config.mk
-@@ -578,6 +578,10 @@
+@@ -581,6 +581,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -24,7 +24,7 @@ diff --git a/config/config.mk b/config/config.mk
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -2037,7 +2037,17 @@
+@@ -2046,7 +2046,17 @@
      # The ExceptionHandling framework is needed for Objective-C exception
      # logging code in nsObjCExceptions.h. Currently we only use that in debug
      # builds.
@@ -43,7 +43,7 @@ diff --git a/configure.in b/configure.in
  
      dnl DTrace and -dead_strip don't interact well. See bug 403132.
      dnl ===================================================================
-@@ -3298,7 +3308,7 @@
+@@ -3310,7 +3320,7 @@
  AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
@@ -52,7 +52,7 @@ diff --git a/configure.in b/configure.in
  AC_CHECK_HEADERS(linux/quota.h)
  
  dnl Try for MMX support
-@@ -3398,11 +3408,19 @@
+@@ -3410,11 +3420,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -72,7 +72,7 @@ diff --git a/configure.in b/configure.in
    AC_MSG_RESULT([$ac_cv_have_core_text])
  
    if test "$ac_cv_have_core_text" = "no"; then
-@@ -5181,13 +5199,27 @@
+@@ -5200,13 +5218,27 @@
      ;;
  
  cairo-cocoa)
@@ -104,7 +104,7 @@ diff --git a/configure.in b/configure.in
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -7820,6 +7852,7 @@
+@@ -7813,6 +7845,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -112,7 +112,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -7844,6 +7877,7 @@
+@@ -7837,6 +7870,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -120,7 +120,7 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -8311,7 +8345,7 @@
+@@ -8328,7 +8362,7 @@
      if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
      fi
@@ -132,7 +132,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/js/src/config/config.mk b/js/src/config/config.mk
 --- a/js/src/config/config.mk
 +++ b/js/src/config/config.mk
-@@ -578,6 +578,10 @@
+@@ -581,6 +581,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -179,7 +179,7 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  #include "nsMacUtilsImpl.h"
  #endif
  
-@@ -221,7 +221,7 @@
+@@ -222,7 +222,7 @@
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
  

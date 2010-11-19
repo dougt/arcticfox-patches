@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID f63a352b5183840f3a3199d4a5bb3702c4ddeb01
-# Parent  b514e94aca44aff447b41e4ebe1cd55552143c60
+# Node ID ba43a1475fff87ad8ec1ab018b9d5f3b804eb88f
+# Parent  01301d28fe4e322b4d980c7586f8d1837d450e75
 imported patch downloadmanager-uikit
 
 diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/components/downloads/src/nsDownloadManager.cpp
 --- a/toolkit/components/downloads/src/nsDownloadManager.cpp
 +++ b/toolkit/components/downloads/src/nsDownloadManager.cpp
-@@ -1131,7 +1131,7 @@
+@@ -1126,7 +1126,7 @@
    mBundle->GetStringFromName(NS_LITERAL_STRING("downloadsFolder").get(),
                               getter_Copies(folderName));
  
@@ -17,7 +17,7 @@ diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/co
    rv = dirService->Get(NS_OSX_DEFAULT_DOWNLOAD_DIR,
                         NS_GET_IID(nsILocalFile),
                         getter_AddRefs(downloadDir));
-@@ -1941,7 +1941,7 @@
+@@ -1936,7 +1936,7 @@
      nsCOMPtr<nsISupportsPRBool> cancelDownloads =
        do_QueryInterface(aSubject, &rv);
      NS_ENSURE_SUCCESS(rv, rv);
@@ -26,12 +26,12 @@ diff --git a/toolkit/components/downloads/src/nsDownloadManager.cpp b/toolkit/co
      ConfirmCancelDownloads(currDownloadCount, cancelDownloads,
                             NS_LITERAL_STRING("quitCancelDownloadsAlertTitle").get(),
                             NS_LITERAL_STRING("quitCancelDownloadsAlertMsgMultiple").get(),
-@@ -2254,7 +2254,7 @@
-                ::SHAddToRecentDocs(SHARD_PATHW, path.get());
-             }
+@@ -2252,7 +2252,7 @@
+           }
+         }
  #endif
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-             // On OS X, make the downloads stack bounce.
-             CFStringRef observedObject = ::CFStringCreateWithCString(kCFAllocatorDefault,
+         // On OS X, make the downloads stack bounce.
+         CFStringRef observedObject = ::CFStringCreateWithCString(kCFAllocatorDefault,
                                                   NS_ConvertUTF16toUTF8(path).get(),

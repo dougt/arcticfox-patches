@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521097 14400
-# Node ID a608fe5d4fc99a5853d900a7966bf658f7683cba
-# Parent  a80a242b484c3cfdf3b8f4b1b90d7851885fd6ef
+# Node ID 3b42be67d86a428a4951e8073ca8e18b4ba55463
+# Parent  18c2fe7ec01d61bccd6f375aef0c780618f417cf
 imported patch nsobjectframe-ifdefs
 
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -165,8 +165,10 @@
+@@ -179,8 +179,10 @@
  #ifdef XP_MACOSX
  #include "gfxQuartzNativeDrawing.h"
  #include "nsPluginUtilsOSX.h"
@@ -18,8 +18,8 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 +#endif
  
  #ifdef MOZ_X11
- #include <cairo-xlib.h>
-@@ -463,7 +465,9 @@
+ #if (MOZ_PLATFORM_MAEMO == 5) && defined(MOZ_WIDGET_GTK2)
+@@ -466,7 +468,9 @@
  #endif
    PRInt32                                   mInCGPaintLevel;
    nsIOSurface                              *mIOSurface;
@@ -29,7 +29,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    static nsCOMPtr<nsITimer>                *sCATimer;
    static nsTArray<nsPluginInstanceOwner*>  *sCARefreshListeners;
    PRBool                                    mSentInitialTopLevelWindowEvent;
-@@ -793,10 +797,12 @@
+@@ -790,10 +794,12 @@
        return NS_ERROR_FAILURE;
      pluginWidget->SetPluginEventModel(mInstanceOwner->GetEventModel());
  
@@ -42,7 +42,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    }
  
    if (!IsHidden()) {
-@@ -1658,12 +1664,15 @@
+@@ -1651,12 +1657,15 @@
  #endif
  
        mInstanceOwner->BeginCGPaint();
