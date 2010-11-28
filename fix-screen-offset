@@ -1,0 +1,160 @@
+# HG changeset patch
+# Parent a0d485763953a742d01bd8d8dab594591ce74b6d
+
+diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h
+--- a/widget/src/uikit/nsAppShell.h
++++ b/widget/src/uikit/nsAppShell.h
+@@ -68,6 +68,7 @@
+ 
+   static nsAppShell* gAppShell;
+   static UIWindow* gWindow;
++  static NSMutableArray* gTopLevelViews;
+ 
+ protected:
+   virtual ~nsAppShell();
+diff --git a/widget/src/uikit/nsAppShell.mm b/widget/src/uikit/nsAppShell.mm
+--- a/widget/src/uikit/nsAppShell.mm
++++ b/widget/src/uikit/nsAppShell.mm
+@@ -54,7 +54,8 @@
+ #include "nsIWebBrowserChrome.h"
+ 
+ nsAppShell *nsAppShell::gAppShell = NULL;
+-UIWindow *nsAppShell::gWindow = nil; 
++UIWindow *nsAppShell::gWindow = nil;
++NSMutableArray *nsAppShell::gTopLevelViews = [[NSMutableArray alloc] init];
+ 
+ #define ALOG(args...) printf(args); printf("\n")
+ 
+@@ -76,7 +77,14 @@
+   // create them before calling UIApplicationMain, so this makes more sense.
+   nsAppShell::gWindow = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] retain];
+   // just to make things more visible for now
+-  nsAppShell::gWindow.backgroundColor = [UIColor blueColor];
++  //nsAppShell::gWindow.backgroundColor = [UIColor blueColor];
++
++  // add all of the top level views as children
++  for (unsigned int i = 0; i < [nsAppShell::gTopLevelViews count]; i++) {
++    [nsAppShell::gWindow addSubview:[nsAppShell::gTopLevelViews objectAtIndex:i]];
++  }
++  [nsAppShell::gTopLevelViews release];
++  nsAppShell::gTopLevelViews = nil;
+   [nsAppShell::gWindow makeKeyAndVisible];
+ 
+   return YES;
+diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
+--- a/widget/src/uikit/nsWindow.mm
++++ b/widget/src/uikit/nsWindow.mm
+@@ -66,6 +66,20 @@
+ 
+ #define ALOG(args...) printf(args); printf("\n")
+ 
++UIColor* colors[] = {
++    [UIColor blueColor],
++    [UIColor redColor],
++    [UIColor greenColor],
++    [UIColor cyanColor],
++    [UIColor yellowColor],
++    [UIColor magentaColor],
++    [UIColor orangeColor],
++    [UIColor purpleColor],
++    [UIColor brownColor]
++};
++int nextColor = 0;
++int NUM_COLORS = sizeof(colors) / sizeof(colors[0]);
++
+ static inline void
+ GeckoRectToCGRect(const nsIntRect & inGeckoRect, CGRect & outRect)
+ {
+@@ -141,9 +155,14 @@
+ - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+ {
+     ALOG("[ChildView[%p] touchesBegan", self);
++
+     if (!mGeckoChild)
+         return;
+ 
++    nsIntRect rect;
++    mGeckoChild->GetScreenBounds(rect);
++    ALOG("Screen bounds: [%d %d %d %d]", rect.x, rect.y, rect.width, rect.height);
++
+     if ([touches count] != 1) // ignore multitouch for now
+         return;
+ 
+@@ -381,16 +400,26 @@
+ 
+     CGRect cgRect;
+     GeckoRectToCGRect(mBounds, cgRect);
+-    mNativeView = [[[ChildView alloc] initWithFrame:cgRect geckoChild:this] retain];
++    mNativeView = [[ChildView alloc] initWithFrame:cgRect geckoChild:this];
+     //XXX: for easier debugging right now
+-    mNativeView.backgroundColor = [UIColor greenColor];
+-    ALOG("nsWindow[%p]::Create: mNativeView: %p", (void*)this, (void*)mNativeView);
++    //mNativeView.backgroundColor = [UIColor greenColor];
++    mNativeView.backgroundColor = colors[nextColor];
++    ALOG("nsWindow[%p]::Create: mNativeView: %p, color: %d", (void*)this, (void*)mNativeView, nextColor);
++    nextColor++;
++    nextColor %= NUM_COLORS;
++
+     if (parent) {
+         parent->mChildren.AppendElement(this);
+         mParent = parent;
+ 
+         [nativeParent addSubview:mNativeView];
+     }
++    else if (nsAppShell::gWindow) {
++        [nsAppShell::gWindow addSubview:mNativeView];
++    }
++    else {
++        [nsAppShell::gTopLevelViews addObject:mNativeView];
++    }
+ 
+   return NS_OK;
+ }
+@@ -467,18 +496,11 @@
+ {
+   ALOG("nsWindow[%p]::Show(%d) (toplevel: %d)", (void*)this, aState, mParent == NULL);
+   if (aState != mVisible) {
+-      if (aState) {
+-          // reparent to the global window
+-          if ([nsAppShell::gWindow.subviews count] == 0) {
+-              [nsAppShell::gWindow addSubview:mNativeView];
+-          }
+-          else {
+-              [[nsAppShell::gWindow.subviews objectAtIndex:0] removeFromSuperview];
+-              [nsAppShell::gWindow addSubview:mNativeView];
+-          }
+-      }
++      mNativeView.hidden = !aState;
++    if (aState && mParent == NULL) {
++        [nsAppShell::gWindow bringSubviewToFront:mNativeView];
++    }
+ 
+-    [mNativeView setHidden:!aState];
+     mVisible = aState;
+   }
+   return NS_OK;
+@@ -641,13 +663,6 @@
+   return NS_OK;
+ }
+ 
+-void nsWindow::Scroll(const nsIntPoint&,
+-                      const nsTArray<nsIntRect>&,
+-                      const nsTArray<nsIWidget::Configuration>&)
+-{
+-    //XXX: implement me
+-}
+-
+ NS_IMETHODIMP
+ nsWindow::SetFocus(PRBool aRaise)
+ {
+@@ -708,10 +723,6 @@
+   }
+ 
+   nsIntPoint offset(0, 0);
+-  if (mParent) {
+-      offset = mParent->WidgetToScreenOffset();
+-  }
+-
+   temp = [mNativeView convertPoint:temp toView:nil];
+   offset.x += temp.x;
+   offset.y += temp.y;
