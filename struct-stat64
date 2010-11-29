@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 6de98c8f69c1fc9678f3f07e0c91007e421a2627
-# Parent  32e0bfc00af9dd105171bdc95293dea7c17834f9
+# Node ID 494f934c467adc65eac5ffd9d42c0ea74505f2cf
+# Parent  4efcc525f80c9c515ed7808845438b22123a3cbd
 imported patch struct-stat64
 
 diff --git a/configure.in b/configure.in

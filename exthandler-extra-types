@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent d6cd21ea9903629df00afd8aae377b9e6c13c45a
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1290861141 18000
+# Node ID 95e182fe4b2920a99a4af58c43710fbb22caaab9
+# Parent  ea525eaf44c7081fdf1a5f7e4edc013cd7e1489a
+imported patch exthandler-extra-types
+
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp

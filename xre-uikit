@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID df09548ab98fd5d77e648fccc9e2f423b296e074
-# Parent  f682a9c191993efa845c6ad537c7f522d18c02f0
+# Node ID 620e28beb176e09c5a11fcbcd914aedacdfa4487
+# Parent  0ba27d89b2088b74106a82c97cd36f08ce26d9d5
 imported patch xre-uikit
 * * *
 imported patch xre-oops

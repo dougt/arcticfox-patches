@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962719 14400
-# Node ID bafeab30d639e0b28a107492c75d4e824f28d281
-# Parent  a48a21bef7094d5c1a4cee4c6100338fc056cf85
+# Node ID 646a4f66c34142ee662d5b1b376deee0f7a12209
+# Parent  195f0382d42b6a7808495e633b2f22138404e6f9
 imported patch xpconnect-assertions
 
 diff --git a/js/src/xpconnect/src/nsXPConnect.cpp b/js/src/xpconnect/src/nsXPConnect.cpp

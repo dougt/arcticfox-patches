@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID b346130deaea612de1e461149c907eb3235a227b
-# Parent  e17325470b3c31e8e800cc0bbaef486e22489365
+# Node ID bc9a6c8f18ba393ff96bf93cfd1e48dc435540b1
+# Parent  64cb90cc86ca58923446f4f33848655d5466cad3
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 --- a/config/autoconf.mk.in
 +++ b/config/autoconf.mk.in
-@@ -127,6 +127,7 @@
+@@ -128,6 +128,7 @@
  ACCESSIBILITY = @ACCESSIBILITY@
  MOZ_VIEW_SOURCE = @MOZ_VIEW_SOURCE@
  MOZ_JSLOADER  = @MOZ_JSLOADER@

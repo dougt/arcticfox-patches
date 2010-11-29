@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID 5549ab76c861e37f17dbf168f59781010b963d71
-# Parent  21d65c568d5fd2328c64a15b5cdede5c2e00439c
+# Node ID 44727e4291295a615ed3509464bfb18c4a3dc2d3
+# Parent  65db93059645f00a0ff0cee69ecfdcf38c3ff129
 imported patch skip-webgl-uikit
 
 diff --git a/configure.in b/configure.in

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID 24b2c3b3e12edf13b6e77ce96e7ef3b57f9420a7
-# Parent  dd0bcbb601dd0631c90881c11c6fd780a60e24f1
+# Node ID 0bcb5611fbfa83a9add2f1e8d655e34b8d7b7ed8
+# Parent  0770bb91e45a9221712b3e92b95a2988ca35986d
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 * * *
 imported patch xpcom-extra

@@ -35,7 +35,6 @@ uikit-branding-icons
 browser-uikit
 browser-xul-hax
 nsappshell-hidden-window
-nsmenupopupframe-cocoa
 hardcode-dtd-content-type
 widget-uikit
 struct-stat64
@@ -51,7 +50,6 @@ nss-arm-darwin
 fix-packaging
 xpconnect-assertions
 chrome-registry-extra
-contentutils-extra
 canvaslayerogl
 layout-extra
 silence-xpcwn-assertion
@@ -64,3 +62,4 @@ iphone-wtf-jit
 exthandler-extra-types
 extra-drawing-warnings
 fix-screen-offset
+wtf-jit-allocator-iphone

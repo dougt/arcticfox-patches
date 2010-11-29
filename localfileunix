@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290110583 18000
-# Node ID c872dc2130bbda901ec198cd33b4c061ac61d35a
-# Parent  aa9ea26bc361664dd1c0b93bc4918cc39cdf0157
+# Node ID e2a9ae20b63f6fed36df4f473e83bdd2abe63ecf
+# Parent  1b83cb4a4ba588482c4c2976c5ca031d58ff7bd0
 [mq]: localfileunix
 
 diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp

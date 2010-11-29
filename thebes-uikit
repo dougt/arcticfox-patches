@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 1798340b742c7915ce6604f56d31054d5b39793f
-# Parent  5588c6a13b1c208e9aceae1f2be78c4b94a9ce2b
+# Node ID 7df3532f039f171a0599488f4bcdbf7cc8163843
+# Parent  685b4c39f79956d0e2466786f517e5f47c9b4206
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra

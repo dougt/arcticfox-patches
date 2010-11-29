@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent c872dc2130bbda901ec198cd33b4c061ac61d35a
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1290861141 18000
+# Node ID 5d76c42cf8535caac955c04d2631dc1e595621c9
+# Parent  e2a9ae20b63f6fed36df4f473e83bdd2abe63ecf
+imported patch fix-webgl-contextnotsupported
+
 diff --git a/content/canvas/src/WebGLContextNotSupported.cpp b/content/canvas/src/WebGLContextNotSupported.cpp
 --- a/content/canvas/src/WebGLContextNotSupported.cpp
 +++ b/content/canvas/src/WebGLContextNotSupported.cpp

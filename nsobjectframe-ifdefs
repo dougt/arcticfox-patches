@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521097 14400
-# Node ID 3b42be67d86a428a4951e8073ca8e18b4ba55463
-# Parent  18c2fe7ec01d61bccd6f375aef0c780618f417cf
+# Node ID 2cbd14591d5198296b8f25e4ad6af7b80f86118a
+# Parent  6ebfebcc9a13d9ddf0ac3d998aca4f41377c3b9f
 imported patch nsobjectframe-ifdefs
 
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp

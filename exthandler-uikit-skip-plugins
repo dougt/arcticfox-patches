@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 5c5e6091b256c09c1241305234ede06b7e0fa535
-# Parent  a8c83374481a2595cdce6142ff1dbf0913b4a909
+# Node ID fb6d23354efa54301c8aecca316eff5883d5066a
+# Parent  182fbdd4454924f64e635d92b61174084a9669ed
 imported patch exthandler-uikit-skip-plugins
 
 diff --git a/configure.in b/configure.in

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271780571 14400
-# Node ID 91c26fb390a08ae09741488b657b7d94a9609e19
-# Parent  0886ad6e6aaa2c33e7ad319d1b80aa0f3f35c9e8
+# Node ID f5d4ee708090cb95fbc09073336abc871172cf55
+# Parent  ef3410122ad9a4f082299b72060281c8355f6378
 allow forcing cross-compile with CROSS_COMPILE=1, to make targeting the simulator a cross-compile
 
 diff --git a/nsprpub/configure b/nsprpub/configure

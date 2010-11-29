@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID f3ce9ae1d65e87619bc5f8e5d6b28bb1ade10894
-# Parent  079f229a228d796a6369ed1c7cefc62b6faaf73a
+# Node ID 0ff0396358a97b0ce8873aba3474ac9b19bff297
+# Parent  5d66fdd08a86dcc595d084c8690953393b369166
 imported patch browser-uikit
 
 diff --git a/browser/app/Info.plist b/browser/app/Info.plist

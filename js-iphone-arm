@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867183 14400
-# Node ID c01816986a286fa432e2ee27c1dfd8df48cf656b
-# Parent  f3494ca73dd44d058b0abb9f48a675f4ba4818c9
+# Node ID d0ed36512fabaaa34aae4f5be72d6505ff5e5437
+# Parent  165e0d2ebc66e21d95e6342ae3f4b68b53a3844c
 fixes for compiling js on arm-apple-darwin
 
 diff --git a/js/src/configure.in b/js/src/configure.in

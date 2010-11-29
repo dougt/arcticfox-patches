@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 7fdd86aeb3ed389eaae844cb059a97a7b72fe206
-# Parent  f3ce9ae1d65e87619bc5f8e5d6b28bb1ade10894
+# Node ID b5c2c55b1f930273f92b345266415fc82cb5ed5c
+# Parent  0ff0396358a97b0ce8873aba3474ac9b19bff297
 imported patch browser-xul-hax
 
 diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/baseMenuOverlay.xul
@@ -267,7 +267,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  /**
   * Click-and-Hold implementation for the Back and Forward buttons
   * XXXmano: should this live in toolbarbutton.xml?
-@@ -1415,7 +1415,7 @@
+@@ -1406,7 +1406,7 @@
      document.getElementById("textfieldDirection-swap").hidden = false;
    }
  
@@ -276,7 +276,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // Setup click-and-hold gestures access to the session history
    // menus if global click-and-hold isn't turned on
    if (!getBoolPref("ui.click_hold_context_menus", false))
-@@ -1497,7 +1497,7 @@
+@@ -1488,7 +1488,7 @@
    // an idle timer, taking corrective actions where needed.
    setTimeout(function() PlacesUtils.startPlacesDBUtils(), 15000);
  
@@ -285,7 +285,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    updateEditUIVisibility();
    let placesContext = document.getElementById("placesContext");
    placesContext.addEventListener("popupshowing", updateEditUIVisibility, false);
-@@ -1598,7 +1598,7 @@
+@@ -1589,7 +1589,7 @@
    window.QueryInterface(Ci.nsIDOMChromeWindow).browserDOMWindow = null;
  }
  
@@ -294,7 +294,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  // nonBrowserWindowStartup(), nonBrowserWindowDelayedStartup(), and
  // nonBrowserWindowShutdown() are used for non-browser windows in
  // macBrowserOverlay
-@@ -1834,7 +1834,7 @@
+@@ -1825,7 +1825,7 @@
  
  function BrowserReloadOrDuplicate(aEvent) {
    var backgroundTabModifier = aEvent.button == 1 ||
@@ -303,7 +303,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      aEvent.metaKey;
  #else
      aEvent.ctrlKey;
-@@ -1897,7 +1897,7 @@
+@@ -1888,7 +1888,7 @@
  
  function loadOneOrMoreURIs(aURIString)
  {
@@ -312,7 +312,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // we're not a browser window, pass the URI string to a new browser window
    if (window.location.href != getBrowserURL())
    {
-@@ -1931,7 +1931,7 @@
+@@ -1922,7 +1922,7 @@
    if (focusAndSelectUrlBar())
      return;
  
@@ -321,7 +321,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    if (window.location.href != getBrowserURL()) {
      var win = getTopWin();
      if (win) {
-@@ -2046,7 +2046,7 @@
+@@ -2037,7 +2037,7 @@
  }
  
  function BrowserCloseTabOrWindow() {
@@ -330,7 +330,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // If we're not a browser window, just close the window
    if (window.location.href != getBrowserURL()) {
      closeWindow(true);
-@@ -2472,7 +2472,7 @@
+@@ -2463,7 +2463,7 @@
  
  function BrowserImport()
  {
@@ -339,7 +339,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                       .getService(Components.interfaces.nsIWindowMediator);
    var win = wm.getMostRecentWindow("Browser:MigrationWizard");
-@@ -3222,7 +3222,7 @@
+@@ -3213,7 +3213,7 @@
     * or focuses an existing window, if necessary.
     */
    webSearch: function BrowserSearch_webSearch() {
@@ -348,7 +348,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      if (window.location.href != getBrowserURL()) {
        var win = getTopWin();
        if (win) {
-@@ -3525,7 +3525,7 @@
+@@ -3516,7 +3516,7 @@
          document.getElementById('Browser:Back').hasAttribute('disabled') &&
          document.getElementById('Browser:Forward').hasAttribute('disabled');
  
@@ -357,7 +357,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      updateEditUIVisibility();
  #endif
    }
-@@ -3551,7 +3551,7 @@
+@@ -3542,7 +3542,7 @@
    var cmd = document.getElementById("cmd_CustomizeToolbars");
    cmd.removeAttribute("disabled");
  
@@ -366,7 +366,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // make sure to re-enable click-and-hold
    if (!getBoolPref("ui.click_hold_context_menus", false))
      SetClickAndHoldHandlers();
-@@ -3590,7 +3590,7 @@
+@@ -3581,7 +3581,7 @@
   */
  function updateEditUIVisibility()
  {
@@ -375,7 +375,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    let editMenuPopupState = document.getElementById("menu_EditPopup").state;
    let contextMenuPopupState = document.getElementById("contentAreaContextMenu").state;
    let placesContextMenuPopupState = document.getElementById("placesContext").state;
-@@ -5189,7 +5189,7 @@
+@@ -5180,7 +5180,7 @@
  
    switch (event.button) {
      case 0:    // if left button clicked
@@ -384,7 +384,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
        if (event.metaKey) { // Cmd
  #else
        if (event.ctrlKey) {
-@@ -5903,7 +5903,7 @@
+@@ -5894,7 +5894,7 @@
  
    os.notifyObservers(null, "browser-lastwindow-close-granted", null);
  
@@ -393,7 +393,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // OS X doesn't quit the application when the last window is closed, but keeps
    // the session alive. Hence don't prompt users to save tabs, but warn about
    // closing multiple tabs.
-@@ -7445,7 +7445,7 @@
+@@ -7436,7 +7436,7 @@
  
      var appName = brandBundle.GetStringFromName("brandShortName");
  # On Mac, use the header as the title.

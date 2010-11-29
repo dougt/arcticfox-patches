@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 5588c6a13b1c208e9aceae1f2be78c4b94a9ce2b
-# Parent  5c5e6091b256c09c1241305234ede06b7e0fa535
+# Node ID 685b4c39f79956d0e2466786f517e5f47c9b4206
+# Parent  fb6d23354efa54301c8aecca316eff5883d5066a
 imported patch script-security-manager-plugins
 
 diff --git a/caps/src/nsScriptSecurityManager.cpp b/caps/src/nsScriptSecurityManager.cpp
