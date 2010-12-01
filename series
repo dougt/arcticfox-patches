@@ -48,11 +48,9 @@ ycbcr-arm-darwin
 canvas-finite
 nss-arm-darwin
 fix-packaging
-xpconnect-assertions
 chrome-registry-extra
 canvaslayerogl
 layout-extra
-silence-xpcwn-assertion
 media-fixes
 gfx-gl-uikit
 localfileunix
