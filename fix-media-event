@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID c1709027f171d45b0c31c0f49743871e35b9bc60
-# Parent  5d76c42cf8535caac955c04d2631dc1e595621c9
+# Node ID 51d2f0643608ea85dcdc03abca8761062a5c1fa8
+# Parent  7eca1dd063aa4c69178319b48fdf11345234e4f5
 imported patch fix-media-event
 
 diff --git a/content/events/src/nsEventListenerManager.cpp b/content/events/src/nsEventListenerManager.cpp

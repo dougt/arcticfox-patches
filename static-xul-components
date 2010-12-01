@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521098 14400
-# Node ID 9ce7684caf39921920dfb2cd542aaab832576341
-# Parent  309622d74a82e496436300cb20646a19b030873d
+# Node ID b06bbeca4068d4cb294a66c6870093bc98a35874
+# Parent  94d25a9c40c3156fe4fbcdfe6a9a3632c0ec838e
 imported patch static-xul-components
 
 diff --git a/toolkit/library/nsStaticXULComponents.cpp b/toolkit/library/nsStaticXULComponents.cpp
@@ -20,7 +20,7 @@ diff --git a/toolkit/library/nsStaticXULComponents.cpp b/toolkit/library/nsStati
  #elif defined(XP_BEOS)
  #  define WIDGET_MODULES MODULE(nsWidgetBeOSModule)
  #elif defined(XP_OS2)
-@@ -213,7 +215,7 @@
+@@ -215,7 +217,7 @@
  #define UNIXPROXY_MODULE
  #endif
  

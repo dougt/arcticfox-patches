@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 7df3532f039f171a0599488f4bcdbf7cc8163843
-# Parent  685b4c39f79956d0e2466786f517e5f47c9b4206
+# Node ID f30a123ec4f3e72957bd49f53060789f61d176d4
+# Parent  d1a256cf311b1a5df988c0ddbf2f32d2d75fa3aa
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -261,8 +261,8 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 -static nsSystemFontsMac *gSystemFonts = nsnull;
  #elif defined(MOZ_WIDGET_QT)
  #include "nsSystemFontsQt.h"
- static nsSystemFontsQt *gSystemFonts = nsnull;
-@@ -813,8 +818,10 @@
+ #include "gfxPDFSurface.h"
+@@ -810,8 +815,10 @@
          gSystemFonts = new nsSystemFontsOS2();
  #elif defined(XP_BEOS)
          gSystemFonts = new nsSystemFontsBeOS();
@@ -277,7 +277,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
 --- a/gfx/thebes/Makefile.in
 +++ b/gfx/thebes/Makefile.in
-@@ -69,7 +69,7 @@
+@@ -70,7 +70,7 @@
  	$(NULL)
  endif
  
@@ -286,7 +286,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  EXPORTS += \
  	gfxPlatformMac.h \
  	gfxQuartzSurface.h \
-@@ -359,23 +359,32 @@
+@@ -367,23 +367,32 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  
@@ -468,7 +468,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.h b/gfx/thebes/gfxCoreTextShaper.h
 diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
 --- a/gfx/thebes/gfxFont.h
 +++ b/gfx/thebes/gfxFont.h
-@@ -327,6 +327,7 @@
+@@ -332,6 +332,7 @@
  protected:
      friend class gfxPlatformFontList;
      friend class gfxMacPlatformFontList;

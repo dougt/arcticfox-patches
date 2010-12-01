@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521097 14400
-# Node ID 2cbd14591d5198296b8f25e4ad6af7b80f86118a
-# Parent  6ebfebcc9a13d9ddf0ac3d998aca4f41377c3b9f
+# Node ID d4fedbff3307d2f3055311f5fb83bf8ffaf8c98f
+# Parent  dc88c646b0809c7f5fded14bdd3d6e0289dc7b25
 imported patch nsobjectframe-ifdefs
 
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -179,8 +179,10 @@
+@@ -182,8 +182,10 @@
  #ifdef XP_MACOSX
  #include "gfxQuartzNativeDrawing.h"
  #include "nsPluginUtilsOSX.h"
@@ -19,7 +19,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
  #ifdef MOZ_X11
  #if (MOZ_PLATFORM_MAEMO == 5) && defined(MOZ_WIDGET_GTK2)
-@@ -466,7 +468,9 @@
+@@ -496,7 +498,9 @@
  #endif
    PRInt32                                   mInCGPaintLevel;
    nsIOSurface                              *mIOSurface;
@@ -29,9 +29,9 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    static nsCOMPtr<nsITimer>                *sCATimer;
    static nsTArray<nsPluginInstanceOwner*>  *sCARefreshListeners;
    PRBool                                    mSentInitialTopLevelWindowEvent;
-@@ -790,10 +794,12 @@
-       return NS_ERROR_FAILURE;
+@@ -825,10 +829,12 @@
      pluginWidget->SetPluginEventModel(mInstanceOwner->GetEventModel());
+     pluginWidget->SetPluginDrawingModel(mInstanceOwner->GetDrawingModel());
  
 +#ifdef MOZ_WIDGET_COCOA
      if (mInstanceOwner->GetDrawingModel() == NPDrawingModelCoreAnimation) {
@@ -42,7 +42,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    }
  
    if (!IsHidden()) {
-@@ -1651,12 +1657,15 @@
+@@ -1868,12 +1874,15 @@
  #endif
  
        mInstanceOwner->BeginCGPaint();
@@ -59,7 +59,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
          mInstanceOwner->Paint(nativeClipRect - offset, cgContext);
        }
        mInstanceOwner->EndCGPaint();
-@@ -2954,7 +2963,7 @@
+@@ -3269,7 +3278,7 @@
    if (!menu || !event)
      return NPERR_GENERIC_ERROR;
  
@@ -68,7 +68,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    if (GetEventModel() != NPEventModelCocoa)
      return NPERR_INCOMPATIBLE_VERSION_ERROR;
  
-@@ -2968,7 +2977,7 @@
+@@ -3283,7 +3292,7 @@
  NPBool nsPluginInstanceOwner::ConvertPoint(double sourceX, double sourceY, NPCoordinateSpace sourceSpace,
                                             double *destX, double *destY, NPCoordinateSpace destSpace)
  {
@@ -77,7 +77,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    if (!mWidget)
      return PR_FALSE;
  
-@@ -3546,6 +3555,7 @@
+@@ -3861,6 +3870,7 @@
  nsCOMPtr<nsITimer>                *nsPluginInstanceOwner::sCATimer = NULL;
  nsTArray<nsPluginInstanceOwner*>  *nsPluginInstanceOwner::sCARefreshListeners = NULL;
  
@@ -85,7 +85,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  void nsPluginInstanceOwner::CARefresh(nsITimer *aTimer, void *aClosure) {
    if (!sCARefreshListeners) {
      return;
-@@ -3679,6 +3689,7 @@
+@@ -3994,6 +4004,7 @@
      NS_NOTREACHED("nsCARenderer::Render failure");
    }
  }
@@ -93,7 +93,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
  void* nsPluginInstanceOwner::GetPluginPortCopy()
  {
-@@ -4986,7 +4997,7 @@
+@@ -5301,7 +5312,7 @@
    // stop the timer explicitly to reduce reference count.
    CancelTimer();
  #endif
@@ -102,7 +102,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    RemoveFromCARefreshTimer(this);
    if (mIOSurface)
      delete mIOSurface;
-@@ -6032,9 +6043,11 @@
+@@ -6354,9 +6365,11 @@
        NS_NPAPI_CarbonWindowFrame(static_cast<WindowRef>(static_cast<NP_CGContext*>(pluginPort)->window), windowRect);
      else
  #endif
@@ -114,7 +114,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
  
      mPluginWindow->x = geckoScreenCoords.x - windowRect.x;
      mPluginWindow->y = geckoScreenCoords.y - windowRect.y;
-@@ -6081,6 +6094,7 @@
+@@ -6403,6 +6416,7 @@
      mPluginPortChanged = PR_FALSE;
    }
  
@@ -122,7 +122,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    // After the first NPP_SetWindow call we need to send an initial
    // top-level window focus event.
    if (eventModel == NPEventModelCocoa && !mSentInitialTopLevelWindowEvent) {
-@@ -6095,6 +6109,7 @@
+@@ -6417,6 +6431,7 @@
      pluginEvent.pluginEvent = &cocoaEvent;
      ProcessEvent(pluginEvent);
    }

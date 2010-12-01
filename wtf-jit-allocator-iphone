@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290973135 18000
-# Node ID 963f405cbd50398b8954d67d1760fc60ae1422de
-# Parent  219fe4866417805ffa8d1a56f5704164a09fb498
+# Node ID 017a69ad5ae67baada733039069056ae8559d37e
+# Parent  39e6d59eb90aad611ea99e2cd05e8edaee321555
 [mq]: wtf-jit-allocator-iphone
 
 diff --git a/js/src/assembler/jit/ExecutableAllocator.h b/js/src/assembler/jit/ExecutableAllocator.h
 --- a/js/src/assembler/jit/ExecutableAllocator.h
 +++ b/js/src/assembler/jit/ExecutableAllocator.h
-@@ -257,7 +257,7 @@
+@@ -266,7 +266,7 @@
          _flush_cache(reinterpret_cast<char*>(code), size, BCACHE);
  #endif
      }

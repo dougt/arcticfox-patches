@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID e6366c655f3afdba6fb5cdf43b43d679fcda47bc
-# Parent  807929e0b12ea8df3f4bdd5fccf75aa4f3cf02b5
+# Node ID c4c0acec53c3253d87ccf76e667f6492f241b2dc
+# Parent  dfd6f5ceb998b9a2d8dba9e927bf78d83f87b875
 imported patch hardcode-dtd-content-type
 
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
-@@ -479,6 +479,7 @@
+@@ -519,6 +519,7 @@
    // sorted by order used
    { IMAGE_GIF, "gif" },
    { TEXT_XML, "xml" },

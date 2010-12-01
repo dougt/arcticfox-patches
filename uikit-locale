@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID 64cb90cc86ca58923446f4f33848655d5466cad3
-# Parent  0bcb5611fbfa83a9add2f1e8d655e34b8d7b7ed8
+# Node ID f1eed2bade3f8de3bd36f4b5dff72c7f4a05ef1b
+# Parent  b7f7e6e99db4c0e166d37651032d58de4fd3af72
 imported patch uikit-locale
 
 diff --git a/intl/locale/src/nsLocaleConstructors.h b/intl/locale/src/nsLocaleConstructors.h
@@ -25,7 +25,7 @@ diff --git a/intl/locale/src/nsLocaleConstructors.h b/intl/locale/src/nsLocaleCo
 diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleService.cpp
 --- a/intl/locale/src/nsLocaleService.cpp
 +++ b/intl/locale/src/nsLocaleService.cpp
-@@ -53,7 +53,7 @@
+@@ -58,7 +58,7 @@
  #elif defined(XP_OS2)
  #  include "unidef.h"
  #  include "nsIOS2Locale.h"
@@ -34,7 +34,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  #  include <Carbon/Carbon.h>
  #  include "nsIMacLocale.h"
  #elif defined(XP_UNIX) || defined(XP_BEOS)
-@@ -81,7 +81,7 @@
+@@ -83,7 +83,7 @@
  #define NSILOCALE_MAX_ACCEPT_LANGUAGE	16
  #define NSILOCALE_MAX_ACCEPT_LENGTH		18
  
@@ -43,7 +43,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  static int posix_locale_category[LocaleListLength] =
  {
    LC_COLLATE,
-@@ -164,7 +164,7 @@
+@@ -178,7 +178,7 @@
          if (NS_FAILED(result)) { return;}
      }
  #endif
@@ -52,7 +52,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
      nsCOMPtr<nsIPosixLocale> posixConverter = do_GetService(NS_POSIXLOCALE_CONTRACTID);
  
      nsAutoString xpLocale, platformLocale;
-@@ -280,7 +280,7 @@
+@@ -288,7 +288,7 @@
      }  // if ( NS_SUCCEEDED )...
  #endif  // XP_OS2
  
@@ -61,7 +61,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
      // Get string representation of user's current locale
      CFLocaleRef userLocaleRef = ::CFLocaleCopyCurrent();
      CFStringRef userLocaleStr = ::CFLocaleGetIdentifier(userLocaleRef);
-@@ -308,7 +308,7 @@
+@@ -316,7 +316,7 @@
      ::CFRelease(userLocaleRef);
  
      NS_ASSERTION(mApplicationLocale, "Failed to create locale objects");
@@ -70,7 +70,7 @@ diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleServi
  }
  
  nsLocaleService::~nsLocaleService(void)
-@@ -331,7 +331,7 @@
+@@ -339,7 +339,7 @@
        nsString category; category.AssignWithConversion(LocaleList[i]);
        result = resultLocale->AddCategory(category, aLocale);
        if (NS_FAILED(result)) { delete resultLocale; return result;}

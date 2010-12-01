@@ -61,3 +61,5 @@ exthandler-extra-types
 extra-drawing-warnings
 fix-screen-offset
 wtf-jit-allocator-iphone
+widget-extra
+nsprocess

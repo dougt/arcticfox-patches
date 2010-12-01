@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID 2818395dfa62673600ffe057b55644681e1bf42f
-# Parent  3e1e7ca7520ebf24f70551869f0a0617a62890d5
+# Node ID 51f997f6856e9251b7e0063b2ae417c07419af39
+# Parent  ad6ca83f074a0d85bdc0c1979d28193f41ad6ab5
 imported patch canvaslayerogl
 
 diff --git a/gfx/layers/opengl/CanvasLayerOGL.cpp b/gfx/layers/opengl/CanvasLayerOGL.cpp
 --- a/gfx/layers/opengl/CanvasLayerOGL.cpp
 +++ b/gfx/layers/opengl/CanvasLayerOGL.cpp
-@@ -46,7 +46,7 @@
+@@ -50,7 +50,7 @@
  #include "WGLLibrary.h"
  #endif
  

@@ -1,0 +1,33 @@
+# HG changeset patch
+# Parent a1dddafbd96f70b3ac55bea1e292a2d568fd8840
+diff --git a/xpcom/threads/nsProcessCommon.cpp b/xpcom/threads/nsProcessCommon.cpp
+--- a/xpcom/threads/nsProcessCommon.cpp
++++ b/xpcom/threads/nsProcessCommon.cpp
+@@ -67,7 +67,12 @@
+ #include "nsReadableUtils.h"
+ #else
+ #ifdef XP_MACOSX
++#ifdef HAVE_CRT_EXTERNS
+ #include <crt_externs.h>
++#endif
++#ifdef MOZ_WIDGET_UIKIT
++extern char** environ;
++#endif
+ #include <spawn.h>
+ #include <sys/wait.h>
+ #endif
+@@ -532,7 +537,13 @@
+ 
+     // Note that the 'argv' array is already null-terminated, which 'posix_spawnp' requires.
+     pid_t newPid = 0;
+-    int result = posix_spawnp(&newPid, my_argv[0], NULL, &spawnattr, my_argv, *_NSGetEnviron());
++    char *** env =
++#if defined(MOZ_WIDGET_COCOA)
++        _NSGetEnviron();
++#elif defined(MOZ_WIDGET_UIKIT)
++        &environ;
++#endif
++    int result = posix_spawnp(&newPid, my_argv[0], NULL, &spawnattr, my_argv, *env);
+     mPid = static_cast<PRInt32>(newPid);
+ 
+     posix_spawnattr_destroy(&spawnattr);

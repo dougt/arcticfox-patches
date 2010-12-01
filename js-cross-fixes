@@ -1,21 +1,22 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867166 14400
-# Node ID 165e0d2ebc66e21d95e6342ae3f4b68b53a3844c
-# Parent  321f316fa3302328dca46dc501bb9d696a3dca6f
+# Node ID a2fc2aeccaa297793c431f228e2d95a1e1bf610d
+# Parent  23616e4fdf16c10aa5bed01611b67ad2ed536e06
 fixes for compiling js for iphone simulator
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -1736,11 +1736,29 @@
+@@ -1747,12 +1747,28 @@
      STRIP="$STRIP -x -S"
      _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
      TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
+-    LDFLAGS="$LDFLAGS -framework Cocoa -lobjc"
+-    LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
 +    # Check if we have the Cocoa framework, or if we're targeting Cocoa Touch
 +    _SAVE_LDFLAGS=$LDFLAGS
 +    #XXX: does spidermonkey need to link with Cocoa?
-     LDFLAGS="$LDFLAGS -framework Cocoa"
 +    AC_TRY_LINK(,[return 0;],_HAVE_FRAMEWORK_COCOA=1,_HAVE_FRAMEWORK_COCOA=)
 +    if test -z "$_HAVE_FRAMEWORK_COCOA"; then
 +        echo "Not using Cocoa"

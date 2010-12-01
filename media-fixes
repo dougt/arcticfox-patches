@@ -1,22 +1,7 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290110462 18000
-# Node ID 848d6933e3ab9d55593f02a89a608418c0e00867
-# Parent  933a10369eb71774dd9bb58ab62286cbf23a9d04
+# Node ID b5a78d3f278befb0c7eb9570ad12409a5a2abe3a
+# Parent  f6a9d3d3bb514d10201e5112f660c2aed313e6e7
 [mq]: media-fixes
 
-diff --git a/layout/build/Makefile.in b/layout/build/Makefile.in
---- a/layout/build/Makefile.in
-+++ b/layout/build/Makefile.in
-@@ -169,9 +169,11 @@
- 	$(NULL)
- endif
- 
-+ifdef MOZ_MEDIA
- SHARED_LIBRARY_LIBS     += \
-        $(DEPTH)/content/media/raw/$(LIB_PREFIX)gkconraw_s.$(LIB_SUFFIX)\
-        $(NULL)
-+endif
- 
- ifdef MOZ_WEBM
- SHARED_LIBRARY_LIBS 	+= \

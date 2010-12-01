@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID 5d66fdd08a86dcc595d084c8690953393b369166
-# Parent  cc6b2b26934115215031168b125234d2e96481d8
+# Node ID ecfd476a7f66756b5471e625c8f80990e7c8f690
+# Parent  af3c5b985daabe01498109e49233d9ead007c396
 imported patch uikit-branding-icons
 
 diff --git a/browser/branding/nightly/Makefile.in b/browser/branding/nightly/Makefile.in

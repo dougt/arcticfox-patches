@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID cd69b2faba87f5a58337cddc9f717f64311e0215
-# Parent  2818395dfa62673600ffe057b55644681e1bf42f
+# Node ID f6a9d3d3bb514d10201e5112f660c2aed313e6e7
+# Parent  51f997f6856e9251b7e0063b2ae417c07419af39
 imported patch layout-extra
 
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp
-@@ -283,12 +283,15 @@
+@@ -286,12 +286,15 @@
  #endif
  
  #include "nsGeolocation.h"
@@ -24,10 +24,10 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #include "nsCSPService.h"
  
  // Transformiix
-@@ -321,12 +324,15 @@
- NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(nsDOMStorageManager,
-                                          nsDOMStorageManager::GetInstance)
+@@ -326,12 +329,15 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsChannelPolicy)
+ NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(IndexedDatabaseManager,
+                                          IndexedDatabaseManager::FactoryCreate)
 +//XXX bug 575206
 +#ifndef MOZ_WIDGET_UIKIT
  #if defined(XP_UNIX)    || \
@@ -37,12 +37,12 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsAccelerometerSystem)
  #endif
 +#endif
+ NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(ThirdPartyUtil, Init)
  
  //-----------------------------------------------------------------------------
- 
-@@ -875,12 +881,15 @@
- NS_DEFINE_NAMED_CID(NS_NULLPRINCIPAL_CID);
+@@ -887,12 +893,15 @@
  NS_DEFINE_NAMED_CID(NS_SECURITYNAMESET_CID);
+ NS_DEFINE_NAMED_CID(THIRDPARTYUTIL_CID);
  
 +//XXX bug 575206
 +#ifndef MOZ_WIDGET_UIKIT
@@ -56,7 +56,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  
  static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
    XPCONNECT_CIDENTRIES
-@@ -1022,12 +1031,15 @@
+@@ -1036,12 +1045,15 @@
    { &kNS_SYSTEMPRINCIPAL_CID, false, NULL, nsSystemPrincipalConstructor },
    { &kNS_NULLPRINCIPAL_CID, false, NULL, nsNullPrincipalConstructor },
    { &kNS_SECURITYNAMESET_CID, false, NULL, nsSecurityNameSetConstructor },
@@ -69,10 +69,10 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
    { &kNS_ACCELEROMETER_CID, false, NULL, nsAccelerometerSystemConstructor },
  #endif
 +#endif
+   { &kTHIRDPARTYUTIL_CID, false, NULL, ThirdPartyUtilConstructor },
    { NULL }
  };
- 
-@@ -1165,12 +1177,15 @@
+@@ -1182,12 +1194,15 @@
    { NS_SYSTEMPRINCIPAL_CONTRACTID, &kNS_SYSTEMPRINCIPAL_CID },
    { NS_NULLPRINCIPAL_CONTRACTID, &kNS_NULLPRINCIPAL_CID },
    { NS_SECURITYNAMESET_CONTRACTID, &kNS_SECURITYNAMESET_CID },
@@ -85,13 +85,13 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
    { NS_ACCELEROMETER_CONTRACTID, &kNS_ACCELEROMETER_CID },
  #endif
 +#endif
+   { THIRDPARTYUTIL_CONTRACTID, &kTHIRDPARTYUTIL_CID },
    { NULL }
  };
- 
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -467,8 +467,8 @@
+@@ -497,8 +497,8 @@
    NP_Port                                   mQDPluginPortCopy;
  #endif
    PRInt32                                   mInCGPaintLevel;
@@ -101,7 +101,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    nsCARenderer                              mCARenderer;
  #endif
    static nsCOMPtr<nsITimer>                *sCATimer;
-@@ -2506,7 +2506,9 @@
+@@ -2802,7 +2802,9 @@
  #endif
    mInCGPaintLevel = 0;
    mSentInitialTopLevelWindowEvent = PR_FALSE;

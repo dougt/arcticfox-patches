@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID ec14b9f61e0502d6ccc064be5046b0cfea3057eb
-# Parent  bc9a6c8f18ba393ff96bf93cfd1e48dc435540b1
+# Node ID 69a05fd0b48dd1db0c365e8e342d53ecfbff4f84
+# Parent  38365f03ea6e81d2574d16f79201a884d35e4512
 imported patch uikit-http-user-agent
 
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
-@@ -91,7 +91,7 @@
+@@ -92,7 +92,7 @@
  #include <windows.h>
  #endif
  
@@ -17,7 +17,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #include <CoreServices/CoreServices.h>
  #endif
  
-@@ -701,8 +701,10 @@
+@@ -662,8 +662,10 @@
      "OS/2"
  #elif defined(XP_WIN)
      "Windows"
@@ -29,7 +29,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #elif defined(XP_BEOS)
      "BeOS"
  #elif defined(MOZ_PLATFORM_MAEMO)
-@@ -758,7 +760,7 @@
+@@ -719,7 +721,7 @@
              PR_smprintf_free(buf);
          }
      }
@@ -38,7 +38,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #if defined(__ppc__)
      mOscpu.AssignLiteral("PPC Mac OS X");
  #elif defined(__i386__) || defined(__x86_64__)
-@@ -769,6 +771,13 @@
+@@ -730,6 +732,13 @@
          (::Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
          mOscpu += nsPrintfCString(" %d.%d", majorVersion, minorVersion);
      }

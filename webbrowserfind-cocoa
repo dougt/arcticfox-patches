@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373065 14400
-# Node ID b6f4a2f5bd295bb99576bd6127b26cd29baf1fff
-# Parent  791516c4082af7e26e56ce67f190432c88ddb4b1
+# Node ID 0a6ca4002e0769c1372d83e2113bedb4891604bd
+# Parent  560cf62ac95e40db25fa9fcda11b1345b0e58e35
 imported patch webbrowserfind-cocoa
 
 diff --git a/embedding/components/find/src/nsWebBrowserFind.cpp b/embedding/components/find/src/nsWebBrowserFind.cpp
