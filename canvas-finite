@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID ce8d89e6b3150027004e26d9e48917d35bfc2efc
-# Parent  13b106aca4f12c974109043e549a41f8439c42bb
+# Node ID dbb71d64dbb2a8828bef81c2d197f4d9f81bffa5
+# Parent  7fb728c284e97ebb06091c1af09974abad44137e
 imported patch canvas-finite
 
 diff --git a/content/canvas/src/nsCanvasRenderingContext2D.cpp b/content/canvas/src/nsCanvasRenderingContext2D.cpp

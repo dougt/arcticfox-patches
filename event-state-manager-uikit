@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID eb23b9752ac3bb3e5329cdaa52e2c30fced39c30
-# Parent  88dabf01797ef14874c6aea89cf75f1c39a902be
+# Node ID 8ff84245072d91c10d13c328a513e23ed4f78a3d
+# Parent  6b316f71bfde6e327a5c474c2299674c6fdeeb83
 imported patch event-state-manager-uikit
 
 diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsEventStateManager.cpp
@@ -20,7 +20,7 @@ diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsE
  #endif
  
  #ifdef MOZ_IPC
-@@ -1756,7 +1760,7 @@
+@@ -1773,7 +1777,7 @@
    if (!mGestureDownContent)
      return;
  

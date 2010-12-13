@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID c3f23e136f70ef49f61d3496ee627c93b7c3d89f
-# Parent  9749c63043ee5d20493cf01aacd6df4b185566f4
+# Node ID 3030ee0abf9368c63c6d11c244ce00a2dbf2ca10
+# Parent  f189075cbd2552448e53dad25fa827b8ac0d6f72
 imported patch xre-uikit
 * * *
 imported patch xre-oops
@@ -164,16 +164,16 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3058,7 +3080,7 @@
+@@ -3067,7 +3089,7 @@
      gSafeMode = PR_TRUE;
-   }
+ #endif
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
    if (GetCurrentEventKeyModifiers() & optionKey)
      gSafeMode = PR_TRUE;
  #endif
-@@ -3621,7 +3643,7 @@
+@@ -3630,7 +3652,7 @@
            }
  #endif
  

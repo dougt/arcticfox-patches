@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID dfd6f5ceb998b9a2d8dba9e927bf78d83f87b875
-# Parent  153d0469aeaaab1597eed75b8ff24932c02c91d4
+# Node ID 529a9052dfbefc9a9d3d48ae2bec04a39bc3e2a0
+# Parent  780eb5e28127d411bbd3ee25ef98922116230a9c
 imported patch nsappshell-hidden-window
 
 diff --git a/xpfe/appshell/src/nsAppShellService.cpp b/xpfe/appshell/src/nsAppShellService.cpp

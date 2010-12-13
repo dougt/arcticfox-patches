@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID 4057ca829b8ab7c60211074bcc383b5f9651e4f1
-# Parent  eb30777f9a8c480d0412eeb2e69cfb4e76ffe182
+# Node ID 722ac0d0198c2b762dc428f9e0a84230bea3c847
+# Parent  feea9818d016da9416cbf965b0c523d1796446b1
 imported patch cairo-quartz-uikit
 
 diff --git a/gfx/cairo/cairo/src/Makefile.in b/gfx/cairo/cairo/src/Makefile.in
 --- a/gfx/cairo/cairo/src/Makefile.in
 +++ b/gfx/cairo/cairo/src/Makefile.in
-@@ -193,7 +193,7 @@
+@@ -192,7 +192,7 @@
  EXPORTS_cairo += $(PDF_EXPORTS)
  endif
  
@@ -49,9 +49,9 @@ diff --git a/gfx/cairo/cairo/src/cairo-quartz-image.h b/gfx/cairo/cairo/src/cair
 diff --git a/gfx/cairo/cairo/src/cairo-quartz-surface.c b/gfx/cairo/cairo/src/cairo-quartz-surface.c
 --- a/gfx/cairo/cairo/src/cairo-quartz-surface.c
 +++ b/gfx/cairo/cairo/src/cairo-quartz-surface.c
-@@ -163,10 +163,15 @@
-     CGContextGetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextGetAllowsFontSmoothing");
+@@ -165,10 +165,15 @@
      CGContextSetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextSetAllowsFontSmoothing");
+     CGContextGetAlphaPtr = dlsym(RTLD_DEFAULT, "CGContextGetAlpha");
  
 +#ifdef MOZ_WIDGET_COCOA
      if (Gestalt(gestaltSystemVersion, &_cairo_quartz_osx_version) != noErr) {
@@ -81,7 +81,7 @@ diff --git a/gfx/cairo/cairo/src/cairo-quartz.h b/gfx/cairo/cairo/src/cairo-quar
  
  CAIRO_BEGIN_DECLS
  
-@@ -77,7 +82,7 @@
+@@ -81,7 +86,7 @@
  cairo_public cairo_font_face_t *
  cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
  

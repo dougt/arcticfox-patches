@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867166 14400
-# Node ID a2fc2aeccaa297793c431f228e2d95a1e1bf610d
-# Parent  23616e4fdf16c10aa5bed01611b67ad2ed536e06
+# Node ID ff557159be814d872878657a870b50be7807d39d
+# Parent  4739148a2da96b2c577943191c73e3eea6e5db08
 fixes for compiling js for iphone simulator
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -1747,12 +1747,28 @@
+@@ -2030,12 +2030,28 @@
      STRIP="$STRIP -x -S"
      _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
      TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID 02ac84e2710f303030fee496d582d59e1a6cab52
-# Parent  51d2f0643608ea85dcdc03abca8761062a5c1fa8
+# Node ID 43f3dd4e6edc88276de1bffd447ca3374affb243
+# Parent  183c7160bbc50666707ed226d90bebebe0e08150
 imported patch iphone-wtf-jit
 
 diff --git a/js/src/assembler/jit/ExecutableAllocatorPosix.cpp b/js/src/assembler/jit/ExecutableAllocatorPosix.cpp

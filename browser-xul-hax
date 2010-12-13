@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 153d0469aeaaab1597eed75b8ff24932c02c91d4
-# Parent  72c18b8c4f96025cbdacf707c1a6db4eb7512418
+# Node ID 780eb5e28127d411bbd3ee25ef98922116230a9c
+# Parent  f3b4faa82faef77d9229a014a7059de85dff3967
 imported patch browser-xul-hax
 
 diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/baseMenuOverlay.xul
@@ -26,7 +26,7 @@ diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/bas
                    key="key_openHelpMac"/>
  #else
                    />
-@@ -131,7 +131,7 @@
+@@ -122,7 +122,7 @@
      </menu>
  
      <keyset id="baseMenuKeyset">
@@ -146,7 +146,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                 placespopup="true"
  #endif
                 context="placesContext"
-@@ -465,7 +465,7 @@
+@@ -471,7 +471,7 @@
              label="&personalbarCmd.label;"
              container="true">
          <menupopup id="bookmarksToolbarFolderPopup"  
@@ -155,7 +155,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                     placespopup="true"
  #endif
                     context="placesContext"
-@@ -564,7 +564,7 @@
+@@ -570,7 +570,7 @@
                </menupopup>
              </menu>
  
@@ -258,7 +258,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  var gEditUIVisible = true;
  #endif
  
-@@ -1530,7 +1530,7 @@
+@@ -1531,7 +1531,7 @@
      }
    }, 10000);
  
@@ -267,7 +267,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    updateEditUIVisibility();
    let placesContext = document.getElementById("placesContext");
    placesContext.addEventListener("popupshowing", updateEditUIVisibility, false);
-@@ -1662,7 +1662,7 @@
+@@ -1664,7 +1664,7 @@
    window.QueryInterface(Ci.nsIDOMChromeWindow).browserDOMWindow = null;
  }
  
@@ -276,7 +276,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  // nonBrowserWindowStartup(), nonBrowserWindowDelayedStartup(), and
  // nonBrowserWindowShutdown() are used for non-browser windows in
  // macBrowserOverlay
-@@ -1885,7 +1885,7 @@
+@@ -1887,7 +1887,7 @@
  
  function BrowserReloadOrDuplicate(aEvent) {
    var backgroundTabModifier = aEvent.button == 1 ||
@@ -285,7 +285,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      aEvent.metaKey;
  #else
      aEvent.ctrlKey;
-@@ -1947,7 +1947,7 @@
+@@ -1949,7 +1949,7 @@
  
  function loadOneOrMoreURIs(aURIString)
  {
@@ -294,7 +294,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // we're not a browser window, pass the URI string to a new browser window
    if (window.location.href != getBrowserURL())
    {
-@@ -1981,7 +1981,7 @@
+@@ -1983,7 +1983,7 @@
    if (focusAndSelectUrlBar())
      return;
  
@@ -303,7 +303,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    if (window.location.href != getBrowserURL()) {
      var win = getTopWin();
      if (win) {
-@@ -2096,7 +2096,7 @@
+@@ -2098,7 +2098,7 @@
  }
  
  function BrowserCloseTabOrWindow() {
@@ -312,7 +312,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // If we're not a browser window, just close the window
    if (window.location.href != getBrowserURL()) {
      closeWindow(true);
-@@ -2475,7 +2475,7 @@
+@@ -2477,7 +2477,7 @@
  
  function BrowserImport()
  {
@@ -321,7 +321,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                       .getService(Components.interfaces.nsIWindowMediator);
    var win = wm.getMostRecentWindow("Browser:MigrationWizard");
-@@ -3184,7 +3184,7 @@
+@@ -3187,7 +3187,7 @@
     * or focuses an existing window, if necessary.
     */
    webSearch: function BrowserSearch_webSearch() {
@@ -330,7 +330,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      if (window.location.href != getBrowserURL()) {
        var win = getTopWin();
        if (win) {
-@@ -3481,7 +3481,7 @@
+@@ -3484,7 +3484,7 @@
      gIdentityHandler._cacheElements();
      window.XULBrowserWindow.init();
  
@@ -339,7 +339,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      updateEditUIVisibility();
  #endif
    }
-@@ -3542,7 +3542,7 @@
+@@ -3546,7 +3546,7 @@
   */
  function updateEditUIVisibility()
  {
@@ -348,7 +348,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    let editMenuPopupState = document.getElementById("menu_EditPopup").state;
    let contextMenuPopupState = document.getElementById("contentAreaContextMenu").state;
    let placesContextMenuPopupState = document.getElementById("placesContext").state;
-@@ -5896,7 +5896,7 @@
+@@ -5945,7 +5945,7 @@
  
    os.notifyObservers(null, "browser-lastwindow-close-granted", null);
  
@@ -357,7 +357,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // OS X doesn't quit the application when the last window is closed, but keeps
    // the session alive. Hence don't prompt users to save tabs, but warn about
    // closing multiple tabs.
-@@ -7453,7 +7453,7 @@
+@@ -7508,7 +7508,7 @@
  
      var appName = brandBundle.GetStringFromName("brandShortName");
  # On Mac, use the header as the title.
@@ -369,7 +369,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
 diff --git a/browser/base/content/browser.xul b/browser/base/content/browser.xul
 --- a/browser/base/content/browser.xul
 +++ b/browser/base/content/browser.xul
-@@ -70,7 +70,7 @@
+@@ -72,7 +72,7 @@
          onload="BrowserStartup()" onunload="BrowserShutdown()" onclose="return WindowIsClosing();"
          title="&mainWindow.title;@PRE_RELEASE_SUFFIX@"
          title_normal="&mainWindow.title;@PRE_RELEASE_SUFFIX@"

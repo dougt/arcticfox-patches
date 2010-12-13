@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID f6a9d3d3bb514d10201e5112f660c2aed313e6e7
-# Parent  51f997f6856e9251b7e0063b2ae417c07419af39
+# Node ID ca8d49d81e60053fed547ac39003e46149736505
+# Parent  c72dca1e55ffee64a28cdd9d2dd160380f84f20d
 imported patch layout-extra
 
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp
-@@ -286,12 +286,15 @@
+@@ -294,12 +294,15 @@
  #endif
  
  #include "nsGeolocation.h"
@@ -24,7 +24,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #include "nsCSPService.h"
  
  // Transformiix
-@@ -326,12 +329,15 @@
+@@ -334,12 +337,15 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsChannelPolicy)
  NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(IndexedDatabaseManager,
                                           IndexedDatabaseManager::FactoryCreate)
@@ -38,11 +38,11 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #endif
 +#endif
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(ThirdPartyUtil, Init)
- 
- //-----------------------------------------------------------------------------
-@@ -887,12 +893,15 @@
- NS_DEFINE_NAMED_CID(NS_SECURITYNAMESET_CID);
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsWorkerFactory)
+ #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
+@@ -902,12 +908,15 @@
  NS_DEFINE_NAMED_CID(THIRDPARTYUTIL_CID);
+ NS_DEFINE_NAMED_CID(NS_WORKERFACTORY_CID);
  
 +//XXX bug 575206
 +#ifndef MOZ_WIDGET_UIKIT
@@ -53,10 +53,10 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  NS_DEFINE_NAMED_CID(NS_ACCELEROMETER_CID);
  #endif
 +#endif
- 
- static const mozilla::Module::CIDEntry kLayoutCIDs[] = {
-   XPCONNECT_CIDENTRIES
-@@ -1036,12 +1045,15 @@
+ #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
+ NS_DEFINE_NAMED_CID(NS_HAPTICFEEDBACK_CID);
+ #endif
+@@ -1055,12 +1064,15 @@
    { &kNS_SYSTEMPRINCIPAL_CID, false, NULL, nsSystemPrincipalConstructor },
    { &kNS_NULLPRINCIPAL_CID, false, NULL, nsNullPrincipalConstructor },
    { &kNS_SECURITYNAMESET_CID, false, NULL, nsSecurityNameSetConstructor },
@@ -69,10 +69,10 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
    { &kNS_ACCELEROMETER_CID, false, NULL, nsAccelerometerSystemConstructor },
  #endif
 +#endif
-   { &kTHIRDPARTYUTIL_CID, false, NULL, ThirdPartyUtilConstructor },
-   { NULL }
- };
-@@ -1182,12 +1194,15 @@
+ #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
+   { &kNS_HAPTICFEEDBACK_CID, false, NULL, nsHapticFeedbackConstructor },
+ #endif
+@@ -1206,12 +1218,15 @@
    { NS_SYSTEMPRINCIPAL_CONTRACTID, &kNS_SYSTEMPRINCIPAL_CID },
    { NS_NULLPRINCIPAL_CONTRACTID, &kNS_NULLPRINCIPAL_CID },
    { NS_SECURITYNAMESET_CONTRACTID, &kNS_SECURITYNAMESET_CID },
@@ -85,13 +85,13 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
    { NS_ACCELEROMETER_CONTRACTID, &kNS_ACCELEROMETER_CID },
  #endif
 +#endif
-   { THIRDPARTYUTIL_CONTRACTID, &kTHIRDPARTYUTIL_CID },
-   { NULL }
- };
+ #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
+   { "@mozilla.org/widget/hapticfeedback;1", &kNS_HAPTICFEEDBACK_CID },
+ #endif
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -497,8 +497,8 @@
+@@ -502,8 +502,8 @@
    NP_Port                                   mQDPluginPortCopy;
  #endif
    PRInt32                                   mInCGPaintLevel;
@@ -101,7 +101,7 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
    nsCARenderer                              mCARenderer;
  #endif
    static nsCOMPtr<nsITimer>                *sCATimer;
-@@ -2802,7 +2802,9 @@
+@@ -2806,7 +2806,9 @@
  #endif
    mInCGPaintLevel = 0;
    mSentInitialTopLevelWindowEvent = PR_FALSE;

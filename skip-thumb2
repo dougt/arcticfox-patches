@@ -1,0 +1,41 @@
+# HG changeset patch
+# Parent 8a5b819e2b0555d589f46fab817525dbf98b1803
+
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -7136,6 +7136,7 @@
+     MOZ_THUMB2=1,
+     MOZ_THUMB2=)
+ 
++if test "$OS_ARCH" != "Darwin"; then
+ if test -n "$MOZ_THUMB2"; then
+   case "$target_cpu" in
+     arm*)
+@@ -7162,6 +7163,7 @@
+       ;;
+   esac
+ fi
++fi
+ 
+ AC_SUBST(MOZ_THUMB2)
+ 
+diff --git a/js/src/configure.in b/js/src/configure.in
+--- a/js/src/configure.in
++++ b/js/src/configure.in
+@@ -4665,6 +4665,7 @@
+     MOZ_THUMB2=1,
+     MOZ_THUMB2=)
+ 
++if test "$OS_ARCH" != "Darwin"; then
+ if test -n "$MOZ_THUMB2"; then
+   case "$target_cpu" in
+     arm*)
+@@ -4692,6 +4693,7 @@
+       ;;
+   esac
+ fi
++fi
+ 
+ AC_SUBST(MOZ_THUMB2)
+ 

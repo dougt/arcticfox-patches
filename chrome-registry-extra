@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288982603 14400
-# Node ID ad6ca83f074a0d85bdc0c1979d28193f41ad6ab5
-# Parent  207305464cc8f3fa4a9cb094e878a5cb15db0fba
+# Node ID 02d26f12c7537b35b0356e0c7d99623e8471e992
+# Parent  3b095a7c4989466ad0e7a62ac3609bac49718d61
 imported patch chrome-registry-extra
 
 diff --git a/chrome/src/nsChromeRegistryChrome.cpp b/chrome/src/nsChromeRegistryChrome.cpp

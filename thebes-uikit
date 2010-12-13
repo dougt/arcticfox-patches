@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID f30a123ec4f3e72957bd49f53060789f61d176d4
-# Parent  d1a256cf311b1a5df988c0ddbf2f32d2d75fa3aa
+# Node ID fea59fda16420452cc6176213a9e8f2a9d0d8db1
+# Parent 88ec9faed660d1a77b9656dcd9dd95cbe0333077
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -262,7 +262,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
  #elif defined(MOZ_WIDGET_QT)
  #include "nsSystemFontsQt.h"
  #include "gfxPDFSurface.h"
-@@ -810,8 +815,10 @@
+@@ -811,8 +816,10 @@
          gSystemFonts = new nsSystemFontsOS2();
  #elif defined(XP_BEOS)
          gSystemFonts = new nsSystemFontsBeOS();
@@ -286,7 +286,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  EXPORTS += \
  	gfxPlatformMac.h \
  	gfxQuartzSurface.h \
-@@ -367,23 +367,32 @@
+@@ -369,23 +369,32 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  
@@ -468,12 +468,12 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.h b/gfx/thebes/gfxCoreTextShaper.h
 diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
 --- a/gfx/thebes/gfxFont.h
 +++ b/gfx/thebes/gfxFont.h
-@@ -332,6 +332,7 @@
+@@ -327,6 +327,7 @@
  protected:
      friend class gfxPlatformFontList;
      friend class gfxMacPlatformFontList;
 +    friend class gfxUIKitPlatformFontList;
-     friend class gfxFcFontEntry;
+     friend class gfxUserFcFontEntry;
      friend class gfxFontFamily;
      friend class gfxSingleFaceMacFontFamily;
 diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
@@ -494,19 +494,21 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
  #include "gfxCoreTextShaper.h"
  #include "gfxUserFontSet.h"
  
-@@ -71,7 +77,11 @@
+@@ -71,7 +77,12 @@
  gfxPlatformFontList*
  gfxPlatformMac::CreatePlatformFontList()
  {
+-    gfxPlatformFontList* list = new gfxMacPlatformFontList();
++    gfxPlatformFontList* list =
 +#ifdef MOZ_WIDGET_COCOA
-     return new gfxMacPlatformFontList();
++      new gfxMacPlatformFontList();
 +#else
-+    return new gfxUIKitPlatformFontList();
++      new gfxUIKitPlatformFontList();
 +#endif
- }
- 
- already_AddRefed<gfxASurface>
-@@ -201,6 +211,7 @@
+     if (NS_SUCCEEDED(list->InitFontList())) {
+         return list;
+     }
+@@ -206,6 +217,7 @@
  PRInt32 
  gfxPlatformMac::OSXVersion()
  {
@@ -514,7 +516,7 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
      if (!mOSXVersion) {
          // minor version is not accurate, use gestaltSystemVersionMajor, gestaltSystemVersionMinor, gestaltSystemVersionBugFix for these
          OSErr err = ::Gestalt(gestaltSystemVersion, reinterpret_cast<SInt32*>(&mOSXVersion));
-@@ -210,6 +221,9 @@
+@@ -215,6 +227,9 @@
              mOSXVersion = MAC_OS_X_VERSION_10_4_HEX;
          }
      }
@@ -524,7 +526,7 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
      return mOSXVersion;
  }
  
-@@ -233,7 +247,8 @@
+@@ -238,7 +253,8 @@
      // if the pref setting is disabled, return 0 which effectively disables this feature
      if (!useAntiAliasingThreshold)
          return threshold;
@@ -534,7 +536,7 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
      // value set via Appearance pref panel, "Turn off text smoothing for font sizes xxx and smaller"
      CFNumberRef prefValue = (CFNumberRef)CFPreferencesCopyAppValue(CFSTR("AppleAntiAliasingThreshold"), kCFPreferencesCurrentApplication);
  
-@@ -243,6 +258,7 @@
+@@ -248,6 +264,7 @@
          }
          CFRelease(prefValue);
      }
@@ -542,7 +544,7 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
  
      return threshold;
  }
-@@ -250,6 +266,7 @@
+@@ -255,6 +272,7 @@
  qcms_profile *
  gfxPlatformMac::GetPlatformCMSOutputProfile()
  {
@@ -550,7 +552,7 @@ diff --git a/gfx/thebes/gfxPlatformMac.cpp b/gfx/thebes/gfxPlatformMac.cpp
      qcms_profile *profile = nsnull;
      CMProfileRef cmProfile;
      CMProfileLocation *location;
-@@ -327,4 +344,7 @@
+@@ -332,4 +350,7 @@
  fail_close:
      CMCloseProfile(cmProfile);
      return profile;
@@ -1065,7 +1067,7 @@ new file mode 100644
 +    gfxUIKitPlatformFontList();
 +
 +    // initialize font lists
-+    virtual void InitFontList();
++    virtual nsresult InitFontList();
 +
 +    // special case font faces treated as font families (set via prefs)
 +    void InitSingleFaceList();
@@ -1079,7 +1081,7 @@ diff --git a/gfx/thebes/gfxUIKitPlatformFontList.mm b/gfx/thebes/gfxUIKitPlatfor
 new file mode 100644
 --- /dev/null
 +++ b/gfx/thebes/gfxUIKitPlatformFontList.mm
-@@ -0,0 +1,496 @@
+@@ -0,0 +1,498 @@
 +/* -*- Mode: ObjC; tab-width: 20; indent-tabs-mode: nil; c-basic-offset: 4 -*-
 + * ***** BEGIN LICENSE BLOCK *****
 + * Version: BSD
@@ -1437,7 +1439,7 @@ new file mode 100644
 +    mReplacementCharFallbackFamily = NS_LITERAL_STRING("Helvetica");
 +}
 +
-+void
++nsresult
 +gfxUIKitPlatformFontList::InitFontList()
 +{
 +    printf("gfxUIKitPlatformFontList::InitFontList()\n");
@@ -1474,6 +1476,8 @@ new file mode 100644
 +
 +    // start the delayed cmap loader
 +    StartLoader(kDelayBeforeLoadingCmaps, kIntervalBetweenLoadingCmaps);
++
++    return NS_OK;
 +}
 +
 +void

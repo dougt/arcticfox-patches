@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521098 14400
-# Node ID b06bbeca4068d4cb294a66c6870093bc98a35874
-# Parent  94d25a9c40c3156fe4fbcdfe6a9a3632c0ec838e
+# Node ID 548bd05b35a55dd44ec9023afc5e3146cd7d7157
+# Parent  c247cd1837691e5fd1fbc34385f0c4910de95400
 imported patch static-xul-components
 
 diff --git a/toolkit/library/nsStaticXULComponents.cpp b/toolkit/library/nsStaticXULComponents.cpp

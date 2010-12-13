@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID 39e6d59eb90aad611ea99e2cd05e8edaee321555
-# Parent  70bbf407ee793f6329063ad4f40cb25f26ff111d
+# Node ID c25703274dd014899a81e73059dbbad7f1c6af72
+# Parent  7c8475d9274fbac58e48673a064ff9a8d2bb3c8f
 imported patch fix-screen-offset
 
 diff --git a/widget/src/uikit/nsAppShell.h b/widget/src/uikit/nsAppShell.h

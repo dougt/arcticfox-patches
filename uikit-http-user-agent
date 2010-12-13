@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 69a05fd0b48dd1db0c365e8e342d53ecfbff4f84
-# Parent  38365f03ea6e81d2574d16f79201a884d35e4512
+# Node ID 573129a702dba13aa0d623e73e9ec27074fd2211
+# Parent  6d04f2767ae6d321463cfc6cc7b605bb91e1c624
 imported patch uikit-http-user-agent
 
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
@@ -17,7 +17,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #include <CoreServices/CoreServices.h>
  #endif
  
-@@ -662,8 +662,10 @@
+@@ -674,8 +674,10 @@
      "OS/2"
  #elif defined(XP_WIN)
      "Windows"
@@ -29,7 +29,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #elif defined(XP_BEOS)
      "BeOS"
  #elif defined(MOZ_PLATFORM_MAEMO)
-@@ -719,7 +721,7 @@
+@@ -731,7 +733,7 @@
              PR_smprintf_free(buf);
          }
      }
@@ -38,7 +38,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #if defined(__ppc__)
      mOscpu.AssignLiteral("PPC Mac OS X");
  #elif defined(__i386__) || defined(__x86_64__)
-@@ -730,6 +732,13 @@
+@@ -742,6 +744,13 @@
          (::Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
          mOscpu += nsPrintfCString(" %d.%d", majorVersion, minorVersion);
      }

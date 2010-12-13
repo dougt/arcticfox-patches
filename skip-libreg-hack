@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID 38365f03ea6e81d2574d16f79201a884d35e4512
-# Parent  f1eed2bade3f8de3bd36f4b5dff72c7f4a05ef1b
+# Node ID 6d04f2767ae6d321463cfc6cc7b605bb91e1c624
+# Parent  f880371d9b2835b9f1676a9eeb6154b499b332a4
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 --- a/config/autoconf.mk.in
 +++ b/config/autoconf.mk.in
-@@ -130,6 +130,7 @@
+@@ -129,6 +129,7 @@
  ACCESSIBILITY = @ACCESSIBILITY@
  MOZ_VIEW_SOURCE = @MOZ_VIEW_SOURCE@
  MOZ_JSLOADER  = @MOZ_JSLOADER@
@@ -19,7 +19,7 @@ diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -6889,6 +6889,10 @@
+@@ -6914,6 +6914,10 @@
       AC_DEFINE(MOZ_HELP_VIEWER)
  fi
  
@@ -30,7 +30,7 @@ diff --git a/configure.in b/configure.in
  dnl ========================================================
  dnl = Enable safe browsing (anti-phishing)
  dnl ========================================================
-@@ -8904,7 +8908,7 @@
+@@ -8930,7 +8934,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)
@@ -42,7 +42,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -124,7 +124,7 @@
+@@ -126,7 +126,7 @@
  STATIC_LIBS += chromium_s
  endif
  

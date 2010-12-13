@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290110542 18000
-# Node ID 294affc819920112ce764a7140a45e42e5e2cf9d
-# Parent  b5a78d3f278befb0c7eb9570ad12409a5a2abe3a
+# Node ID b2a50549d4203c2f66737203f29140c859f1789d
+# Parent  ca8d49d81e60053fed547ac39003e46149736505
 [mq]: gfx-gl-uikit
 
 diff --git a/gfx/thebes/GLContextProvider.h b/gfx/thebes/GLContextProvider.h

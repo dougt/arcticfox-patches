@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID 72c18b8c4f96025cbdacf707c1a6db4eb7512418
-# Parent  ecfd476a7f66756b5471e625c8f80990e7c8f690
+# Node ID f3b4faa82faef77d9229a014a7059de85dff3967
+# Parent acaf96adcf03ed17d2e9140113914208631f3906
 imported patch browser-uikit
 
 diff --git a/browser/app/Info.plist b/browser/app/Info.plist
@@ -65,7 +65,7 @@ new file mode 100644
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 --- a/browser/app/Makefile.in
 +++ b/browser/app/Makefile.in
-@@ -102,14 +102,14 @@
+@@ -103,14 +103,14 @@
  endif
  LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
  else
@@ -82,7 +82,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  TK_LIBS := $(TK_LIBS)
  endif
  
-@@ -306,16 +306,15 @@
+@@ -307,16 +307,15 @@
  libs:: $(srcdir)/blocklist.xml
  	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
  
@@ -102,7 +102,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  AB_CD = $(MOZ_UI_LOCALE)
  
  AB := $(firstword $(subst -, ,$(AB_CD)))
-@@ -358,6 +357,27 @@
+@@ -359,6 +358,27 @@
  endif
  endif
  
@@ -323,3 +323,32 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
      { NS_PRIVATE_BROWSING_SERVICE_CONTRACTID, &kNS_PRIVATE_BROWSING_SERVICE_WRAPPER_CID },
      { NULL }
  };
+diff --git a/browser/installer/Makefile.in b/browser/installer/Makefile.in
+--- a/browser/installer/Makefile.in
++++ b/browser/installer/Makefile.in
+@@ -88,6 +88,10 @@
+ DEFINES += -DJAREXT=
+ endif
+ 
++ifeq (uikit,$(MOZ_WIDGET_TOOLKIT))
++DEFINES += -DMOZ_UIKIT=1
++endif
++
+ # Don't ifdef MOZ_IPC this because mac ppc needs it too.
+ include $(topsrcdir)/ipc/app/defs.mk
+ DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
+diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in
++++ b/browser/installer/package-manifest.in
+@@ -37,6 +37,11 @@
+ #endif
+ 
+ [xpcom]
++#ifdef MOZ_UIKIT
++@BINPATH@/Info.plist
++@BINPATH@/ResourceRules.plist
++@BINPATH@/Icon.png
++#endif
+ @BINPATH@/dependentlibs.list
+ #ifndef MOZ_STATIC_JS
+ @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@

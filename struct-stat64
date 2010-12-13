@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 815473412df99d130b0fa5818aedc353be0ff2d8
-# Parent  c8acf54b982ad73b596450053ee6da66a8be04a2
+# Node ID 25165dc6699b94b25f615ac983ab0f9d1fc09c50
+# Parent  cbea9a0ba052ad51f2389e4934266bd3eb62d0ba
 imported patch struct-stat64
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -3820,6 +3820,17 @@
+@@ -3809,6 +3809,17 @@
  AC_CHECK_FUNCS(flockfile getpagesize)
  AC_CHECK_FUNCS(localtime_r strtok_r)
  

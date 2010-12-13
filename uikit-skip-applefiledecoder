@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID dca7efd7b97dc52746a57ad9232e6d7ff68a1ba4
-# Parent  69a05fd0b48dd1db0c365e8e342d53ecfbff4f84
+# Node ID a668fdd37456caf3010df3f2e094f5773735b134
+# Parent  573129a702dba13aa0d623e73e9ec27074fd2211
 imported patch uikit-skip-applefiledecoder
 
 diff --git a/netwerk/build/nsNetModule.cpp b/netwerk/build/nsNetModule.cpp
