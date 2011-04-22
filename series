@@ -60,3 +60,5 @@ wtf-jit-allocator-iphone
 nsprocess
 skip-thumb2
 mozconfig-extra
+widget-layers-fix
+gfx-fix

@@ -1,0 +1,26 @@
+# HG changeset patch
+# Parent 2f25eecdf1be2d65c28f15de6ed403ba59e5fdb0
+diff --git a/gfx/thebes/gfxFont.cpp b/gfx/thebes/gfxFont.cpp
+--- a/gfx/thebes/gfxFont.cpp
++++ b/gfx/thebes/gfxFont.cpp
+@@ -1975,7 +1975,7 @@
+ {
+ // "#if" to be removed once all platforms are moved to gfxPlatformFontList interface
+ // and subclasses of gfxFontGroup eliminated
+-#if defined(XP_MACOSX) || (defined(XP_WIN) && !defined(WINCE)) || defined(ANDROID)
++#if defined(MOZ_WIDGET_COCOA) || (defined(XP_WIN) && !defined(WINCE)) || defined(ANDROID)
+     ForEachFont(FindPlatformFont, this);
+ 
+     if (mFonts.Length() == 0) {
+diff --git a/gfx/thebes/gfxUIKitPlatformFontList.mm b/gfx/thebes/gfxUIKitPlatformFontList.mm
+--- a/gfx/thebes/gfxUIKitPlatformFontList.mm
++++ b/gfx/thebes/gfxUIKitPlatformFontList.mm
+@@ -332,7 +332,7 @@
+         return;
+ 
+     const PRUint32 kNAME = TRUETYPE_TAG('n','a','m','e');
+-    nsAutoTArray<PRUint8,8192> buffer;
++    AutoFallibleTArray<PRUint8,8192> buffer;
+ 
+     if (fe->GetFontTable(kNAME, buffer) != NS_OK)
+         return;

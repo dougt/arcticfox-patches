@@ -1,0 +1,14 @@
+# HG changeset patch
+# Parent 35ffadb1d3cf64d210960a2173e853981dc8a70f
+diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
+--- a/widget/src/uikit/nsWindow.mm
++++ b/widget/src/uikit/nsWindow.mm
+@@ -263,7 +263,7 @@
+   }
+ 
+   //TODO: OpenGL layers
+-  if (mGeckoChild->GetLayerManager()->GetBackendType() == LayerManager::LAYERS_OPENGL) {
++  if (mGeckoChild->GetLayerManager(nsnull)->GetBackendType() == LayerManager::LAYERS_OPENGL) {
+       NS_WARNING("TRYING TO USE OPENGL LAYERS!");
+   }
+ 
