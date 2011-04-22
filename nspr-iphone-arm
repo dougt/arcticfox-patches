@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271780673 14400
-# Node ID 4739148a2da96b2c577943191c73e3eea6e5db08
-# Parent  ac5c97c4da6ae7b878ef7e87a238e09673218e85
+# Node ID b31db0a4ddfa74b4199dcafd0be5fd3c2f842c57
+# Parent  0a45829d98b932c169221bdc053e5acfea984b36
 fix NSPR compilation for Darwin/ARM
 
 diff --git a/nsprpub/config/autoconf.mk.in b/nsprpub/config/autoconf.mk.in

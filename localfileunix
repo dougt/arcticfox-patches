@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290110583 18000
-# Node ID 60f9a4128c070c97a97f61e3b4577fcf117dc521
-# Parent  b2a50549d4203c2f66737203f29140c859f1789d
+# Node ID bc0a0bc8eb61ccf7ed968954f55ca8acde33d4b0
+# Parent  413d46b5221c81252e2793a905df5182ef1f66d5
 [mq]: localfileunix
 
 diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
@@ -26,7 +26,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
  NS_IMPL_THREADSAFE_ISUPPORTS4(nsLocalFile,
                                nsILocalFileMac,
                                nsILocalFile,
-@@ -1737,7 +1737,7 @@
+@@ -1739,7 +1739,7 @@
  NS_IMETHODIMP
  nsLocalFile::SetPersistentDescriptor(const nsACString &aPersistentDescriptor)
  {
@@ -35,7 +35,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      if (aPersistentDescriptor.IsEmpty())
          return NS_ERROR_INVALID_ARG;
  
-@@ -1851,7 +1851,7 @@
+@@ -1853,7 +1853,7 @@
          else 
              return gnomevfs->ShowURIForInput(dirPath);        
      }
@@ -44,7 +44,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      CFURLRef url;
      if (NS_SUCCEEDED(GetCFURL(&url))) {
        nsresult rv = CocoaFileUtils::RevealFileInFinder(url);
-@@ -1920,7 +1920,7 @@
+@@ -1922,7 +1922,7 @@
      fileUri.Append(mPath);
      mozilla::AndroidBridge* bridge = mozilla::AndroidBridge::Bridge();
      return bridge->OpenUriExternal(fileUri, type) ? NS_OK : NS_ERROR_FAILURE;
@@ -53,7 +53,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      CFURLRef url;
      if (NS_SUCCEEDED(GetCFURL(&url))) {
          nsresult rv = CocoaFileUtils::OpenURL(url);
-@@ -2084,7 +2084,7 @@
+@@ -2086,7 +2086,7 @@
  
  // nsILocalFileMac
  
@@ -74,7 +74,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.h b/xpcom/io/nsLocalFileUnix.h
  #include "nsILocalFileMac.h"
  #endif
  
-@@ -105,7 +105,7 @@
+@@ -109,7 +109,7 @@
  
  
  class NS_COM nsLocalFile :
@@ -83,7 +83,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.h b/xpcom/io/nsLocalFileUnix.h
                             public nsILocalFileMac,
  #else
                             public nsILocalFile,
-@@ -122,7 +122,7 @@
+@@ -126,7 +126,7 @@
      NS_DECL_ISUPPORTS
      NS_DECL_NSIFILE
      NS_DECL_NSILOCALFILE

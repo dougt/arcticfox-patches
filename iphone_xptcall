@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373068 14400
-# Node ID 9dc632fa1d4d2d1967f68622eb7a1a7caa5c1ea5
-# Parent e8b4de05f5db4f7e89776f506c1edc0f7383c038
+# Node ID 204ab1877521251d453304b78c89692f804444fe
+# Parent  486296837a334b0619c7fa5ff1cf60bb4268c345
 imported patch iphone_xptcall
 
 diff --git a/xpcom/reflect/xptcall/src/md/unix/Makefile.in b/xpcom/reflect/xptcall/src/md/unix/Makefile.in

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID 7c8475d9274fbac58e48673a064ff9a8d2bb3c8f
-# Parent  f8ea32d116089f7f2fd254c527b23d46f5433fb4
+# Node ID 2a6575dd31d63f9ec379ae85b5f267e790f76835
+# Parent  022f3d1a470b787ed970c0867c8454dc8e345e46
 imported patch extra-drawing-warnings
 
 diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm

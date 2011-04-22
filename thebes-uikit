@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID fea59fda16420452cc6176213a9e8f2a9d0d8db1
-# Parent 88ec9faed660d1a77b9656dcd9dd95cbe0333077
+# Node ID e983a650857a25d833506e575c5647705cbf90c3
+# Parent  3ae35d4a1bfc2ab19a063e97e7cffb3b8ad19885
 imported patch thebes-uikit-tweaks
 * * *
 imported patch thebes-extra
@@ -277,7 +277,7 @@ diff --git a/gfx/src/thebes/nsThebesDeviceContext.cpp b/gfx/src/thebes/nsThebesD
 diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
 --- a/gfx/thebes/Makefile.in
 +++ b/gfx/thebes/Makefile.in
-@@ -70,7 +70,7 @@
+@@ -72,7 +72,7 @@
  	$(NULL)
  endif
  
@@ -286,7 +286,7 @@ diff --git a/gfx/thebes/Makefile.in b/gfx/thebes/Makefile.in
  EXPORTS += \
  	gfxPlatformMac.h \
  	gfxQuartzSurface.h \
-@@ -369,23 +369,32 @@
+@@ -378,23 +378,32 @@
  EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS) $(CAIRO_FT_LIBS) -lfontconfig
  endif
  
@@ -350,7 +350,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
  #include "gfxUserFontSet.h"
  
  #include "nsUnicodeRange.h"
-@@ -74,14 +82,20 @@
+@@ -66,14 +74,20 @@
  CTFontDescriptorRef gfxCoreTextShaper::sDefaultFeaturesDescriptor = NULL;
  CTFontDescriptorRef gfxCoreTextShaper::sDisableLigaturesDescriptor = NULL;
  
@@ -372,7 +372,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
  
      // Set up the default attribute dictionary that we will need each time we create a CFAttributedString
      mAttributesDict = ::CFDictionaryCreate(kCFAllocatorDefault,
-@@ -165,10 +179,11 @@
+@@ -157,10 +171,11 @@
      }
  
      CFDictionaryRef attrObj;
@@ -385,7 +385,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
          CTFontRef ctFont =
              CreateCTFontWithDisabledLigatures(font->GetATSFontRef(),
                                                ::CTFontGetSize(mCTFont));
-@@ -183,9 +198,12 @@
+@@ -175,9 +190,12 @@
          // Having created the dict, we're finished with our ligature-disabled CTFontRef
          ::CFRelease(ctFont);
      } else {
@@ -398,7 +398,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
  
      // Now we can create an attributed string
      CFAttributedStringRef attrStringObj =
-@@ -533,6 +551,7 @@
+@@ -525,6 +543,7 @@
  void
  gfxCoreTextShaper::CreateDefaultFeaturesDescriptor()
  {
@@ -406,7 +406,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
      if (sDefaultFeaturesDescriptor != NULL) {
          return;
      }
-@@ -600,8 +619,10 @@
+@@ -592,8 +611,10 @@
      sDefaultFeaturesDescriptor =
          ::CTFontDescriptorCreateWithAttributes(attributesDict);
      ::CFRelease(attributesDict);
@@ -417,7 +417,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.cpp b/gfx/thebes/gfxCoreTextShaper.cpp
  // Create a CTFontRef, with the Common Ligatures feature disabled [static]
  CTFontRef
  gfxCoreTextShaper::CreateCTFontWithDisabledLigatures(ATSFontRef aFontRef, CGFloat aSize)
-@@ -656,6 +677,7 @@
+@@ -648,6 +669,7 @@
      
      return ::CTFontCreateWithPlatformFont(aFontRef, aSize, NULL, sDisableLigaturesDescriptor);
  }
@@ -468,7 +468,7 @@ diff --git a/gfx/thebes/gfxCoreTextShaper.h b/gfx/thebes/gfxCoreTextShaper.h
 diff --git a/gfx/thebes/gfxFont.h b/gfx/thebes/gfxFont.h
 --- a/gfx/thebes/gfxFont.h
 +++ b/gfx/thebes/gfxFont.h
-@@ -327,6 +327,7 @@
+@@ -330,6 +330,7 @@
  protected:
      friend class gfxPlatformFontList;
      friend class gfxMacPlatformFontList;

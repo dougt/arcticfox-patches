@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID 529a9052dfbefc9a9d3d48ae2bec04a39bc3e2a0
-# Parent  780eb5e28127d411bbd3ee25ef98922116230a9c
+# Node ID 7c3d9197440e820eae49e5820f87c7d848562117
+# Parent  d2be19ddddc7268011d0a29a529132c23ecf90d6
 imported patch nsappshell-hidden-window
 
 diff --git a/xpfe/appshell/src/nsAppShellService.cpp b/xpfe/appshell/src/nsAppShellService.cpp
@@ -17,12 +17,3 @@ diff --git a/xpfe/appshell/src/nsAppShellService.cpp b/xpfe/appshell/src/nsAppSh
    PRUint32    chromeMask = 0;
    nsCOMPtr<nsIPrefBranch> prefBranch;
    nsCOMPtr<nsIPrefService> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID);
-@@ -184,7 +184,7 @@
- 
-   mHiddenWindow.swap(newWindow);
- 
--#ifdef XP_MACOSX
-+#ifdef MOZ_WIDGET_COCOA
-   // hide the hidden window by launching it into outer space. This
-   // way, we can keep it visible and let the OS send it activates
-   // to keep menus happy. This will cause it to show up in window

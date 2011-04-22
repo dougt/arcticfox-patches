@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID cc9d238907ed4b5e3267d49727d725394762d692
-# Parent  9dc632fa1d4d2d1967f68622eb7a1a7caa5c1ea5
+# Node ID fb64786efde1c2f626c71ad30bc15388ab0c21f7
+# Parent  204ab1877521251d453304b78c89692f804444fe
 imported patch contentutils-finite
 
 diff --git a/content/base/public/nsContentUtils.h b/content/base/public/nsContentUtils.h
 --- a/content/base/public/nsContentUtils.h
 +++ b/content/base/public/nsContentUtils.h
-@@ -1940,7 +1940,7 @@
+@@ -1928,7 +1928,7 @@
  #ifdef WIN32
    return _finite(f);
  #else

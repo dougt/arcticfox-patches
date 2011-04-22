@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521098 14400
-# Node ID c247cd1837691e5fd1fbc34385f0c4910de95400
-# Parent  d84de24e20b92554392450ad49cde5ec682a16ee
+# Node ID d8c42eb1cd28ab67df7279d689066bb43c4b79af
+# Parent  e9a1a6a21aaf0a95975eed62488c1c166d8436f3
 imported patch exthandler-uikit
 
 diff --git a/uriloader/exthandler/Makefile.in b/uriloader/exthandler/Makefile.in

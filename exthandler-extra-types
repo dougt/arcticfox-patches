@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID f8ea32d116089f7f2fd254c527b23d46f5433fb4
-# Parent  43f3dd4e6edc88276de1bffd447ca3374affb243
+# Node ID 022f3d1a470b787ed970c0867c8454dc8e345e46
+# Parent  93aaff8417ec8b843e680551b5addca5d098567d
 imported patch exthandler-extra-types
 
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
-@@ -530,7 +530,8 @@
+@@ -528,7 +528,8 @@
    { APPLICATION_XPINSTALL, "xpi" },
    { "application/xhtml+xml", "xhtml" },
    { "application/xhtml+xml", "xht" },

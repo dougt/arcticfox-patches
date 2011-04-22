@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID b9462c1fcb2fece561641fcabeffb17a048142dc
-# Parent  08491e278222256663ee64b624cb8a525cc1b68d
+# Node ID fbcd5a91dc330da818a005f07893d83e49a9411e
+# Parent  68cd73d8c1b98565fb97882501886fa6d9847c18
 imported patch xpcshell-link
 
 diff --git a/js/src/xpconnect/shell/Makefile.in b/js/src/xpconnect/shell/Makefile.in

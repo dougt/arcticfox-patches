@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971660 18000
-# Node ID bf40f6951293911c1e9aa3264e20639bb0907fbe
-# Parent  260078202f61e0c6666e3a508c7c05772be9cf78
+# Node ID 486296837a334b0619c7fa5ff1cf60bb4268c345
+# Parent  3b7ad7ccb74a869a0376ee811af52ed3b392d4b8
 imported patch ime-logging
 
 diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
@@ -19,7 +19,7 @@ diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIME
 diff --git a/dom/base/nsFocusManager.cpp b/dom/base/nsFocusManager.cpp
 --- a/dom/base/nsFocusManager.cpp
 +++ b/dom/base/nsFocusManager.cpp
-@@ -1569,6 +1569,7 @@
+@@ -1587,6 +1587,7 @@
                        PRBool aWindowRaised,
                        PRBool aAdjustWidgets)
  {

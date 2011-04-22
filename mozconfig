@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272324269 14400
-# Node ID cf25f7f1b2940ecc9278c8b6237eb9e8815b5e3e
-# Parent ff88db6c6126beb5b4de4791963f9c544763a3be
+# Node ID 3c8a94d8953132e747f2cfa7cc2584550ad0efb9
+# Parent  0a57ddb2cf4c51c46a1c6fe7628f43f8a4a00af9
 [mq]: mozconfig
 * * *
 imported patch mozconfig-debug

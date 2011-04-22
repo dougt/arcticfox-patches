@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 6b316f71bfde6e327a5c474c2299674c6fdeeb83
-# Parent  fea59fda16420452cc6176213a9e8f2a9d0d8db1
+# Node ID f892c30c6bc0b1bb1a5abf001f05b73135476070
+# Parent  e983a650857a25d833506e575c5647705cbf90c3
 imported patch npapi-uikit
 
 diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npapi.h
@@ -31,7 +31,7 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
  #endif
  
  #if defined(XP_UNIX)
-@@ -574,7 +577,10 @@
+@@ -576,7 +579,10 @@
  #ifndef NP_NO_QUICKDRAW
  typedef struct NP_Port
  {
@@ -42,7 +42,7 @@ diff --git a/modules/plugin/base/public/npapi.h b/modules/plugin/base/public/npa
    int32_t portx; /* position inside the topmost window */
    int32_t porty;
  } NP_Port;
-@@ -598,7 +604,9 @@
+@@ -600,7 +606,9 @@
  
  typedef struct NP_GLContext
  {

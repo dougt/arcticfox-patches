@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1291234460 18000
-# Node ID 2b6cc3b3bd3d0809f3cd11108b658f2a78ce3f6f
-# Parent 7fe677865559771b4c810e0dbd42e935dbbc3b6c
+# Node ID e627e2e971842b6fecaa34975c120cd4c9ef3a60
+# Parent  cf9c1d822fd2a523a5ec01aaebd886d2e92b4122
 [mq]: nsprocess
 
 diff --git a/xpcom/threads/nsProcessCommon.cpp b/xpcom/threads/nsProcessCommon.cpp

@@ -17,7 +17,6 @@ plugin-utils
 webbrowserfind-cocoa
 nsprofilelock-uikit
 downloadmanager-uikit
-commandline-uikit
 xre-uikit
 toolkit-profile-service-uikit
 uikit-no-native-menus
@@ -60,3 +59,4 @@ fix-screen-offset
 wtf-jit-allocator-iphone
 nsprocess
 skip-thumb2
+mozconfig-extra

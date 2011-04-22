@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 3b095a7c4989466ad0e7a62ac3609bac49718d61
-# Parent  c4a69a390dcd8815f2bc308df19becd48b2bade0
+# Node ID d02ccbb426af0252767aae4ffdffa0118dd04406
+# Parent  a56f512db1bf9dc5925f0605cffe622410083036
 imported patch fix-packaging
 
 diff --git a/toolkit/mozapps/installer/packager.mk b/toolkit/mozapps/installer/packager.mk
@@ -26,7 +26,7 @@ diff --git a/toolkit/mozapps/installer/packager.mk b/toolkit/mozapps/installer/p
  INSTALLER_DIR   = unix
  endif
  endif
-@@ -221,6 +221,10 @@
+@@ -230,6 +230,10 @@
    rm -rf lib
  endif
  ifeq ($(MOZ_PKG_FORMAT),DMG)
@@ -37,7 +37,7 @@ diff --git a/toolkit/mozapps/installer/packager.mk b/toolkit/mozapps/installer/p
  ifndef _APPNAME
  ifdef MOZ_DEBUG
  _APPNAME	= $(MOZ_APP_DISPLAYNAME)Debug.app
-@@ -231,6 +235,7 @@
+@@ -240,6 +244,7 @@
  ifndef _BINPATH
  _BINPATH	= /$(_APPNAME)/Contents/MacOS
  endif # _BINPATH
