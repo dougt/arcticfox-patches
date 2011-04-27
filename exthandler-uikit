@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273521098 14400
-# Node ID d8c42eb1cd28ab67df7279d689066bb43c4b79af
-# Parent  e9a1a6a21aaf0a95975eed62488c1c166d8436f3
+# Node ID 2d6ca0298db7f825695f70a82edc036f6baf7ae5
+# Parent  d7ecc80ec5f0193d714e373fd599393b5b5bc098
 imported patch exthandler-uikit
 
 diff --git a/uriloader/exthandler/Makefile.in b/uriloader/exthandler/Makefile.in
 --- a/uriloader/exthandler/Makefile.in
 +++ b/uriloader/exthandler/Makefile.in
-@@ -63,12 +63,16 @@
+@@ -60,11 +60,15 @@
  ifeq ($(MOZ_WIDGET_TOOLKIT),android)
  OSDIR		= android
  else
@@ -20,12 +20,11 @@ diff --git a/uriloader/exthandler/Makefile.in b/uriloader/exthandler/Makefile.in
  endif
  endif
  endif
- endif
 +endif
  
  VPATH		:= $(srcdir) $(srcdir)/$(OSDIR)
  
-@@ -84,8 +88,16 @@
+@@ -80,8 +84,16 @@
  			nsLocalHandlerAppMac.mm \
  			$(NULL)
  else

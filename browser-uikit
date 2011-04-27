@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962716 14400
-# Node ID 15176d87168cb1b38a09d2fa493c75cdd8138e31
-# Parent  dc7374b21e0020362139dcc5df151b74bc022cde
+# Node ID 8e716ee8b3869588b7e269d242d3cd04598c7ccd
+# Parent  53b9967a225894ec11d2e90f57673e0bea693fa7
 imported patch browser-uikit
 
 diff --git a/browser/app/Info.plist b/browser/app/Info.plist
@@ -82,7 +82,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  TK_LIBS := $(TK_LIBS)
  endif
  
-@@ -307,16 +307,15 @@
+@@ -303,16 +303,15 @@
  libs:: $(srcdir)/blocklist.xml
  	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
  
@@ -102,7 +102,7 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
  AB_CD = $(MOZ_UI_LOCALE)
  
  AB := $(firstword $(subst -, ,$(AB_CD)))
-@@ -359,6 +358,27 @@
+@@ -355,6 +354,27 @@
  endif
  endif
  
@@ -235,9 +235,9 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
 -
 +#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
  #include "nsProfileMigrator.h"
- #if !defined(XP_BEOS)
  #include "nsDogbertProfileMigrator.h"
-@@ -62,7 +61,7 @@
+ #if !defined(XP_OS2)
+@@ -60,7 +59,7 @@
  #include "nsSeamonkeyProfileMigrator.h"
  #if defined(XP_WIN) && !defined(__MINGW32__)
  #include "nsIEProfileMigrator.h"
@@ -246,7 +246,7 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
  #include "nsSafariProfileMigrator.h"
  #include "nsOmniWebProfileMigrator.h"
  #include "nsMacIEProfileMigrator.h"
-@@ -87,14 +86,14 @@
+@@ -85,14 +84,14 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(DirectoryProvider)
  #if defined(XP_WIN)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsWindowsShellService)
@@ -260,10 +260,10 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
 -#ifndef WINCE
  
 +#if !defined(WINCE) && !defined(MOZ_WIDGET_UIKIT)
- #if !defined(XP_BEOS)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsDogbertProfileMigrator)
- #endif
-@@ -106,7 +105,7 @@
+ #if !defined(XP_OS2)
+ NS_GENERIC_FACTORY_CONSTRUCTOR(nsOperaProfileMigrator)
+@@ -102,7 +101,7 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsSeamonkeyProfileMigrator)
  #if defined(XP_WIN) && !defined(__MINGW32__)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsIEProfileMigrator)
@@ -272,7 +272,7 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsSafariProfileMigrator)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsOmniWebProfileMigrator)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacIEProfileMigrator)
-@@ -128,11 +127,11 @@
+@@ -124,11 +123,11 @@
  #endif
  NS_DEFINE_NAMED_CID(NS_FEEDSNIFFER_CID);
  NS_DEFINE_NAMED_CID(NS_BROWSER_ABOUT_REDIRECTOR_CID);
@@ -286,7 +286,7 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
  NS_DEFINE_NAMED_CID(NS_SHELLSERVICE_CID);
  NS_DEFINE_NAMED_CID(NS_SAFARIPROFILEMIGRATOR_CID);
  NS_DEFINE_NAMED_CID(NS_MACIEPROFILEMIGRATOR_CID);
-@@ -160,11 +159,11 @@
+@@ -154,11 +153,11 @@
  #endif
      { &kNS_FEEDSNIFFER_CID, false, NULL, nsFeedSnifferConstructor },
      { &kNS_BROWSER_ABOUT_REDIRECTOR_CID, false, NULL, AboutRedirector::Create },
@@ -300,7 +300,7 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
      { &kNS_SHELLSERVICE_CID, false, NULL, nsMacShellServiceConstructor },
      { &kNS_SAFARIPROFILEMIGRATOR_CID, false, NULL, nsSafariProfileMigratorConstructor },
      { &kNS_MACIEPROFILEMIGRATOR_CID, false, NULL, nsMacIEProfileMigratorConstructor },
-@@ -206,11 +205,11 @@
+@@ -198,11 +197,11 @@
      { NS_ABOUT_MODULE_CONTRACTID_PREFIX "sync-tabs", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },
  #endif
      { NS_ABOUT_MODULE_CONTRACTID_PREFIX "home", &kNS_BROWSER_ABOUT_REDIRECTOR_CID },
@@ -314,8 +314,8 @@ diff --git a/browser/components/build/nsModule.cpp b/browser/components/build/ns
      { NS_SHELLSERVICE_CONTRACTID, &kNS_SHELLSERVICE_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "safari", &kNS_SAFARIPROFILEMIGRATOR_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "macie", &kNS_MACIEPROFILEMIGRATOR_CID },
-@@ -226,7 +225,7 @@
- #endif
+@@ -216,7 +215,7 @@
+     { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "dogbert", &kNS_DOGBERTPROFILEMIGRATOR_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "phoenix", &kNS_PHOENIXPROFILEMIGRATOR_CID },
      { NS_BROWSERPROFILEMIGRATOR_CONTRACTID_PREFIX "seamonkey", &kNS_SEAMONKEYPROFILEMIGRATOR_CID },
 -#endif /* WINCE */
@@ -334,13 +334,13 @@ diff --git a/browser/installer/Makefile.in b/browser/installer/Makefile.in
 +DEFINES += -DMOZ_UIKIT=1
 +endif
 +
- # Don't ifdef MOZ_IPC this because mac ppc needs it too.
- include $(topsrcdir)/ipc/app/defs.mk
- DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
+ ifdef MOZ_ANGLE
+ DEFINES += -DMOZ_ANGLE=$(MOZ_ANGLE)
+ DEFINES += -DMOZ_D3DX9_DLL=$(MOZ_D3DX9_DLL)
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
 --- a/browser/installer/package-manifest.in
 +++ b/browser/installer/package-manifest.in
-@@ -37,6 +37,11 @@
+@@ -43,6 +43,11 @@
  #endif
  
  [xpcom]

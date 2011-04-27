@@ -1,25 +1,25 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373062 14400
-# Node ID 2f00cfa560e806cf2745cbed6b8965e012150407
-# Parent  b2c64f596a01b1e54a2bc06a131b7d338276f68a
+# Node ID afb0a368c358e8c3dddd37d8632286fa2a604cc2
+# Parent  4ac6e7dbe109a6e37ed51adab799f59bacdce6af
 allow skipping libreg via a configure variable
 
 diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
 --- a/config/autoconf.mk.in
 +++ b/config/autoconf.mk.in
-@@ -130,6 +130,7 @@
+@@ -127,6 +127,7 @@
+ IBMBIDI = @IBMBIDI@
+ MOZ_UNIVERSALCHARDET = @MOZ_UNIVERSALCHARDET@
  ACCESSIBILITY = @ACCESSIBILITY@
- MOZ_VIEW_SOURCE = @MOZ_VIEW_SOURCE@
- MOZ_JSLOADER  = @MOZ_JSLOADER@
 +MOZ_LIBREG    = @MOZ_LIBREG@
- MOZ_USE_NATIVE_UCONV = @MOZ_USE_NATIVE_UCONV@
  MOZ_BRANDING_DIRECTORY = @MOZ_BRANDING_DIRECTORY@
  XPCOM_USE_LEA = @XPCOM_USE_LEA@
+ MOZ_INSTALLER	= @MOZ_INSTALLER@
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -6971,6 +6971,10 @@
+@@ -6791,6 +6791,10 @@
       AC_DEFINE(MOZ_HELP_VIEWER)
  fi
  
@@ -30,21 +30,21 @@ diff --git a/configure.in b/configure.in
  dnl ========================================================
  dnl = Enable safe browsing (anti-phishing)
  dnl ========================================================
-@@ -9049,7 +9053,7 @@
+@@ -8821,7 +8825,7 @@
  AC_SUBST(NS_PRINTING)
  AC_SUBST(MOZ_WEBGL)
  AC_SUBST(MOZ_HELP_VIEWER)
 -
 +AC_SUBST(MOZ_LIBREG)
- AC_SUBST(MOZ_JAVAXPCOM)
- AC_SUBST(JAVA_INCLUDE_PATH)
  AC_SUBST(JAVA)
+ AC_SUBST(JAVAC)
+ AC_SUBST(JAR)
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -126,7 +126,7 @@
- STATIC_LIBS += chromium_s
- endif
+@@ -117,7 +117,7 @@
+ 	chromium_s \
+ 	$(NULL)
  
 -ifndef WINCE
 +ifdef MOZ_LIBREG

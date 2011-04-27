@@ -1,21 +1,23 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID 55585033cd78ef3ad73c160382fffb67a0d1cc59
-# Parent  21411c7b150eba63a19cd6aa1022fa407ad8dcb6
+# Node ID 735b333014e452de91fa06db155ada63dc26a7fe
+# Parent  7b2a4995af809cce0876eecc72248e26acfde493
 imported patch skip-webgl-uikit
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5310,7 +5310,10 @@
+@@ -5132,8 +5132,11 @@
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
      MOZ_FS_LAYOUT=bundle
 -    MOZ_WEBGL=1
-+    # skip webgl on UIKit for now
+-    MOZ_INSTRUMENT_EVENT_LOOP=1
++    # skip webgl and event loop instrumentation ßœon UIKit for now
 +    if test "$MOZ_WIDGET_TOOLKIT" == "cocoa"; then
 +      MOZ_WEBGL=1
++      MOZ_INSTRUMENT_EVENT_LOOP=1
 +    fi
      ;;
  

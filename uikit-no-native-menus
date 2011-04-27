@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID 21411c7b150eba63a19cd6aa1022fa407ad8dcb6
-# Parent  ccb91721051cdb5300cf8baf1e98fe3656a5480b
+# Node ID 7b2a4995af809cce0876eecc72248e26acfde493
+# Parent  9ecedfa335e90b8c0529bbe0ed2b0a377228853f
 imported patch uikit-no-native-menus
 
 diff --git a/xpfe/appshell/src/nsWebShellWindow.cpp b/xpfe/appshell/src/nsWebShellWindow.cpp
 --- a/xpfe/appshell/src/nsWebShellWindow.cpp
 +++ b/xpfe/appshell/src/nsWebShellWindow.cpp
-@@ -111,7 +111,7 @@
+@@ -110,7 +110,7 @@
  
  #include "nsIMarkupDocumentViewer.h"
  

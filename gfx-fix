@@ -1,9 +1,14 @@
 # HG changeset patch
-# Parent 2f25eecdf1be2d65c28f15de6ed403ba59e5fdb0
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1303753064 14400
+# Node ID 9c94283a21f25e9f783a36cded9be5d2ef160883
+# Parent  d7d70a258a09343c991b8dd89d86b3cf0392fcba
+imported patch gfx-fix
+
 diff --git a/gfx/thebes/gfxFont.cpp b/gfx/thebes/gfxFont.cpp
 --- a/gfx/thebes/gfxFont.cpp
 +++ b/gfx/thebes/gfxFont.cpp
-@@ -1975,7 +1975,7 @@
+@@ -1966,7 +1966,7 @@
  {
  // "#if" to be removed once all platforms are moved to gfxPlatformFontList interface
  // and subclasses of gfxFontGroup eliminated

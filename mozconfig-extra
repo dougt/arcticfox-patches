@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1298841208 18000
-# Node ID 35ffadb1d3cf64d210960a2173e853981dc8a70f
-# Parent  247d9b3841c55f69e520082c14ef6bb5c8981d0a
+# Node ID a6fd68094e33fc63c934f35bdea166dbaf1011e1
+# Parent  024adbe46cc9facaaea683b964017fb8993103b8
 [mq]: mozconfig-extra
 
 diff --git a/build/fennec-iphone-device-mozconfig b/build/fennec-iphone-device-mozconfig

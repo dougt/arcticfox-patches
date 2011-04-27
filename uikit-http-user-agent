@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 64c7a05c2e294640de8e47fde63e207430e655ce
-# Parent  2f00cfa560e806cf2745cbed6b8965e012150407
+# Node ID 82ce727315bdaf38faa28d4ae6abe4511074daed
+# Parent  afb0a368c358e8c3dddd37d8632286fa2a604cc2
 imported patch uikit-http-user-agent
 
 diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsHttpHandler.cpp
 --- a/netwerk/protocol/http/nsHttpHandler.cpp
 +++ b/netwerk/protocol/http/nsHttpHandler.cpp
-@@ -92,7 +92,7 @@
+@@ -89,7 +89,7 @@
  #include <windows.h>
  #endif
  
@@ -17,7 +17,7 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #include <CoreServices/CoreServices.h>
  #endif
  
-@@ -683,8 +683,10 @@
+@@ -675,8 +675,10 @@
      "OS/2"
  #elif defined(XP_WIN)
      "Windows"
@@ -26,10 +26,10 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
      "Macintosh"
 +#elif defined(MOZ_WIDGET_UIKIT)
 +    "iPhone"
- #elif defined(XP_BEOS)
-     "BeOS"
  #elif defined(MOZ_PLATFORM_MAEMO)
-@@ -740,7 +742,7 @@
+     "Maemo"
+ #elif defined(MOZ_X11)
+@@ -730,7 +732,7 @@
              PR_smprintf_free(buf);
          }
      }
@@ -38,17 +38,17 @@ diff --git a/netwerk/protocol/http/nsHttpHandler.cpp b/netwerk/protocol/http/nsH
  #if defined(__ppc__)
      mOscpu.AssignLiteral("PPC Mac OS X");
  #elif defined(__i386__) || defined(__x86_64__)
-@@ -751,6 +753,13 @@
+@@ -741,6 +743,13 @@
          (::Gestalt(gestaltSystemVersionMinor, &minorVersion) == noErr)) {
          mOscpu += nsPrintfCString(" %d.%d", majorVersion, minorVersion);
      }
 +#elif defined(MOZ_WIDGET_UIKIT)
 +#if defined(__arm___)
-+    mOscpu.AssignLiteral("ARM iPhoneOS");
++    mOscpu.AssignLiteral("ARM iOS");
 +#elif defined(__i386__) || defined(__x86_64__)
-+    mOscpu.AssignLiteral("Intel iPhoneOS");
++    mOscpu.AssignLiteral("Intel iOS");
 +#endif
 +    //XXX: [[UIDevice currentDevice] systemVersion]
- #elif defined (XP_UNIX) || defined (XP_BEOS)
+ #elif defined (XP_UNIX)
      struct utsname name;
      

@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID ccb91721051cdb5300cf8baf1e98fe3656a5480b
-# Parent  b56808de6860eff3298f9dcddcaa4b7722bcb787
+# Node ID 9ecedfa335e90b8c0529bbe0ed2b0a377228853f
+# Parent  efe763df6a01ee55c6504660b380b2aa8c8690b0
 imported patch toolkit-profile-service-uikit
 
-diff --git a/toolkit/profile/src/nsToolkitProfileService.cpp b/toolkit/profile/src/nsToolkitProfileService.cpp
---- a/toolkit/profile/src/nsToolkitProfileService.cpp
-+++ b/toolkit/profile/src/nsToolkitProfileService.cpp
-@@ -56,7 +56,7 @@
+diff --git a/toolkit/profile/nsToolkitProfileService.cpp b/toolkit/profile/nsToolkitProfileService.cpp
+--- a/toolkit/profile/nsToolkitProfileService.cpp
++++ b/toolkit/profile/nsToolkitProfileService.cpp
+@@ -53,7 +53,7 @@
  #include "nsILocalFile.h"
  #include "nsISimpleEnumerator.h"
  
@@ -17,7 +17,7 @@ diff --git a/toolkit/profile/src/nsToolkitProfileService.cpp b/toolkit/profile/s
  #include <CoreFoundation/CoreFoundation.h>
  #include "nsILocalFileMac.h"
  #endif
-@@ -897,7 +897,7 @@
+@@ -896,7 +896,7 @@
  nsresult
  XRE_GetFileFromPath(const char *aPath, nsILocalFile* *aResult)
  {

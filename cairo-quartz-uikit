@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373067 14400
-# Node ID e668cfeec7c4980dbb99ac398c4c605af8e72df1
-# Parent  7cc10792abf508c7caf9ef8d9b2c30a19e69b656
+# Node ID fe6404ed9ba613dc3be0a460086f18e6c0608d83
+# Parent  8a35b96da5466a9312f2749f42d331a7053d1e05
 imported patch cairo-quartz-uikit
 
 diff --git a/gfx/cairo/cairo/src/Makefile.in b/gfx/cairo/cairo/src/Makefile.in
 --- a/gfx/cairo/cairo/src/Makefile.in
 +++ b/gfx/cairo/cairo/src/Makefile.in
-@@ -192,7 +192,7 @@
+@@ -193,7 +193,7 @@
  EXPORTS_cairo += $(PDF_EXPORTS)
  endif
  

@@ -1,28 +1,28 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373063 14400
-# Node ID 795a5f604f231aa1793c5f4738e308fb62c84816
-# Parent  32a87936a3ec7dcfbae4ee0048ca07f26b947ead
+# Node ID 4afa945178e6c604b3b2c104eeb20dd1c338e2b4
+# Parent  c2415f6f293da6cb1c0fa9d0dadcc399efdba6f5
 imported patch exthandler-uikit-skip-plugins
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -5873,6 +5873,10 @@
-     MOZ_PLUGINS=,
-     MOZ_PLUGINS=1)
+@@ -5700,6 +5700,10 @@
+ AC_SUBST(MOZ_IPDL_TESTS)
  
+ dnl ========================================================
 +if test -n "$MOZ_PLUGINS"; then
 +  AC_DEFINE(MOZ_PLUGINS)
 +fi
 +
- dnl ========================================================
  dnl = Disable building dbm
  dnl ========================================================
+ MOZ_ARG_DISABLE_BOOL(dbm,
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
-@@ -101,7 +101,7 @@
+@@ -99,7 +99,7 @@
  #include "nsIObserverService.h" // so we can be a profile change observer
  #include "nsIPropertyBag2.h" // for the 64-bit content length
  
@@ -31,7 +31,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
  #include "nsILocalFileMac.h"
  #ifndef __LP64__
  #include "nsIAppleFileDecoder.h"
-@@ -110,7 +110,9 @@
+@@ -108,7 +108,9 @@
  #include "nsILocalFileOS2.h"
  #endif
  
@@ -41,7 +41,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
  #include "nsEscape.h"
  
  #include "nsIStringBundle.h" // XXX needed to localize error msgs
-@@ -421,7 +423,7 @@
+@@ -417,7 +419,7 @@
  static nsresult GetDownloadDirectory(nsIFile **_directory)
  {
    nsCOMPtr<nsIFile> dir;
@@ -50,7 +50,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    // On OS X, we first try to get the users download location, if it's set.
    nsCOMPtr<nsIPrefBranch> prefs =
      do_GetService(NS_PREFSERVICE_CONTRACTID);
-@@ -1532,7 +1534,7 @@
+@@ -1534,7 +1536,7 @@
  
    mOutStream = NS_BufferOutputStream(outputStream, BUFFERED_OUTPUT_SIZE);
  
@@ -59,7 +59,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
      nsCAutoString contentType;
      mMimeInfo->GetMIMEType(contentType);
      if (contentType.LowerCaseEqualsLiteral(APPLICATION_APPLEFILE) ||
-@@ -2749,6 +2751,7 @@
+@@ -2755,6 +2757,7 @@
    if (found)
      return NS_OK;
  
@@ -67,7 +67,7 @@ diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/ext
    const nsCString& flatExt = PromiseFlatCString(aFileExt);
    // Try the plugins
    const char* mimeType;
-@@ -2759,6 +2762,7 @@
+@@ -2765,6 +2768,7 @@
        return NS_OK;
      }
    }

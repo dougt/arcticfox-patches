@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962718 14400
-# Node ID 1a9fb9352674e98339c0941e501712560ae83e6e
-# Parent  46aabf6e78a32fcff14722273ac5048578b1a7c6
+# Node ID 25eb6bca340e048178d8b54bf160b9299461c4f6
+# Parent  4c6821ee440e86fefae36aec2280776d8cd9cdb0
 imported patch pixman-arm-darwin
 
 diff --git a/gfx/cairo/libpixman/src/Makefile.in b/gfx/cairo/libpixman/src/Makefile.in
 --- a/gfx/cairo/libpixman/src/Makefile.in
 +++ b/gfx/cairo/libpixman/src/Makefile.in
-@@ -96,6 +96,7 @@
+@@ -105,6 +105,7 @@
  endif
  endif
  ifeq (arm,$(findstring arm,$(OS_TEST)))
@@ -16,7 +16,7 @@ diff --git a/gfx/cairo/libpixman/src/Makefile.in b/gfx/cairo/libpixman/src/Makef
  ifdef HAVE_ARM_SIMD
  USE_ARM_SIMD_GCC=1
  endif
-@@ -103,6 +104,7 @@
+@@ -112,6 +113,7 @@
  USE_ARM_NEON_GCC=1
  endif
  endif

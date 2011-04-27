@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1291234460 18000
-# Node ID e627e2e971842b6fecaa34975c120cd4c9ef3a60
-# Parent  cf9c1d822fd2a523a5ec01aaebd886d2e92b4122
+# Node ID 39ae03e32669785fe105ea82586ed70501c8a235
+# Parent  6fbb4db05acb381124668cf8ead5995a029e2fa4
 [mq]: nsprocess
 
 diff --git a/xpcom/threads/nsProcessCommon.cpp b/xpcom/threads/nsProcessCommon.cpp
 --- a/xpcom/threads/nsProcessCommon.cpp
 +++ b/xpcom/threads/nsProcessCommon.cpp
-@@ -67,7 +67,11 @@
+@@ -66,7 +66,11 @@
  #include "nsReadableUtils.h"
  #else
  #ifdef XP_MACOSX

@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373066 14400
-# Node ID b56808de6860eff3298f9dcddcaa4b7722bcb787
-# Parent  a9dfca65df405f754e44797f1860a2b718b6c91a
+# Node ID efe763df6a01ee55c6504660b380b2aa8c8690b0
+# Parent  081a5c1b2a9c344422ff42ebcf786266d5e121be
 imported patch xre-uikit
 * * *
 imported patch xre-oops
@@ -10,7 +10,7 @@ imported patch xre-oops
 diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
 --- a/toolkit/xre/Makefile.in
 +++ b/toolkit/xre/Makefile.in
-@@ -122,12 +122,16 @@
+@@ -118,12 +118,16 @@
  endif
  
  ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
@@ -32,16 +32,16 @@ diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
 diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
 --- a/toolkit/xre/nsAppRunner.cpp
 +++ b/toolkit/xre/nsAppRunner.cpp
-@@ -68,7 +68,7 @@
- #include "nsAppRunner.h"
- #include "nsUpdateDriver.h"
+@@ -66,7 +66,7 @@
+ #include "EventTracer.h"
+ #endif
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
  #include "MacLaunchHelper.h"
  #include "MacApplicationDelegate.h"
  #include "MacAutoreleasePool.h"
-@@ -182,7 +182,7 @@
+@@ -173,7 +173,7 @@
  #include "nsThreadUtils.h"
  #endif
  
@@ -50,7 +50,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #include "nsILocalFileMac.h"
  #include "nsCommandLineServiceMac.h"
  #endif
-@@ -201,10 +201,14 @@
+@@ -192,10 +192,14 @@
  #include <malloc.h>
  #endif
  
@@ -66,7 +66,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #ifdef DEBUG
  #include "prlog.h"
  #endif
-@@ -1101,7 +1105,7 @@
+@@ -1094,7 +1098,7 @@
    NS_IF_RELEASE(gNativeAppSupport);
  
    if (mServiceManager) {
@@ -75,7 +75,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
      // On OS X, we need a pool to catch cocoa objects that are autoreleased
      // during teardown.
      mozilla::MacAutoreleasePool pool;
-@@ -1519,27 +1523,45 @@
+@@ -1509,27 +1513,45 @@
      return NS_NewNativeLocalFile(nsDependentCString(gBinaryPath), PR_FALSE,
                                   aResult);
  
@@ -128,16 +128,16 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
  #elif defined(XP_UNIX)
    struct stat fileStat;
    char exePath[MAXPATHLEN];
-@@ -1760,7 +1782,7 @@
+@@ -1738,7 +1760,7 @@
  #if defined(ANDROID)
    mozilla::AndroidBridge::Bridge()->ScheduleRestart();
  #else
 -#if defined(XP_MACOSX)
 +#if defined(MOZ_WIDGET_COCOA)
    CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
-   LaunchChildMac(gRestartArgc, gRestartArgv);
- #else
-@@ -1962,7 +1984,7 @@
+   PRUint32 restartMode = 0;
+ #if defined(MOZ_ENABLE_LIBXUL)
+@@ -1938,7 +1960,7 @@
      rv = xpcom.SetWindowCreator(aNative);
      NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
  
@@ -146,7 +146,7 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
      CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -2049,7 +2071,7 @@
+@@ -2025,7 +2047,7 @@
      ScopedXPCOMStartup xpcom;
      rv = xpcom.Initialize();
      if (NS_SUCCEEDED(rv)) {
@@ -155,16 +155,16 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
        CommandLineServiceMac::SetupMacCommandLine(gRestartArgc, gRestartArgv, PR_TRUE);
  #endif
  
-@@ -3068,7 +3090,7 @@
+@@ -3046,7 +3068,7 @@
    }
  #endif
  
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
-   if (PR_GetEnv("MOZ_LAUNCHED_CHILD")) {
+   if (EnvHasValue("MOZ_LAUNCHED_CHILD")) {
      // This is needed, on relaunch, to force the OS to use the "Cocoa Dock
      // API".  Otherwise the call to ReceiveNextEvent() below will make it
-@@ -3150,7 +3172,7 @@
+@@ -3128,7 +3150,7 @@
    }
  #endif
  
@@ -173,8 +173,8 @@ diff --git a/toolkit/xre/nsAppRunner.cpp b/toolkit/xre/nsAppRunner.cpp
    if (GetCurrentEventKeyModifiers() & optionKey)
      gSafeMode = PR_TRUE;
  #endif
-@@ -3713,7 +3735,7 @@
-           }
+@@ -3696,7 +3718,7 @@
+           g_unsetenv ("DESKTOP_STARTUP_ID");
  #endif
  
 -#ifdef XP_MACOSX
@@ -193,8 +193,8 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
 +#ifdef MOZ_WIDGET_COCOA
  #include "nsILocalFileMac.h"
  #endif
- #ifdef XP_BEOS
-@@ -1024,7 +1024,7 @@
+ #ifdef XP_UNIX
+@@ -1020,7 +1020,7 @@
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;
  
@@ -203,7 +203,7 @@ diff --git a/toolkit/xre/nsXREDirProvider.cpp b/toolkit/xre/nsXREDirProvider.cpp
    FSRef fsRef;
    OSType folderType;
    if (aLocal) {
-@@ -1151,7 +1151,7 @@
+@@ -1129,7 +1129,7 @@
  {
    nsresult rv;
    nsCOMPtr<nsILocalFile> localDir;

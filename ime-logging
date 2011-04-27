@@ -1,15 +1,15 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971660 18000
-# Node ID 486296837a334b0619c7fa5ff1cf60bb4268c345
-# Parent  3b7ad7ccb74a869a0376ee811af52ed3b392d4b8
+# Node ID 3d9dfbc88d51713893a2e7a8e1a15854cdd9336e
+# Parent  c3eac09f61952e2cd6adaba47f0f7fadfe90f13f
 imported patch ime-logging
 
 diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIMEStateManager.cpp
 --- a/content/events/src/nsIMEStateManager.cpp
 +++ b/content/events/src/nsIMEStateManager.cpp
-@@ -124,6 +124,7 @@
-                                  nsIContent* aContent)
+@@ -129,6 +129,7 @@
+                                  PRUint32 aReason)
  {
    NS_ENSURE_ARG_POINTER(aPresContext);
 +  printf("nsIMEStateManager::OnChangeFocus\n");
@@ -19,7 +19,7 @@ diff --git a/content/events/src/nsIMEStateManager.cpp b/content/events/src/nsIME
 diff --git a/dom/base/nsFocusManager.cpp b/dom/base/nsFocusManager.cpp
 --- a/dom/base/nsFocusManager.cpp
 +++ b/dom/base/nsFocusManager.cpp
-@@ -1587,6 +1587,7 @@
+@@ -1616,6 +1616,7 @@
                        PRBool aWindowRaised,
                        PRBool aAdjustWidgets)
  {

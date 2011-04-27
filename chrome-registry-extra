@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288982603 14400
-# Node ID 916b2fe98060f7debbee1568b9c643459194a878
-# Parent  d02ccbb426af0252767aae4ffdffa0118dd04406
+# Node ID edea5a0f9b05b2f9d0d8deb67e2d004a19afaf27
+# Parent  0a9285accf87d828b0d192c31da2a68866b3cf38
 imported patch chrome-registry-extra
 
 diff --git a/chrome/src/nsChromeRegistryChrome.cpp b/chrome/src/nsChromeRegistryChrome.cpp
 --- a/chrome/src/nsChromeRegistryChrome.cpp
 +++ b/chrome/src/nsChromeRegistryChrome.cpp
-@@ -46,7 +46,7 @@
+@@ -44,7 +44,7 @@
  
  #if defined(XP_WIN)
  #include <windows.h>

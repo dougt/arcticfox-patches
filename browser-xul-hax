@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1288962717 14400
-# Node ID d2be19ddddc7268011d0a29a529132c23ecf90d6
-# Parent  15176d87168cb1b38a09d2fa493c75cdd8138e31
+# Node ID 84b65d46ce50e89445b0ac34dc1c440dd73792f9
+# Parent  8e716ee8b3869588b7e269d242d3cd04598c7ccd
 imported patch browser-xul-hax
 
 diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/baseMenuOverlay.xul
@@ -26,7 +26,7 @@ diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/bas
                    key="key_openHelpMac"/>
  #else
                    />
-@@ -117,7 +117,7 @@
+@@ -110,7 +110,7 @@
      </menu>
  
      <keyset id="baseMenuKeyset">
@@ -38,7 +38,7 @@ diff --git a/browser/base/content/baseMenuOverlay.xul b/browser/base/content/bas
 diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/browser-menubar.inc
 --- a/browser/base/content/browser-menubar.inc
 +++ b/browser/base/content/browser-menubar.inc
-@@ -93,7 +93,7 @@
+@@ -96,7 +96,7 @@
                            label="&printSetupCmd.label;"
                            accesskey="&printSetupCmd.accesskey;"
                            command="cmd_pageSetup"/>
@@ -47,7 +47,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                  <menuitem id="menu_printPreview"
                            label="&printPreviewCmd.label;"
                            accesskey="&printPreviewCmd.accesskey;"
-@@ -109,7 +109,7 @@
+@@ -112,7 +112,7 @@
                            label="&import.label;"
                            accesskey="&import.accesskey;"
                            oncommand="BrowserImport();"/>
@@ -56,7 +56,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                  <menuseparator/>
  #endif
  #endif
-@@ -124,7 +124,7 @@
+@@ -127,7 +127,7 @@
                            label="&quitApplicationCmdWin.label;"
                            accesskey="&quitApplicationCmdWin.accesskey;"
  #else
@@ -65,7 +65,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            label="&quitApplicationCmdMac.label;"
  #else
                            label="&quitApplicationCmd.label;"
-@@ -199,7 +199,7 @@
+@@ -203,7 +203,7 @@
                            accesskey="&bidiSwitchTextDirectionItem.accesskey;"
                            hidden="true"/>
  #ifdef XP_UNIX
@@ -83,7 +83,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="key_stop_mac"/>
  #else
                            key="key_stop"/>
-@@ -345,7 +345,7 @@
+@@ -346,7 +346,7 @@
                    label="&historyMenu.label;"
                    accesskey="&historyMenu.accesskey;">
                <menupopup id="goPopup"
@@ -92,25 +92,25 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                           placespopup="true"
  #endif
                           oncommand="this.parentNode._placesView._onCommand(event);"
-@@ -356,7 +356,7 @@
-                          popupsinherittooltip="true">
+@@ -358,7 +358,7 @@
                  <menuitem id="historyMenuBack"
+                           class="show-only-for-keyboard"
                            label="&backCmd.label;"
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
                            key="goBackKb2"
  #else
                            key="goBackKb"
-@@ -365,7 +365,7 @@
-                           onclick="checkForMiddleClick(this, event);"/>
+@@ -368,7 +368,7 @@
                  <menuitem id="historyMenuForward"
+                           class="show-only-for-keyboard"
                            label="&forwardCmd.label;"
 -#ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
                            key="goForwardKb2"
  #else
                            key="goForwardKb"
-@@ -379,7 +379,7 @@
+@@ -383,7 +383,7 @@
                            key="goHome"/>
                  <menuitem id="menu_showAllHistory"
                            label="&showAllHistoryCmd2.label;"
@@ -119,7 +119,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                            key="showAllHistoryKb"
  #endif
                            command="Browser:ShowAllHistory"/>
-@@ -403,7 +403,7 @@
+@@ -407,7 +407,7 @@
                        label="&historyUndoMenu.label;"
                        disabled="true">
                    <menupopup id="historyUndoPopup"
@@ -128,7 +128,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                               placespopup="true"
  #endif
                               onpopupshowing="document.getElementById('history-menu')._placesView.populateUndoSubmenu();"/>
-@@ -413,7 +413,7 @@
+@@ -417,7 +417,7 @@
                        label="&historyUndoWindowMenu.label;"
                        disabled="true">
                    <menupopup id="historyUndoWindowPopup"
@@ -137,7 +137,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                               placespopup="true"
  #endif
                               onpopupshowing="document.getElementById('history-menu')._placesView.populateUndoWindowSubmenu();"/>
-@@ -428,7 +428,7 @@
+@@ -432,7 +432,7 @@
          ondragover="PlacesMenuDNDHandler.onDragOver(event);"
          ondrop="PlacesMenuDNDHandler.onDrop(event);">
      <menupopup id="bookmarksMenuPopup"
@@ -146,7 +146,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                 placespopup="true"
  #endif
                 context="placesContext"
-@@ -477,7 +477,7 @@
+@@ -481,7 +481,7 @@
              label="&personalbarCmd.label;"
              container="true">
          <menupopup id="bookmarksToolbarFolderPopup"  
@@ -155,7 +155,7 @@ diff --git a/browser/base/content/browser-menubar.inc b/browser/base/content/bro
                     placespopup="true"
  #endif
                     context="placesContext"
-@@ -576,7 +576,7 @@
+@@ -582,7 +582,7 @@
                </menupopup>
              </menu>
  
@@ -237,7 +237,7 @@ diff --git a/browser/base/content/browser-sets.inc b/browser/base/content/browse
      <key id="key_sanitize_mac" command="Tools:Sanitize" keycode="VK_BACK" modifiers="accel,shift"/>
  #endif
  #ifdef XP_UNIX
-@@ -380,7 +380,7 @@
+@@ -382,7 +382,7 @@
    </keyset>
  
  # Used by baseMenuOverlay
@@ -258,7 +258,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  var gEditUIVisible = true;
  #endif
  
-@@ -1589,7 +1589,7 @@
+@@ -1614,7 +1614,7 @@
      }
    }, 10000);
  
@@ -267,7 +267,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    updateEditUIVisibility();
    let placesContext = document.getElementById("placesContext");
    placesContext.addEventListener("popupshowing", updateEditUIVisibility, false);
-@@ -1722,7 +1722,7 @@
+@@ -1748,7 +1748,7 @@
    window.QueryInterface(Ci.nsIDOMChromeWindow).browserDOMWindow = null;
  }
  
@@ -276,7 +276,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
  // nonBrowserWindowStartup(), nonBrowserWindowDelayedStartup(), and
  // nonBrowserWindowShutdown() are used for non-browser windows in
  // macBrowserOverlay
-@@ -1944,7 +1944,7 @@
+@@ -1970,7 +1970,7 @@
  
  function BrowserReloadOrDuplicate(aEvent) {
    var backgroundTabModifier = aEvent.button == 1 ||
@@ -285,7 +285,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      aEvent.metaKey;
  #else
      aEvent.ctrlKey;
-@@ -2006,7 +2006,7 @@
+@@ -2033,7 +2033,7 @@
  
  function loadOneOrMoreURIs(aURIString)
  {
@@ -294,7 +294,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // we're not a browser window, pass the URI string to a new browser window
    if (window.location.href != getBrowserURL())
    {
-@@ -2040,7 +2040,7 @@
+@@ -2067,7 +2067,7 @@
    if (focusAndSelectUrlBar())
      return;
  
@@ -303,7 +303,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    if (window.location.href != getBrowserURL()) {
      var win = getTopWin();
      if (win) {
-@@ -2155,7 +2155,7 @@
+@@ -2182,7 +2182,7 @@
  }
  
  function BrowserCloseTabOrWindow() {
@@ -312,7 +312,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // If we're not a browser window, just close the window
    if (window.location.href != getBrowserURL()) {
      closeWindow(true);
-@@ -2534,7 +2534,7 @@
+@@ -2561,7 +2561,7 @@
  
  function BrowserImport()
  {
@@ -321,7 +321,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                       .getService(Components.interfaces.nsIWindowMediator);
    var win = wm.getMostRecentWindow("Browser:MigrationWizard");
-@@ -3260,7 +3260,7 @@
+@@ -3287,7 +3287,7 @@
     * or focuses an existing window, if necessary.
     */
    webSearch: function BrowserSearch_webSearch() {
@@ -330,7 +330,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      if (window.location.href != getBrowserURL()) {
        var win = getTopWin();
        if (win) {
-@@ -3559,7 +3559,7 @@
+@@ -3583,7 +3583,7 @@
      gIdentityHandler._cacheElements();
      window.XULBrowserWindow.init();
  
@@ -339,7 +339,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
      updateEditUIVisibility();
  #endif
  
-@@ -3629,7 +3629,7 @@
+@@ -3683,7 +3683,7 @@
   */
  function updateEditUIVisibility()
  {
@@ -348,7 +348,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    let editMenuPopupState = document.getElementById("menu_EditPopup").state;
    let contextMenuPopupState = document.getElementById("contentAreaContextMenu").state;
    let placesContextMenuPopupState = document.getElementById("placesContext").state;
-@@ -6283,7 +6283,7 @@
+@@ -6390,7 +6390,7 @@
  
    os.notifyObservers(null, "browser-lastwindow-close-granted", null);
  
@@ -357,7 +357,7 @@ diff --git a/browser/base/content/browser.js b/browser/base/content/browser.js
    // OS X doesn't quit the application when the last window is closed, but keeps
    // the session alive. Hence don't prompt users to save tabs, but warn about
    // closing multiple tabs.
-@@ -7827,7 +7827,7 @@
+@@ -8021,7 +8021,7 @@
  
      var appName = brandBundle.GetStringFromName("brandShortName");
  # On Mac, use the header as the title.

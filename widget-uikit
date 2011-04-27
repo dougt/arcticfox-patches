@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1273581972 14400
-# Node ID 700c93b4133c56a5daba8241784c356148febdbc
-# Parent  7815d5821051771f2a64e6be8d4c41214a7b78d6
+# Node ID b24b221c9de5213b5b5dec774bfbd7d30989e810
+# Parent  645c5079979e6df0df7d370dd4ca2372a0f1b253
 UIKit widget implementation
 * * *
 [mq]: widget-extra
@@ -10,7 +10,7 @@ UIKit widget implementation
 diff --git a/toolkit/library/libxul-config.mk b/toolkit/library/libxul-config.mk
 --- a/toolkit/library/libxul-config.mk
 +++ b/toolkit/library/libxul-config.mk
-@@ -325,6 +325,9 @@
+@@ -300,6 +300,9 @@
  ifeq (qt,$(MOZ_WIDGET_TOOLKIT))
  COMPONENT_LIBS += widget_qt
  endif
@@ -27,8 +27,8 @@ diff --git a/widget/src/Makefile.in b/widget/src/Makefile.in
  
  DIRS		= shared xpwidgets
  
--ifneq (,$(filter beos os2 cocoa qt android,$(MOZ_WIDGET_TOOLKIT)))
-+ifneq (,$(filter beos os2 cocoa qt android uikit,$(MOZ_WIDGET_TOOLKIT)))
+-ifneq (,$(filter os2 cocoa qt android,$(MOZ_WIDGET_TOOLKIT)))
++ifneq (,$(filter os2 cocoa qt android uikit,$(MOZ_WIDGET_TOOLKIT)))
  DIRS		+= $(MOZ_WIDGET_TOOLKIT)
  endif
  

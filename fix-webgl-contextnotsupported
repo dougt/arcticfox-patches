@@ -1,7 +1,0 @@
-# HG changeset patch
-# User Ted Mielczarek <ted.mielczarek@gmail.com>
-# Date 1290861141 18000
-# Node ID 582ff085d8fbce2974aedaf7c9f3a08c4eaa17f1
-# Parent  bc0a0bc8eb61ccf7ed968954f55ca8acde33d4b0
-imported patch fix-webgl-contextnotsupported
-

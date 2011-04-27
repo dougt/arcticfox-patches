@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1289971661 18000
-# Node ID c9654756134bbe01d6ef9150d936cc719f99cb88
-# Parent  62a92fc663f00cdb4c258fd34f56ea6285357d19
+# Node ID 5f8766d62fa1fcdd7e90d8a95371568afbbe80ae
+# Parent  50ac002ff1ffde449c754a5183ec4ac158db42a1
 imported patch layout-extra
 
 diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 --- a/layout/build/nsLayoutModule.cpp
 +++ b/layout/build/nsLayoutModule.cpp
-@@ -294,12 +294,15 @@
+@@ -287,12 +287,15 @@
  #endif
  
  #include "nsGeolocation.h"
@@ -24,7 +24,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #include "nsCSPService.h"
  
  // Transformiix
-@@ -334,12 +337,15 @@
+@@ -321,12 +324,15 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsChannelPolicy)
  NS_GENERIC_FACTORY_SINGLETON_CONSTRUCTOR(IndexedDatabaseManager,
                                           IndexedDatabaseManager::FactoryCreate)
@@ -40,7 +40,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(ThirdPartyUtil, Init)
  NS_GENERIC_FACTORY_CONSTRUCTOR(nsWorkerFactory)
  #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
-@@ -902,12 +908,15 @@
+@@ -884,12 +890,15 @@
  NS_DEFINE_NAMED_CID(THIRDPARTYUTIL_CID);
  NS_DEFINE_NAMED_CID(NS_WORKERFACTORY_CID);
  
@@ -56,7 +56,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
  NS_DEFINE_NAMED_CID(NS_HAPTICFEEDBACK_CID);
  #endif
-@@ -1055,12 +1064,15 @@
+@@ -1032,12 +1041,15 @@
    { &kNS_SYSTEMPRINCIPAL_CID, false, NULL, nsSystemPrincipalConstructor },
    { &kNS_NULLPRINCIPAL_CID, false, NULL, nsNullPrincipalConstructor },
    { &kNS_SECURITYNAMESET_CID, false, NULL, nsSecurityNameSetConstructor },
@@ -72,7 +72,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
  #if defined(ANDROID) || defined(MOZ_PLATFORM_MAEMO)
    { &kNS_HAPTICFEEDBACK_CID, false, NULL, nsHapticFeedbackConstructor },
  #endif
-@@ -1206,12 +1218,15 @@
+@@ -1178,12 +1190,15 @@
    { NS_SYSTEMPRINCIPAL_CONTRACTID, &kNS_SYSTEMPRINCIPAL_CID },
    { NS_NULLPRINCIPAL_CONTRACTID, &kNS_NULLPRINCIPAL_CID },
    { NS_SECURITYNAMESET_CONTRACTID, &kNS_SECURITYNAMESET_CID },
@@ -91,7 +91,7 @@ diff --git a/layout/build/nsLayoutModule.cpp b/layout/build/nsLayoutModule.cpp
 diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 --- a/layout/generic/nsObjectFrame.cpp
 +++ b/layout/generic/nsObjectFrame.cpp
-@@ -503,8 +503,8 @@
+@@ -524,8 +524,8 @@
    NP_Port                                   mQDPluginPortCopy;
  #endif
    PRInt32                                   mInCGPaintLevel;
@@ -100,14 +100,14 @@ diff --git a/layout/generic/nsObjectFrame.cpp b/layout/generic/nsObjectFrame.cpp
 -#ifdef MOZ_WIDGET_COCOA
    nsCARenderer                              mCARenderer;
  #endif
-   static nsCOMPtr<nsITimer>                *sCATimer;
-@@ -2867,7 +2867,9 @@
+   CGColorSpaceRef                           mColorProfile;
+@@ -3200,7 +3200,9 @@
  #endif
    mInCGPaintLevel = 0;
    mSentInitialTopLevelWindowEvent = PR_FALSE;
 +#ifdef MOZ_WIDGET_COCOA
    mIOSurface = nsnull;
 +#endif
+   mColorProfile = nsnull;
    mPluginPortChanged = PR_FALSE;
  #endif
-   mContentFocused = PR_FALSE;

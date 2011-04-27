@@ -1,15 +1,15 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373064 14400
-# Node ID 74b73a0cff6fc732eef9c30989df0eea38a811f5
-# Parent  f892c30c6bc0b1bb1a5abf001f05b73135476070
+# Node ID 9a48d1cbc73c42a20e38540b85a1d46a4d5f2352
+# Parent  f9f91b7ed2d952c2e690173eec6945a19718b3e6
 imported patch event-state-manager-uikit
 
 diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsEventStateManager.cpp
 --- a/content/events/src/nsEventStateManager.cpp
 +++ b/content/events/src/nsEventStateManager.cpp
-@@ -160,7 +160,11 @@
- #include "mozilla/Services.h"
+@@ -158,7 +158,11 @@
+ #include "mozAutoDocUpdate.h"
  
  #ifdef XP_MACOSX
 +#ifdef MOZ_WIDGET_COCOA
@@ -19,7 +19,7 @@ diff --git a/content/events/src/nsEventStateManager.cpp b/content/events/src/nsE
 +#endif
  #endif
  
- #ifdef MOZ_IPC
+ using namespace mozilla::dom;
 @@ -1773,7 +1777,7 @@
    if (!mGestureDownContent)
      return;

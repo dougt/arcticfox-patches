@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290110583 18000
-# Node ID bc0a0bc8eb61ccf7ed968954f55ca8acde33d4b0
-# Parent  413d46b5221c81252e2793a905df5182ef1f66d5
+# Node ID ac65c60b94a2c543cf1f781d84ac1ce1d195c105
+# Parent  83fad4c82b6a4c91c5687ab16aea804d9991dadd
 [mq]: localfileunix
 
 diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
 --- a/xpcom/io/nsLocalFileUnix.cpp
 +++ b/xpcom/io/nsLocalFileUnix.cpp
-@@ -98,7 +98,7 @@
+@@ -95,7 +95,7 @@
  #include "nsIGnomeVFSService.h"
  #endif
  
@@ -17,7 +17,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
  #include <Carbon/Carbon.h>
  #include "CocoaFileUtils.h"
  #include "prmem.h"
-@@ -275,7 +275,7 @@
+@@ -273,7 +273,7 @@
  {
  }
  
@@ -26,7 +26,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
  NS_IMPL_THREADSAFE_ISUPPORTS4(nsLocalFile,
                                nsILocalFileMac,
                                nsILocalFile,
-@@ -1739,7 +1739,7 @@
+@@ -1679,7 +1679,7 @@
  NS_IMETHODIMP
  nsLocalFile::SetPersistentDescriptor(const nsACString &aPersistentDescriptor)
  {
@@ -35,7 +35,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      if (aPersistentDescriptor.IsEmpty())
          return NS_ERROR_INVALID_ARG;
  
-@@ -1853,7 +1853,7 @@
+@@ -1763,7 +1763,7 @@
          else 
              return gnomevfs->ShowURIForInput(dirPath);        
      }
@@ -44,7 +44,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      CFURLRef url;
      if (NS_SUCCEEDED(GetCFURL(&url))) {
        nsresult rv = CocoaFileUtils::RevealFileInFinder(url);
-@@ -1922,7 +1922,7 @@
+@@ -1832,7 +1832,7 @@
      fileUri.Append(mPath);
      mozilla::AndroidBridge* bridge = mozilla::AndroidBridge::Bridge();
      return bridge->OpenUriExternal(fileUri, type) ? NS_OK : NS_ERROR_FAILURE;
@@ -53,7 +53,7 @@ diff --git a/xpcom/io/nsLocalFileUnix.cpp b/xpcom/io/nsLocalFileUnix.cpp
      CFURLRef url;
      if (NS_SUCCEEDED(GetCFURL(&url))) {
          nsresult rv = CocoaFileUtils::OpenURL(url);
-@@ -2086,7 +2086,7 @@
+@@ -1995,7 +1995,7 @@
  
  // nsILocalFileMac
  

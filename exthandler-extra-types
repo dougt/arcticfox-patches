@@ -1,20 +1,18 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1290861141 18000
-# Node ID 022f3d1a470b787ed970c0867c8454dc8e345e46
-# Parent  93aaff8417ec8b843e680551b5addca5d098567d
+# Node ID 5a4e1956c92b0a42edc99f8d90b9f94b68e36f67
+# Parent  3fb6e62eaf1644e299297c3ac42dec35954b4ab0
 imported patch exthandler-extra-types
 
 diff --git a/uriloader/exthandler/nsExternalHelperAppService.cpp b/uriloader/exthandler/nsExternalHelperAppService.cpp
 --- a/uriloader/exthandler/nsExternalHelperAppService.cpp
 +++ b/uriloader/exthandler/nsExternalHelperAppService.cpp
-@@ -528,7 +528,8 @@
-   { APPLICATION_XPINSTALL, "xpi" },
+@@ -525,6 +525,7 @@
    { "application/xhtml+xml", "xhtml" },
    { "application/xhtml+xml", "xht" },
--  { TEXT_PLAIN, "txt" }
-+  { TEXT_PLAIN, "txt" },
+   { TEXT_PLAIN, "txt" },
 +  { TEXT_PLAIN, "js" }
- };
- 
- /**
+ #ifdef MOZ_OGG
+   { VIDEO_OGG, "ogv" },
+   { VIDEO_OGG, "ogg" },

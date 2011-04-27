@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867166 14400
-# Node ID d13a562f9c481137f039c99163fce7201aa4bb25
-# Parent  b31db0a4ddfa74b4199dcafd0be5fd3c2f842c57
+# Node ID c1f50157863c6e6e43e0a6d291828e0d97e52af2
+# Parent  533ec57ca3d0de0c68901e7145093241088e0c2c
 fixes for compiling js for iphone simulator
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -2033,12 +2033,28 @@
+@@ -1951,12 +1951,28 @@
      STRIP="$STRIP -x -S"
      _PLATFORM_DEFAULT_TOOLKIT='cairo-cocoa'
      TARGET_NSPR_MDCPUCFG='\"md/_darwin.cfg\"'
@@ -38,8 +38,8 @@ diff --git a/js/src/configure.in b/js/src/configure.in
 +    fi
 +    LDFLAGS=$_SAVE_LDFLAGS
  
-     dnl DTrace and -dead_strip don't interact well. See bug 403132.
-     dnl ===================================================================
+     if test "x$lto_is_enabled" = "xyes"; then
+         echo "Skipping -dead_strip because lto is enabled."
 diff --git a/js/src/jscpucfg.cpp b/js/src/jscpucfg.cpp
 --- a/js/src/jscpucfg.cpp
 +++ b/js/src/jscpucfg.cpp

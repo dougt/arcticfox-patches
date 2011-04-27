@@ -1,8 +1,8 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1272373054 14400
-# Node ID f15d38ac62e5e824d556ddcd19f9c1752474aee8
-# Parent  3c8a94d8953132e747f2cfa7cc2584550ad0efb9
+# Node ID 4ea0c7010b02889e18f723313168d829b53e4b3b
+# Parent  f5f206296b353b9a08abc7845cf501c2a9d98c69
 fix some configure checks, fix xpcom/io to use nsLocalFileUnix when using MOZ_WIDGET_TOOLKIT=uikit
 * * *
 imported patch xpcom-extra
@@ -10,7 +10,7 @@ imported patch xpcom-extra
 diff --git a/config/config.mk b/config/config.mk
 --- a/config/config.mk
 +++ b/config/config.mk
-@@ -577,6 +577,10 @@
+@@ -568,6 +568,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -24,7 +24,7 @@ diff --git a/config/config.mk b/config/config.mk
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -2065,7 +2065,17 @@
+@@ -2037,7 +2037,17 @@
      # The ExceptionHandling framework is needed for Objective-C exception
      # logging code in nsObjCExceptions.h. Currently we only use that in debug
      # builds.
@@ -41,18 +41,18 @@ diff --git a/configure.in b/configure.in
 +    fi
 +    LDFLAGS=$_SAVE_LDFLAGS
  
-     dnl DTrace and -dead_strip don't interact well. See bug 403132.
-     dnl ===================================================================
-@@ -3351,7 +3361,7 @@
- AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
+     if test "x$lto_is_enabled" = "xyes"; then
+         echo "Skipping -dead_strip because lto is enabled."
+@@ -3194,7 +3204,7 @@
+ MOZ_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/vfs.h sys/mount.h)
  
  dnl Quota support
--AC_CHECK_HEADERS(sys/quota.h)
-+AC_CHECK_HEADERS(sys/quota.h sys/sysmacros.h)
- AC_CHECK_HEADERS(linux/quota.h)
+-MOZ_CHECK_HEADERS(sys/quota.h)
++MOZ_CHECK_HEADERS(sys/quota.h sys/sysmacros.h)
+ MOZ_CHECK_HEADERS(linux/quota.h)
  
  dnl Try for MMX support
-@@ -3449,11 +3459,19 @@
+@@ -3290,11 +3300,19 @@
  dnl ========================================================
  case "$target" in
  *-darwin*)
@@ -72,7 +72,7 @@ diff --git a/configure.in b/configure.in
    AC_MSG_RESULT([$ac_cv_have_core_text])
  
    if test "$ac_cv_have_core_text" = "no"; then
-@@ -5267,13 +5285,27 @@
+@@ -5089,13 +5107,27 @@
      ;;
  
  cairo-cocoa)
@@ -104,7 +104,7 @@ diff --git a/configure.in b/configure.in
      CFLAGS="$CFLAGS $TK_CFLAGS"
      CXXFLAGS="$CXXFLAGS $TK_CFLAGS"
      LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) $(LIBXUL_DIST)/bin/XUL'
-@@ -8094,6 +8126,7 @@
+@@ -7872,6 +7904,7 @@
  dnl ========================================================
  dnl We want to make sure the compiler follows the C++ spec here as 
  dnl xpcom and the string classes depend on it (bug 235381).
@@ -112,7 +112,7 @@ diff --git a/configure.in b/configure.in
  AC_MSG_CHECKING([for correct temporary object destruction order])
  AC_TRY_RUN([ class A {
               public:  A(int& x) : mValue(x) {}
-@@ -8118,6 +8151,7 @@
+@@ -7896,6 +7929,7 @@
  if test "$result" = "no"; then
      AC_MSG_ERROR([Your compiler does not follow the C++ specification for temporary object destruction order.])
  fi
@@ -120,19 +120,19 @@ diff --git a/configure.in b/configure.in
  
  dnl ========================================================
  dnl Autoconf test for gcc 2.7.2.x (and maybe others?) so that we don't
-@@ -8628,7 +8662,7 @@
-     if test "$MOZ_WIDGET_TOOLKIT" = "qt"; then
+@@ -8418,7 +8452,7 @@
+       qt)
          QT_SURFACE_FEATURE="#define CAIRO_HAS_QT_SURFACE 1"
-     fi
--    if test "$MOZ_WIDGET_TOOLKIT" = "cocoa"; then
-+    if test "$MOZ_WIDGET_TOOLKIT" = "cocoa" -o "$MOZ_WIDGET_TOOLKIT" = "uikit"; then
+         ;;
+-      cocoa)
++      cocoa | uikit)
          QUARTZ_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_SURFACE 1"
          QUARTZ_IMAGE_SURFACE_FEATURE="#define CAIRO_HAS_QUARTZ_IMAGE_SURFACE 1"
          QUARTZ_FONT_FEATURE="#define CAIRO_HAS_QUARTZ_FONT 1"
 diff --git a/js/src/config/config.mk b/js/src/config/config.mk
 --- a/js/src/config/config.mk
 +++ b/js/src/config/config.mk
-@@ -577,6 +577,10 @@
+@@ -568,6 +568,10 @@
  HOST_CMMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMFLAGS += -fobjc-exceptions
  OS_COMPILE_CMMFLAGS += -fobjc-exceptions
@@ -170,7 +170,7 @@ diff --git a/xpcom/build/XPCOMModule.inc b/xpcom/build/XPCOMModule.inc
 diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
 --- a/xpcom/build/nsXPComInit.cpp
 +++ b/xpcom/build/nsXPComInit.cpp
-@@ -132,7 +132,7 @@
+@@ -130,7 +130,7 @@
  #include "nsWindowsRegKey.h"
  #endif
  
@@ -179,7 +179,7 @@ diff --git a/xpcom/build/nsXPComInit.cpp b/xpcom/build/nsXPComInit.cpp
  #include "nsMacUtilsImpl.h"
  #endif
  
-@@ -230,7 +230,7 @@
+@@ -222,7 +222,7 @@
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
  
@@ -212,7 +212,7 @@ diff --git a/xpcom/components/ManifestParser.cpp b/xpcom/components/ManifestPars
 diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirectory.cpp
 --- a/xpcom/io/SpecialSystemDirectory.cpp
 +++ b/xpcom/io/SpecialSystemDirectory.cpp
-@@ -632,7 +632,7 @@
+@@ -595,7 +595,7 @@
              }
              return NS_NewNativeLocalFile(tString, PR_TRUE, aFile);
          }
@@ -221,7 +221,7 @@ diff --git a/xpcom/io/SpecialSystemDirectory.cpp b/xpcom/io/SpecialSystemDirecto
          {
              return GetOSXFolderType(kUserDomain, kTemporaryFolderType, aFile);
          }
-@@ -1012,7 +1012,7 @@
+@@ -950,7 +950,7 @@
      return NS_ERROR_NOT_AVAILABLE;
  }
  
@@ -242,7 +242,7 @@ diff --git a/xpcom/io/SpecialSystemDirectory.h b/xpcom/io/SpecialSystemDirectory
  #include <Carbon/Carbon.h>
  #include "nsILocalFileMac.h"
  #include "prenv.h"
-@@ -137,7 +137,7 @@
+@@ -132,7 +132,7 @@
  nsresult
  GetSpecialSystemDirectory(SystemDirectories aSystemSystemDirectory,
                            nsILocalFile** aFile);
@@ -263,7 +263,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
  #include <Carbon/Carbon.h>
  #include "nsILocalFileMac.h"
  #elif defined(XP_OS2)
-@@ -72,7 +72,7 @@
+@@ -68,7 +68,7 @@
  // WARNING: These hard coded names need to go away. They need to
  // come from localizable resources
  
@@ -272,7 +272,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
  #define APP_REGISTRY_NAME NS_LITERAL_CSTRING("Application Registry")
  #define ESSENTIAL_FILES   NS_LITERAL_CSTRING("Essential Files")
  #elif defined(XP_WIN) || defined(XP_OS2)
-@@ -88,7 +88,7 @@
+@@ -84,7 +84,7 @@
  #define NS_ENV_PLUGINS_DIR          "EnvPlugins"    // env var MOZ_PLUGIN_PATH
  #define NS_USER_PLUGINS_DIR         "UserPlugins"
  
@@ -281,7 +281,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
  #define NS_MACOSX_USER_PLUGIN_DIR   "OSXUserPlugins"
  #define NS_MACOSX_LOCAL_PLUGIN_DIR  "OSXLocalPlugins"
  #define NS_MACOSX_JAVA2_PLUGIN_DIR  "OSXJavaPlugins"
-@@ -132,7 +132,7 @@
+@@ -128,7 +128,7 @@
      *_retval = nsnull;
      *persistent = PR_TRUE;
  
@@ -290,7 +290,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
      FSRef fileRef;
      nsCOMPtr<nsILocalFileMac> macFile;
  #endif
-@@ -198,7 +198,7 @@
+@@ -194,7 +194,7 @@
          if (NS_SUCCEEDED(rv))
              rv = localFile->AppendRelativeNativePath(PLUGINS_DIR_NAME);
      }
@@ -299,7 +299,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
      else if (nsCRT::strcmp(prop, NS_MACOSX_USER_PLUGIN_DIR) == 0)
      {
          if (::FSFindFolder(kUserDomain, kInternetPlugInFolderType, false, &fileRef) == noErr) {
-@@ -328,7 +328,7 @@
+@@ -324,7 +324,7 @@
      PRBool exists;
      nsCOMPtr<nsILocalFile> localDir;
  
@@ -308,7 +308,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
      FSRef fsRef;
      OSType folderType = aLocal ? kCachedDataFolderType : kDomainLibraryFolderType;
      OSErr err = ::FSFindFolder(kUserDomain, folderType, kCreateFolder, &fsRef);
-@@ -410,7 +410,7 @@
+@@ -395,7 +395,7 @@
      rv = GetProductDirectory(getter_AddRefs(localDir), aLocal);
      if (NS_FAILED(rv)) return rv;
  
@@ -317,7 +317,7 @@ diff --git a/xpcom/io/nsAppFileLocationProvider.cpp b/xpcom/io/nsAppFileLocation
      // These 3 platforms share this part of the path - do them as one
      rv = localDir->AppendRelativeNativePath(NS_LITERAL_CSTRING("Profiles"));
      if (NS_FAILED(rv)) return rv;
-@@ -567,7 +567,7 @@
+@@ -552,7 +552,7 @@
      
      if (!nsCRT::strcmp(prop, NS_APP_PLUGINS_DIR_LIST))
      {
@@ -338,7 +338,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
  #include <CoreServices/CoreServices.h>
  #include <Carbon/Carbon.h>
  #endif
-@@ -87,7 +87,7 @@
+@@ -78,7 +78,7 @@
  // For Windows platform, We are choosing Appdata folder as HOME
  #if defined (XP_WIN)
  #define HOME_DIR NS_WIN_APPDATA_DIR
@@ -347,7 +347,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
  #define HOME_DIR NS_OSX_HOME_DIR
  #elif defined (XP_UNIX)
  #define HOME_DIR NS_UNIX_HOME_DIR
-@@ -150,7 +150,7 @@
+@@ -139,7 +139,7 @@
          return NS_OK;
      }
  
@@ -356,7 +356,7 @@ diff --git a/xpcom/io/nsDirectoryService.cpp b/xpcom/io/nsDirectoryService.cpp
      // Works even if we're not bundled.
      CFBundleRef appBundle = CFBundleGetMainBundle();
      if (appBundle != nsnull)
-@@ -645,7 +645,7 @@
+@@ -615,7 +615,7 @@
          rv = GetSpecialSystemDirectory(OS_CurrentWorkingDirectory, getter_AddRefs(localFile)); 
      }
         

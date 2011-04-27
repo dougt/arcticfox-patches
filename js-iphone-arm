@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1271867183 14400
-# Node ID 0a57ddb2cf4c51c46a1c6fe7628f43f8a4a00af9
-# Parent  d13a562f9c481137f039c99163fce7201aa4bb25
+# Node ID aee138b2a23332b716c9d931ce765d1d2d3cb0f8
+# Parent  c1f50157863c6e6e43e0a6d291828e0d97e52af2
 fixes for compiling js on arm-apple-darwin
 
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -1072,6 +1072,7 @@
+@@ -1053,6 +1053,7 @@
                            Set the minimum MacOS version needed at runtime],
                        [_MACOSX_DEPLOYMENT_TARGET=$enableval])
  
@@ -16,7 +16,7 @@ diff --git a/js/src/configure.in b/js/src/configure.in
  case "$target" in
  *-darwin*)
      if test -n "$_MACOSX_DEPLOYMENT_TARGET" ; then
-@@ -1095,6 +1096,7 @@
+@@ -1076,6 +1077,7 @@
      fi
      ;;
  esac
@@ -39,7 +39,7 @@ diff --git a/js/src/jsnum.h b/js/src/jsnum.h
 diff --git a/js/src/jstracer.cpp b/js/src/jstracer.cpp
 --- a/js/src/jstracer.cpp
 +++ b/js/src/jstracer.cpp
-@@ -7625,6 +7625,12 @@
+@@ -7528,6 +7528,12 @@
      return arm_has_vfp;
  }
  

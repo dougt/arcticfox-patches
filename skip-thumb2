@@ -1,14 +1,14 @@
 # HG changeset patch
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1292281211 18000
-# Node ID 247d9b3841c55f69e520082c14ef6bb5c8981d0a
-# Parent  e627e2e971842b6fecaa34975c120cd4c9ef3a60
+# Node ID 024adbe46cc9facaaea683b964017fb8993103b8
+# Parent  39ae03e32669785fe105ea82586ed70501c8a235
 imported patch skip-thumb2
 
 diff --git a/configure.in b/configure.in
 --- a/configure.in
 +++ b/configure.in
-@@ -7209,6 +7209,7 @@
+@@ -7037,6 +7037,7 @@
  [  --with-cpu-arch=arch      Use specific arm architecture CPU features, default armv7],
      MOZ_ARM_ARCH=$withval)
  
@@ -16,7 +16,7 @@ diff --git a/configure.in b/configure.in
  if test -n "$MOZ_THUMB2"; then
    case "$target_cpu" in
      arm*)
-@@ -7256,6 +7257,7 @@
+@@ -7084,6 +7085,7 @@
        ;;
    esac
  fi
@@ -27,7 +27,7 @@ diff --git a/configure.in b/configure.in
 diff --git a/js/src/configure.in b/js/src/configure.in
 --- a/js/src/configure.in
 +++ b/js/src/configure.in
-@@ -4689,6 +4689,7 @@
+@@ -4492,6 +4492,7 @@
  [  --with-cpu-arch=arch      Use specific arm architecture CPU features, default armv7],
      MOZ_ARM_ARCH=$withval)
  
@@ -35,7 +35,7 @@ diff --git a/js/src/configure.in b/js/src/configure.in
  if test -n "$MOZ_THUMB2"; then
    case "$target_cpu" in
      arm*)
-@@ -4736,6 +4737,7 @@
+@@ -4539,6 +4540,7 @@
        ;;
    esac
  fi

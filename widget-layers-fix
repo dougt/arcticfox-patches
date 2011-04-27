@@ -1,5 +1,10 @@
 # HG changeset patch
-# Parent 35ffadb1d3cf64d210960a2173e853981dc8a70f
+# User Ted Mielczarek <ted.mielczarek@gmail.com>
+# Date 1303753064 14400
+# Node ID d7d70a258a09343c991b8dd89d86b3cf0392fcba
+# Parent  a6fd68094e33fc63c934f35bdea166dbaf1011e1
+imported patch widget-layers-fix
+
 diff --git a/widget/src/uikit/nsWindow.mm b/widget/src/uikit/nsWindow.mm
 --- a/widget/src/uikit/nsWindow.mm
 +++ b/widget/src/uikit/nsWindow.mm
