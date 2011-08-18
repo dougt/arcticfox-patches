@@ -1,5 +1,3 @@
-nspr-force-cross-compile
-nspr-iphone-arm
 js-cross-fixes
 js-iphone-arm
 mozconfig
@@ -63,3 +61,4 @@ widget-layers-fix
 gfx-fix
 mozconfig-fix
 js-fixes
+mozconfig-ranlib
