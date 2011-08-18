@@ -1,0 +1,14 @@
+# HG changeset patch
+# Parent 63759321b66290a49b6110270548a6f0ca3bad80
+diff --git a/js/src/assembler/wtf/Platform.h b/js/src/assembler/wtf/Platform.h
+--- a/js/src/assembler/wtf/Platform.h
++++ b/js/src/assembler/wtf/Platform.h
+@@ -935,7 +935,7 @@
+ #endif
+ /* Setting this flag prevents the assembler from using RWX memory; this may improve
+    security but currectly comes at a significant performance cost. */
+-#if WTF_PLATFORM_IPHONE
++#if 0 /* WTF_PLATFORM_IPHONE XXX: need to fix this, I guess*/
+ #define ENABLE_ASSEMBLER_WX_EXCLUSIVE 1
+ #else
+ #define ENABLE_ASSEMBLER_WX_EXCLUSIVE 0

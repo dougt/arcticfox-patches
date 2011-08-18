@@ -1,0 +1,13 @@
+# HG changeset patch
+# Parent 783abc04ed9fd1a4b945e023733f0be42822c7e2
+diff --git a/build/iphone-simulator-mozconfig b/build/iphone-simulator-mozconfig
+--- a/build/iphone-simulator-mozconfig
++++ b/build/iphone-simulator-mozconfig
+@@ -26,7 +26,6 @@
+ ac_add_options --disable-ogg
+ ac_add_options --disable-wave
+ ac_add_options --disable-webm
+-ac_add_options --disable-ipc
+ ac_add_options --disable-updater
+ ac_add_options --disable-crashreporter
+ #ac_add_options --disable-tests

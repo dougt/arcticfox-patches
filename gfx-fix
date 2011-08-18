@@ -2,9 +2,29 @@
 # User Ted Mielczarek <ted.mielczarek@gmail.com>
 # Date 1303753064 14400
 # Node ID 9c94283a21f25e9f783a36cded9be5d2ef160883
-# Parent  d7d70a258a09343c991b8dd89d86b3cf0392fcba
+# Parent d7d70a258a09343c991b8dd89d86b3cf0392fcba
 imported patch gfx-fix
 
+diff --git a/gfx/src/Makefile.in b/gfx/src/Makefile.in
+--- a/gfx/src/Makefile.in
++++ b/gfx/src/Makefile.in
+@@ -136,6 +136,10 @@
+ CPPSRCS += nsSystemFontsQt.cpp
+ endif
+ 
++ifeq ($(MOZ_WIDGET_TOOLKIT),uikit)
++CMMSRCS		= nsSystemFontsUIKit.mm
++endif
++
+ ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+ CPPSRCS += nsSystemFontsWin.cpp
+ OS_LIBS += $(call EXPAND_LIBNAME,usp10)
+diff --git a/gfx/src/thebes/nsSystemFontsUIKit.h b/gfx/src/nsSystemFontsUIKit.h
+rename from gfx/src/thebes/nsSystemFontsUIKit.h
+rename to gfx/src/nsSystemFontsUIKit.h
+diff --git a/gfx/src/thebes/nsSystemFontsUIKit.mm b/gfx/src/nsSystemFontsUIKit.mm
+rename from gfx/src/thebes/nsSystemFontsUIKit.mm
+rename to gfx/src/nsSystemFontsUIKit.mm
 diff --git a/gfx/thebes/gfxFont.cpp b/gfx/thebes/gfxFont.cpp
 --- a/gfx/thebes/gfxFont.cpp
 +++ b/gfx/thebes/gfxFont.cpp

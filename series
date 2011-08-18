@@ -61,3 +61,5 @@ skip-thumb2
 mozconfig-extra
 widget-layers-fix
 gfx-fix
+mozconfig-fix
+js-fixes
