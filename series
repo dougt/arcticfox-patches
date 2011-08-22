@@ -1,5 +1,3 @@
-js-cross-fixes
-js-iphone-arm
 mozconfig
 configure-xpcom-uikit
 uikit-locale
@@ -60,5 +58,4 @@ mozconfig-extra
 widget-layers-fix
 gfx-fix
 mozconfig-fix
-js-fixes
 mozconfig-ranlib
