@@ -52,8 +52,5 @@ extra-drawing-warnings
 fix-screen-offset
 nsprocess
 skip-thumb2
-mozconfig-extra
 widget-layers-fix
 gfx-fix
-mozconfig-fix
-mozconfig-ranlib
