@@ -47,11 +47,9 @@ canvaslayerogl
 layout-extra
 gfx-gl-uikit
 localfileunix
-iphone-wtf-jit
 exthandler-extra-types
 extra-drawing-warnings
 fix-screen-offset
-wtf-jit-allocator-iphone
 nsprocess
 skip-thumb2
 mozconfig-extra
