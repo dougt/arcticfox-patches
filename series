@@ -1,5 +1,4 @@
 mozconfig
-configure-xpcom-uikit
 uikit-locale
 skip-libreg-hack
 uikit-http-user-agent
