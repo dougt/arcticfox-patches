@@ -35,10 +35,8 @@ struct-stat64
 darwin-dlopen-glue
 ime-logging
 iphone_xptcall
-contentutils-finite
 exceptions-wtf
 pixman-arm-darwin
-canvas-finite
 nss-arm-darwin
 fix-packaging
 chrome-registry-extra
