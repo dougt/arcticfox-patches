@@ -31,13 +31,10 @@ browser-xul-hax
 nsappshell-hidden-window
 hardcode-dtd-content-type
 widget-uikit
-struct-stat64
-darwin-dlopen-glue
 ime-logging
 iphone_xptcall
 exceptions-wtf
 pixman-arm-darwin
-nss-arm-darwin
 fix-packaging
 chrome-registry-extra
 canvaslayerogl
